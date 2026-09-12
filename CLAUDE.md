@@ -77,6 +77,14 @@ Instruções de projeto para o Claude Code neste repositório.
 - **Rodar num monitor/tela em vez de imprimir a imagem-alvo deixa o
   rastreamento instável** (brilho/refresh da tela atrapalha o MindAR) —
   imagem impressa em papel funciona bem melhor.
+- **Padrão "companion"**: depois da primeira detecção, o modelo se
+  desgruda da página e passa a ficar fixo na câmera (`#companion-model`,
+  filho de `<a-camera>` em `aluno/js/ar.js`), pra o aluno poder andar
+  pela sala com o animal na tela sem manter o livro apontado. Isso é só
+  um objeto grudado na câmera — **não sabe onde está o chão, mesas ou
+  paredes de verdade** (isso exigiria WebXR/ARCore, que não existe no
+  Safari do iPhone). É uma limitação conhecida, não um bug pra corrigir
+  sem entrar em WebXR.
 
 ## Schema do `content/animals.json`
 
@@ -94,6 +102,15 @@ Instruções de projeto para o Claude Code neste repositório.
   exemplo (card do MindAR + `Fox.glb` do KhronosGroup) só para validar a
   pipeline — trocar pelos assets reais quando estiverem prontos (ver
   `ia/prompts/gerar-modelo-3d.md` e `ia/prompts/gerar-conteudo-animais.md`).
+- **Reconhecimento é por imagem pré-cadastrada, não por IA/classificação**
+  — o MindAR só compara contra a imagem exata que foi compilada no
+  `.mind`, não "entende" que é um leão. Isso importa pra qualquer "banco
+  de teste"/vitrine pros avaliadores: o `.mind` é **binário, não dá pra
+  exibir como imagem**. Se for feita uma tela onde o avaliador escolhe um
+  animal e vê a imagem-alvo pra apontar a câmera, `content/animals.json`
+  vai precisar de um campo novo com a **imagem-fonte original** de cada
+  alvo (a foto/página usada pra compilar o `.mind`), separado do
+  `targetSrc` compilado.
 
 ## Firebase Realtime Database — schema
 

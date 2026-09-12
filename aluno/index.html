@@ -6,6 +6,12 @@
   <title>Professor de RA — Aluno</title>
   <link rel="stylesheet" href="css/style.css" />
 
+  <!-- TEMPORÁRIO: console de debug visível no celular (sem cabo/PC), pra
+       diagnosticar o travamento no carregamento da câmera. Remover depois
+       de resolvido — botão flutuante no canto da tela abre o painel. -->
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
+
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
@@ -42,6 +48,7 @@
          a partir do target/model definidos em content/animals.json. -->
     <div id="ar-container"></div>
     <div id="ar-error" hidden></div>
+    <button id="reset-scan-btn" hidden>🔄 Escanear outro animal</button>
 
     <!-- Camada de "uso consciente": timer de modo aula, pausa e check-in de humor -->
     <div id="wellbeing-layer">
