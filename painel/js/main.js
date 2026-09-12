@@ -32,6 +32,12 @@ function isAstronomia(animal) {
   return animal.materia === "astronomia";
 }
 
+// Mesma ideia de isAstronomia(), só que pro card fixo de Física
+// (#buraco-negro-info) em vez do de Astronomia.
+function isFisica(animal) {
+  return animal.materia === "fisica";
+}
+
 function cardAnimalHtml(animal) {
   const imagemHtml = animal.imagem
     ? `<img src="${animal.imagem}" alt="" />`
@@ -51,7 +57,10 @@ function cardAnimalHtml(animal) {
 }
 
 function renderLista() {
-  listaEl.innerHTML = animals.filter((animal) => !isAstronomia(animal)).map(cardAnimalHtml).join("");
+  listaEl.innerHTML = animals
+    .filter((animal) => !isAstronomia(animal) && !isFisica(animal))
+    .map(cardAnimalHtml)
+    .join("");
 }
 
 // Acende/apaga o selo "🔴 Ativo agora" nos cards fixos de Astronomia
@@ -61,6 +70,16 @@ function atualizarBadgesAstronomia() {
   document.querySelectorAll(".astronomia-card[data-astronomia-id]").forEach((card) => {
     const badge = card.querySelector(".astronomia-card__badge");
     if (badge) badge.hidden = card.dataset.astronomiaId !== animalAtivoId;
+  });
+}
+
+// Mesma ideia de atualizarBadgesAstronomia(), pro card fixo de Física
+// (#buraco-negro-info) — atributo separado (data-fisica-id) de propósito,
+// pra não misturar com o seletor de Astronomia acima.
+function atualizarBadgesFisica() {
+  document.querySelectorAll(".astronomia-card[data-fisica-id]").forEach((card) => {
+    const badge = card.querySelector(".astronomia-card__badge");
+    if (badge) badge.hidden = card.dataset.fisicaId !== animalAtivoId;
   });
 }
 
@@ -144,20 +163,28 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") fecharImagemModal();
 });
 
-// Menu de matérias: só troca qual .conteudo-materia fica visível — cada
+// Menu de subtópico: só troca qual .conteudo-materia fica visível — cada
 // subtópico já tem seu conteúdo pronto no HTML (estático, como
 // astronomia) ou alimentado por um listener próprio (como animais).
+// Escopado por .conteudo-materia-grupo (uma matéria) de propósito: agora
+// que Física também tem um subtópico próprio (Buraco Negro), um seletor
+// global pegaria os `.subtopico-btn`/`.conteudo-materia` das duas
+// matérias juntos, e clicar num subtópico de Ciências esconderia por
+// engano o conteúdo de Física (mesmas classes CSS nas duas, sem esse
+// escopo).
 function initMateriasNav() {
-  const botoes = document.querySelectorAll(".subtopico-btn");
-  const conteudos = document.querySelectorAll(".conteudo-materia");
+  document.querySelectorAll(".conteudo-materia-grupo").forEach((grupo) => {
+    const botoes = grupo.querySelectorAll(".subtopico-btn");
+    const conteudos = grupo.querySelectorAll(".conteudo-materia");
 
-  botoes.forEach((botao) => {
-    botao.addEventListener("click", () => {
-      const subtopico = botao.dataset.subtopico;
+    botoes.forEach((botao) => {
+      botao.addEventListener("click", () => {
+        const subtopico = botao.dataset.subtopico;
 
-      botoes.forEach((b) => b.classList.toggle("subtopico-btn--active", b === botao));
-      conteudos.forEach((conteudo) => {
-        conteudo.hidden = conteudo.dataset.conteudo !== subtopico;
+        botoes.forEach((b) => b.classList.toggle("subtopico-btn--active", b === botao));
+        conteudos.forEach((conteudo) => {
+          conteudo.hidden = conteudo.dataset.conteudo !== subtopico;
+        });
       });
     });
   });
@@ -219,22 +246,25 @@ export async function startApp() {
   renderLista();
   renderDetalhe(null);
   atualizarBadgesAstronomia();
+  atualizarBadgesFisica();
 
   onValue(ref(db, DB_PATHS.activeAnimal), (snapshot) => {
     animalAtivoId = snapshot.val();
-    const ativoEhAstronomia = animalAtivoId && isAstronomia(animalsById.get(animalAtivoId));
+    const animalAtivo = animalAtivoId ? animalsById.get(animalAtivoId) : null;
+    const ativoTemAbaPropria = animalAtivo && (isAstronomia(animalAtivo) || isFisica(animalAtivo));
 
     // Só avança a seleção da aba Animais quando o ativo é de fato um
-    // animal — astronomia tem seu próprio indicador (badge nos cards
-    // fixos), não deve "roubar" o painel de detalhe dos animais nem
-    // aparecer lá. Se o aluno soltar a captura (activeAnimal vira null),
-    // o painel continua mostrando o último animal em vez de voltar pro
-    // placeholder vazio.
-    if (animalAtivoId && !ativoEhAstronomia) {
+    // animal — astronomia/física têm seu próprio indicador (badge nos
+    // cards fixos), não devem "roubar" o painel de detalhe dos animais
+    // nem aparecer lá. Se o aluno soltar a captura (activeAnimal vira
+    // null), o painel continua mostrando o último animal em vez de
+    // voltar pro placeholder vazio.
+    if (animalAtivoId && !ativoTemAbaPropria) {
       animalSelecionadoId = animalAtivoId;
     }
     renderLista();
     renderDetalhe(animalSelecionadoId);
     atualizarBadgesAstronomia();
+    atualizarBadgesFisica();
   });
 }

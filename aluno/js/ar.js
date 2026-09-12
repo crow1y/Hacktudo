@@ -35,9 +35,12 @@ import { DB_PATHS } from "../../shared/constants.js";
 // Animais com model ainda "TODO" (placeholder) são ignorados na cena AR —
 // senão o <a-assets> tenta carregar um arquivo inexistente e atrasa a
 // inicialização da cena inteira. Continuam em content/animals.json
-// normalmente, só não viram alvo até o asset real existir.
+// normalmente, só não viram alvo até o asset real existir. Mesma lógica
+// pra targetIndex: null — modelo/imagem já prontos, mas o .mind
+// compartilhado ainda não foi recompilado com o alvo dessa entrada (ver
+// "buraco-negro" em content/animals.json pro caso real disso hoje).
 function isAssetReady(animal) {
-  return !animal.model.includes("TODO");
+  return !animal.model.includes("TODO") && animal.targetIndex !== null;
 }
 
 // Sempre busca de novo em vez de guardar uma referência fixa — o

@@ -53,16 +53,22 @@ precisa ser aprovada por um administrador do sistema antes de poder ser
 usada — ver avisos abaixo). A tela do professor (pensada pra ficar
 aberta no computador ligado ao projetor da sala) mostra um **menu de
 matérias**: Ciências (com conteúdo real, dois assuntos — **Animais** e
-**Astronomia**), mais Gramática, Geografia, História, Artes, Física e
-Química (ainda sem conteúdo, mostram um aviso de "em breve"). Dentro de
-Astronomia tem dois modelos giratórios lado a lado na tela do professor:
-uma réplica mecânica do sistema solar (um "orrery", mostrando a órbita
-relativa de cada planeta) e um sistema solar com texturas realistas do
-Sol, planetas e a Lua — os dois também escaneáveis pelo aluno no
-celular, exatamente como os animais (ver abaixo), incluindo o modo de
-"Fixar no chão"; o sistema solar realista tem uma variação: em vez de
-ficar em pé no chão, fica flutuando no ar numa altura que o próprio
-aluno ajusta com dois botões, já que representa o espaço, não um bicho.
+**Astronomia**) e Física (um assunto — **Buraco Negro**), mais Gramática,
+Geografia, História, Artes e Química (ainda sem conteúdo, mostram um
+aviso de "em breve"). Dentro de Astronomia tem dois modelos giratórios
+lado a lado na tela do professor: uma réplica mecânica do sistema solar
+(um "orrery", mostrando a órbita relativa de cada planeta) e um sistema
+solar com texturas realistas do Sol, planetas e a Lua — os dois também
+escaneáveis pelo aluno no celular, exatamente como os animais (ver
+abaixo), incluindo o modo de "Fixar no chão"; o sistema solar realista
+tem uma variação: em vez de ficar em pé no chão, fica flutuando no ar
+numa altura que o próprio aluno ajusta com dois botões, já que
+representa o espaço, não um bicho. Física mostra um modelo giratório de
+um buraco negro, junto com a mesma foto real usada pelo Event Horizon
+Telescope pra tirar a primeira foto de um buraco negro da história — o
+card já está pronto, mas ainda não é escaneável pelo aluno (falta
+recompilar o arquivo de reconhecimento de imagem, ver pendências
+abaixo).
 
 Dentro de Animais, cada bicho é um **link com foto** numa lista. Clicando
 num deles, aparece uma ficha completa (nome científico, classificação,
@@ -95,8 +101,9 @@ projetar a mesma imagem pra turma escanear.
 - Cadastro/login por matrícula e senha, com aprovação de professor por
   um administrador.
 - Painel do professor com o menu de matérias, a lista de animais (foto +
-  ficha completa) atualizando em tempo real, e Astronomia com dois
-  modelos 3D giratórios (orrery mecânico + sistema solar realista).
+  ficha completa) atualizando em tempo real, Astronomia com dois
+  modelos 3D giratórios (orrery mecânico + sistema solar realista), e
+  Física com o card do buraco negro (giratório + foto real + ficha).
 - Página inicial de apresentação do projeto (a que você provavelmente
   está vendo agora, se não estiver direto no app).
 
@@ -113,9 +120,12 @@ projetar a mesma imagem pra turma escanear.
   exemplo, mas foto e conteúdo educativo reais), elefante e leão (modelo,
   imagem e ficha próprios) — a base do sistema já entende vários animais
   ao mesmo tempo, só falta completar o conteúdo de mais espécies.
-- Gramática, Geografia, História, Artes, Física e Química já existem
-  como abas no painel do professor, mas ainda sem conteúdo (aviso de
-  "em breve").
+- Gramática, Geografia, História, Artes e Química já existem como abas
+  no painel do professor, mas ainda sem conteúdo (aviso de "em breve").
+- Física tem conteúdo real (Buraco Negro: modelo, foto e ficha), mas
+  ainda não é reconhecido pela câmera do aluno — falta recompilar o
+  arquivo de reconhecimento de imagem incluindo essa foto (ver
+  pendências abaixo). O card já aparece completo no painel.
 - Algumas ilustrações da página inicial (ícones do carrossel) ainda são
   espaços reservados, sem arte final.
 - Sem patrocínio confirmado ainda — em vez de logos placeholder, a seção
@@ -377,6 +387,18 @@ nunca assumir que a matrícula em si é a chave.
 - [ ] Escolher/gerar as imagens-alvo a partir das páginas reais do livro
       didático (hoje raposa, elefante e leão usam fotos de banco de
       imagem — nenhuma delas é uma página de livro de verdade ainda).
+- [ ] Buraco Negro (Física): modelo 3D ("Black hole" da extinta Google
+      Poly, CC BY 3.0, baixado direto de static.poly.pizza sem precisar
+      de login — o modelo pedido originalmente, do Sketchfab, exige login
+      pra baixar mesmo sendo CC BY 4.0 gratuito) + foto real (Event
+      Horizon Telescope, primeira foto de um buraco negro já tirada, CC
+      BY 4.0) + ficha completa já prontos em `content/animals.json`
+      (`materia: "fisica"`). **Falta só recompilar
+      `aluno/assets/targets/targets.mind`** incluindo essa foto como 6ª
+      imagem, junto com as 5 já compiladas (ver
+      `_comment_targetIndexPendente` na entrada `buraco-negro` do JSON
+      pra ordem exata) — até lá o card aparece completo no painel, mas
+      não é reconhecido pela câmera do aluno (`targetIndex: null`).
 
 **Segurança antes de uso real em sala de aula:**
 - [ ] Trocar `ADMIN_ACCESS_CODE` (`shared/constants.js`) pelo valor real —

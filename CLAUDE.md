@@ -388,6 +388,21 @@ linguagem que exclua quem não é criança pequena.
   cai no modo "só toca um clipe parado"). Sem isso, toca `animations[0]`
   do arquivo, que pode não ser o clipe mais ilustrativo (ex: o orrery tem
   2 órbitas diferentes disponíveis).
+- `materia` (opcional, string): omitido = aparece na lista de Animais do
+  painel/, ouvindo `DB_PATHS.activeAnimal` normalmente. `"astronomia"` ou
+  `"fisica"` tiram a entrada dessa lista e fazem `painel/js/main.js`
+  acender o selo "🔴 Ativo agora" no card fixo certo (`isAstronomia()`/
+  `isFisica()`, `atualizarBadgesAstronomia()`/`atualizarBadgesFisica()`)
+  em vez disso — mesmo pipeline de reconhecimento nos três casos, só
+  muda pra qual aba do painel o "ativo agora" aponta. Ver "Menu de
+  matérias do painel" abaixo pro card em si.
+- `targetIndex: null` (em vez de um número): modelo/imagem já existem,
+  mas o `.mind` compartilhado ainda **não foi recompilado** com o alvo
+  dessa entrada — `isAssetReady()` em `aluno/js/ar.js` exclui esses itens
+  da cena de RA até `targetIndex` virar um número real (o card ainda
+  aparece completo no painel/ mesmo assim, já que o painel não exige
+  `targetIndex` pronto pra mostrar nada). Ver `buraco-negro` como
+  exemplo real disso hoje.
 - **Reconhecimento é por imagem pré-cadastrada, não por IA/classificação**
   — o MindAR só compara contra a imagem exata que foi compilada no
   `.mind`, não "entende" que é um leão. Isso importa pra qualquer "banco
@@ -498,11 +513,16 @@ Dois níveis de navegação em `painel/index.html`, os dois 100% client-side
 - **Nível subtópico** (`initMateriasNav()`, função separada de propósito
   — não confundir com a de cima): botões `.subtopico-btn`
   (`data-subtopico="..."`) mostram/escondem seções `.conteudo-materia`
-  (`data-conteudo="..."`), só **dentro** do grupo de uma matéria. Hoje só
-  Ciências tem: **Animais** (`#animal-info`, conteúdo real, escuta
+  (`data-conteudo="..."`), escopado **por `.conteudo-materia-grupo`** (uma
+  matéria) — cada matéria tem seu próprio conjunto isolado de subtópicos;
+  sem esse escopo, um clique num subtópico de Ciências esconderia por
+  engano o conteúdo de Física (mesmas classes CSS nas duas). Hoje:
+  Ciências tem **Animais** (`#animal-info`, conteúdo real, escuta
   `DB_PATHS.activeAnimal`) e **Astronomia** (`#astronomia-info`, dois
-  modelos 3D lado a lado — ver abaixo). As outras seis matérias ainda não
-  têm subtópico nenhum — são só um placeholder "Em breve teremos mais
+  modelos 3D lado a lado — ver abaixo); Física tem **Buraco Negro**
+  (`#buraco-negro-info`, um card fixo, mesmo padrão de Astronomia — ver
+  abaixo). Gramática, Geografia, História, Artes e Química ainda não têm
+  subtópico nenhum — são só um placeholder "Em breve teremos mais
   conteúdo para apresentar" dentro de `[data-materia-conteudo="..."]`.
 
   **Astronomia** tem os dois lados do projeto ao mesmo tempo: passa pelo
@@ -546,16 +566,45 @@ Dois níveis de navegação em `painel/index.html`, os dois 100% client-side
     bug (precisão de shader no cálculo de skin) não pode ocorrer de jeito
     nenhum, então não há o que sinalizar.
 
+**Buraco Negro** (`#buraco-negro-info`, dentro de Física) segue o mesmo
+padrão de card fixo de Astronomia acima — reaproveita literalmente as
+mesmas classes (`.astronomia-layout`/`.astronomia-card`/
+`.astronomia-card__badge`/`.astronomia-card__legenda`), só com atributo
+`data-fisica-id` em vez de `data-astronomia-id` (pra não colidir com o
+seletor de `atualizarBadgesAstronomia()`) e sua própria
+`atualizarBadgesFisica()`. **Ainda sem RA de verdade**: pedido
+originalmente com um modelo do Sketchfab
+(https://sketchfab.com/3d-models/black-hole-76413750f9034c859fcb3aad585f3409,
+CC BY 4.0), mas o download de lá **exige login mesmo em modelos
+gratuitos** (confirmado via API: `GET /v3/models/<uid>/download` sem
+auth retorna 401) — trocado por um modelo equivalente e igualmente livre
+("Black hole" da extinta Google Poly, CC BY 3.0, baixado direto de
+`static.poly.pizza` sem precisar de conta nenhuma:
+https://poly.pizza/m/bUEMVxbw9Zr). Passou limpo em `npm run check-model`
+(1.572 triângulos, sem esqueleto). `targetIndex: null` no JSON (ver
+"Schema do `content/animals.json`" acima) — falta só recompilar
+`aluno/assets/targets/targets.mind` incluindo `assets/img/buraco-negro.jpg`
+(a foto real do Event Horizon Telescope, primeira foto de um buraco
+negro já tirada, CC BY 4.0) como a 6ª imagem, na mesma ordem das 5 já
+compiladas. **Tentei automatizar a compilação rodando o `OfflineCompiler`
+do próprio pacote npm `mind-ar` em Node** (existe, usa `canvas` pra
+funcionar sem navegador) — mas o `canvas` é um addon nativo que falhou
+ao compilar nesta máquina Windows (sem toolchain de build da
+Microsoft/Python); não valeu a pena instalar isso só pra esse fim, mais
+rápido usar a ferramenta web mesmo quando alguém for recompilar.
+
 Pra adicionar:
 - **Matéria nova** (sem conteúdo ainda): um botão `.materia-btn` em
   `.materias-nav` + uma `<section class="card conteudo-materia-grupo"
   data-materia-conteudo="...">` com o placeholder — mesmo valor nos dois
   `data-materia`/`data-materia-conteudo`. Não precisa mexer em JS.
 - **Subtópico dentro de uma matéria** (como Animais/Astronomia em
-  Ciências): um botão `.subtopico-btn` + uma seção `.conteudo-materia`
-  com o mesmo valor em `data-subtopico`/`data-conteudo`, dentro do
-  `[data-materia-conteudo]` daquela matéria. Se o conteúdo for estático,
-  também não precisa mexer em JS.
+  Ciências, ou Buraco Negro em Física): um botão `.subtopico-btn` + uma
+  seção `.conteudo-materia` com o mesmo valor em
+  `data-subtopico`/`data-conteudo`, dentro do `.conteudo-materia-grupo`
+  daquela matéria (por causa do escopo do `initMateriasNav()` acima, não
+  precisa se preocupar com colisão de nomes entre matérias diferentes).
+  Se o conteúdo for estático, também não precisa mexer em JS.
 
 ⚠️ Ao esconder/mostrar uma seção nova assim, cuidado pra nunca dar
 `display` (flex/grid/etc.) numa classe que também leva `hidden` sem a
