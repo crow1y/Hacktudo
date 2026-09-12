@@ -46,27 +46,27 @@
       }
     },
     {
-      "_comment": "Segundo animal com pipeline de RA completa: modelo animado (5 clipes originais — Idle/Walk/Run/Eating/Death —, renomeados à mão pra Survey/Walk/Run pra bater com o que aluno/js/webxr-mode.js procura; Eating/Death mantidos sem uso, candidatos a 'ações extras' se essa feature for implementada depois — ver aluno/assets/models/girafa.glb, CC Attribution, by planeta-elefante via Sketchfab) e alvo real compilado junto com o da raposa (targetIndex 1). alturaRealMetros real é 5,5m, mas MAX_HEIGHT_METERS (webxr-mode.js) trava em 2m no modo 'Fixar no chão' — ainda assim bem maior que a raposa (0,4m), suficiente pra mostrar a diferença de escala.",
-      "id": "girafa",
-      "nome": "Girafa",
+      "_comment": "Segundo animal com pipeline de RA completa: modelo animado, trocado nesta sessão (a girafa anterior tinha uma hierarquia de ossos com fatores de escala muito desproporcionais entre si, que causava travamento intermitente do Chrome no modo WebXR — ver CLAUDE.md; NÃO era o tamanho do arquivo, esse elefante inclusive é mais pesado e passou limpo em npm run check-model). Modelo com 28 clipes de animação originais (attack/death/eating/sleep/idle/walk/run/etc, nomeados 'TRS|<nome>'); só 3 foram renomeados à mão pra bater com o que aluno/js/webxr-mode.js procura (TRS|idle→Survey, TRS|walk→Walk, TRS|run→Run) — os outros 25 ficam sem uso, candidatos a 'ações extras' se essa feature for implementada depois (ver aluno/assets/models/elefante.glb, CC Attribution 4.0, by Rukh3D via Sketchfab). Alvo real compilado junto com o da raposa (targetIndex 1) — ⚠️ esse targetIndex ainda aponta pra a foto-fonte que foi compilada quando o segundo animal era a girafa; escanear a imagem impressa antiga continua funcionando tecnicamente (o MindAR só reconhece a imagem, não sabe que é uma girafa), mas pra ficar coerente com o conteúdo/nome novo, vale recompilar targets.mind com uma foto de elefante nessa posição quando der. alturaRealMetros real é 3,2m, mas MAX_HEIGHT_METERS (webxr-mode.js) trava em 2m no modo 'Fixar no chão' — ainda maior que a raposa (0,4m).",
+      "id": "elefante",
+      "nome": "Elefante",
       "targetIndex": 1,
-      "model": "/aluno/assets/models/girafa.glb",
-      "alturaRealMetros": 5.5,
-      "imagem": "/assets/img/girafa.jpg",
-      "_comment_imagemCredito": "Foto: Miroslav Duchacek, CC BY-SA 3.0 (Wikimedia Commons) — https://commons.wikimedia.org/wiki/File:Giraffe_standing.jpg",
+      "model": "/aluno/assets/models/elefante.glb",
+      "alturaRealMetros": 3.2,
+      "imagem": "/assets/img/elefante.jpg",
+      "_comment_imagemCredito": "Foto: Giles Laurent, CC BY-SA 4.0 (Wikimedia Commons, foto destacada) — https://commons.wikimedia.org/wiki/File:178_Male_African_bush_elephant_in_Etosha_National_Park_Photo_by_Giles_Laurent.jpg",
       "info": {
-        "nomeCientifico": "Giraffa camelopardalis",
-        "classificacao": "Mamífero, o maior ruminante do mundo (família Giraffidae)",
-        "habitat": "Savanas e florestas abertas da África, ao sul do Saara.",
-        "alimentacao": "Herbívora: come principalmente folhas de acácia, usando a língua — que chega a 45-50 cm — pra driblar os espinhos da árvore.",
-        "tamanho": "Até 5,5 m de altura (o animal terrestre mais alto do mundo) e quase 2.000 kg.",
-        "tempoDeVida": "Entre 20 e 25 anos na natureza.",
-        "comportamento": "Vive em grupos soltos e dorme muito pouco — só entre 30 minutos e 2 horas por dia, quase sempre em pé.",
+        "nomeCientifico": "Loxodonta africana",
+        "classificacao": "Mamífero, o maior animal terrestre vivo (família Elephantidae)",
+        "habitat": "Savanas, florestas e áreas semiáridas da África, ao sul do Saara.",
+        "alimentacao": "Herbívoro: come até 150 kg de folhas, cascas, frutas e gramíneas por dia, usando a tromba pra arrancar a comida e levar até a boca.",
+        "tamanho": "Até 4 m de altura no ombro e mais de 6.000 kg — o maior mamífero terrestre do planeta.",
+        "tempoDeVida": "Entre 60 e 70 anos na natureza, uma das maiores expectativas de vida entre os mamíferos.",
+        "comportamento": "Vive em grupos matriarcais liderados pela fêmea mais velha, com laços familiares fortes — reconhece parentes e amigos mesmo depois de anos separados.",
         "curiosidades": [
-          "Cada girafa tem um padrão de manchas único, como uma impressão digital.",
-          "Apesar do pescoço gigante, tem só 7 vértebras cervicais — o mesmo número que um ser humano, só que bem maiores.",
-          "Mesmo sendo enorme, consegue correr até 60 km/h em curtas distâncias.",
-          "Os filhotes já nascem com quase 2 metros de altura e caem no chão ao nascer — a queda ajuda a romper o cordão umbilical."
+          "A tromba tem mais de 40.000 músculos e serve pra respirar, cheirar, beber, pegar objetos e até se comunicar.",
+          "As orelhas grandes ajudam a perder calor e resfriar o corpo no calor da savana.",
+          "Elefantes se comunicam por infrassom — sons graves demais pro ouvido humano — que viajam vários quilômetros.",
+          "As presas são dentes incisivos que crescem a vida toda."
         ]
       }
     }

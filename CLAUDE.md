@@ -167,6 +167,11 @@ linguagem que exclua quem não é criança pequena.
   que a checagem funciona antes de confiar num modelo novo. **Não é
   garantia de que o modelo vai funcionar** (só reduz o risco desse tipo
   específico de bug), e não substitui testar de verdade no celular.
+  A girafa em si foi **removida do projeto** depois (trocada por um
+  elefante, `aluno/assets/models/elefante.glb`, que passou limpo nessa
+  checagem) — os gotchas abaixo que mencionam ela ficam só como registro
+  histórico de como o problema foi encontrado e corrigido, não descrevem
+  mais o estado atual do repositório.
 - **MindAR emite evento `arError`** com `{error: "VIDEO_FAIL"}` no
   `<a-scene>` quando a câmera falha — é assim que `aluno/js/ar.js` mostra
   a mensagem em português em `#ar-error`, em vez da tela de erro padrão

@@ -71,11 +71,13 @@ projetar a mesma imagem pra turma escanear.
 
 **Já funciona, testado em celular de verdade:**
 - Reconhecer a imagem do livro e mostrar o bicho animado na tela — hoje
-  com **dois animais reais simultâneos**: raposa e girafa (ver abaixo).
-- O modo avançado de "plantar" o bicho no chão em tamanho real. A raposa
-  anda sozinha, aceita controle manual e o botão de pausa; a girafa fica
-  parada no lugar (o modelo 3D dela não tem animação), mas já mostra bem
-  a diferença de tamanho real entre os dois.
+  com **dois animais reais simultâneos**: raposa e elefante (ver abaixo).
+- O modo avançado de "plantar" o bicho no chão em tamanho real. Os dois
+  andam sozinhos, aceitam controle manual e o botão de pausa — o
+  elefante em especial vem de um modelo com 28 clipes de animação
+  originais (só 3 usados hoje: parado/andar/correr; os outros 25, tipo
+  comer/dormir/atacar, são candidatos a uma futura feature de "ações
+  extras"). Também mostra bem a diferença de tamanho real entre os dois.
 - Cadastro/login por matrícula e senha, com aprovação de professor por
   um administrador.
 - Painel do professor com o menu de matérias e a lista de animais (foto
@@ -85,8 +87,8 @@ projetar a mesma imagem pra turma escanear.
 
 **Ainda em construção:**
 - **Só dois animais têm conteúdo/RA completos hoje**: raposa (modelo 3D
-  de exemplo, mas foto e conteúdo educativo reais) e girafa (modelo e
-  imagem próprios, escolhidos justamente pelo tamanho grande). O leão já
+  de exemplo, mas foto e conteúdo educativo reais) e elefante (modelo e
+  imagem próprios, escolhido justamente pelo tamanho grande). O leão já
   tem texto escrito em `content/animals.json`, mas ainda falta o modelo
   3D e a foto real da página do livro pra ele aparecer na câmera — a
   base do sistema já entende vários animais ao mesmo tempo, só falta
@@ -251,8 +253,8 @@ depois em Project Settings → Domains.
   os que já existem, re-suba as imagens-fonte de todos os animais já
   prontos (nas mesmas posições) junto com a nova, e recompile.
 - Cada animal tem `targetIndex` (posição dele dentro desse `.mind`
-  compartilhado) em vez de um target próprio. Hoje: raposa = 0, girafa =
-  1, leão = 2 (placeholder, ainda não compilado).
+  compartilhado) em vez de um target próprio. Hoje: raposa = 0, elefante
+  = 1, leão = 2 (placeholder, ainda não compilado).
 - `aluno/js/ar.js` filtra (`isAssetReady`) animais cujo `model` ainda
   contém `"TODO"` — eles ficam no JSON normalmente, só não viram alvo de
   AR até o asset real existir (evita travar tentando carregar um arquivo
@@ -275,9 +277,9 @@ depois em Project Settings → Domains.
   pro raio de segurança do andar sozinho (respeitando o teto
   `MAX_HEIGHT_METERS = 2`). Não afeta o modo MindAR normal.
 - Hoje existem dois animais com pipeline de RA completa (`teste-pipeline`
-  = raposa, `Fox.glb` do KhronosGroup; `girafa`, modelo CC BY 3.0 via
-  poly.pizza) e um só com conteúdo escrito, ainda sem RA (`exemplo-leao`)
-  — ver `ia/prompts/gerar-modelo-3d.md` e
+  = raposa, `Fox.glb` do KhronosGroup; `elefante`, modelo CC Attribution
+  via Sketchfab) e um só com conteúdo escrito, ainda sem RA
+  (`exemplo-leao`) — ver `ia/prompts/gerar-modelo-3d.md` e
   `ia/prompts/gerar-conteudo-animais.md` pra completar os que faltam.
 - **Antes de adicionar um modelo animado novo**, rodar
   `npm run check-model -- caminho/do/modelo.glb` — checa se a hierarquia
@@ -285,13 +287,17 @@ depois em Project Settings → Domains.
   de problema, não o tamanho do arquivo, que já causou um travamento
   intermitente real no modo WebXR — ver CLAUDE.md). Não substitui testar
   no celular, só reduz o risco antes de investir tempo integrando.
-- `assets/img/raposa.jpg` e `assets/img/girafa.jpg` cumprem dois papéis
-  ao mesmo tempo: são a foto ilustrativa exibida no `painel/` **e** a
-  imagem de verdade que a câmera precisa reconhecer pra ativar cada
-  animal (compiladas nessas mesmas fotos, nessa ordem, dentro de
-  `targets.mind`). Antes a raposa usava o cartão de exemplo genérico do
-  MindAR — foi trocado pela foto real dela pra ficar consistente com a
-  girafa e mais claro do que apontar a câmera.
+- `assets/img/raposa.jpg` cumpre dois papéis ao mesmo tempo: é a foto
+  ilustrativa exibida no `painel/` **e** a imagem de verdade que a
+  câmera precisa reconhecer pra ativar o animal (compilada nessa mesma
+  foto dentro de `targets.mind`). **`assets/img/elefante.jpg` ainda não
+  é assim** — é só a foto ilustrativa nova; a imagem-alvo compilada no
+  `targetIndex 1` continua sendo a foto antiga (de quando esse slot era
+  a girafa). Funciona tecnicamente (o MindAR só reconhece a imagem, não
+  sabe que "deveria" ser um elefante), mas fica incoerente pra quem for
+  escanear com a imagem impressa antiga esperando ver uma girafa — vale
+  recompilar `targets.mind` com uma foto de elefante nessa posição antes
+  de qualquer demonstração real.
 
 ### Firebase Realtime Database — schema
 
@@ -318,24 +324,31 @@ nunca assumir que a matrícula em si é a chave.
 
 **Conteúdo (bloqueador pra uso real):**
 - [x] Testar múltiplos animais simultâneos de verdade — raposa
-      (targetIndex 0) e girafa (targetIndex 1) compiladas juntas no
+      (targetIndex 0) e elefante (targetIndex 1) compiladas juntas no
       mesmo `.mind`, confirmado funcionando.
 - [x] Raposa: conteúdo educativo real (ficha completa) + foto real,
       substituindo o texto de "modelo de teste".
-- [x] Girafa: modelo 3D animado, com Survey/Walk/Run próprios (CC
-      Attribution, Sketchfab) + foto real (CC BY-SA 3.0, Wikimedia) +
-      alvo compilado + ficha completa — adicionada especificamente pra
-      mostrar escala grande (contraste com a raposa). Andar sozinho,
-      correr e analógico já funcionam igual a raposa. O modelo original
-      também tem clipes "Eating"/"Death" (mantidos sem uso no arquivo,
-      não renomeados) — dá pra aproveitar depois se a ideia de "ações
-      extras aleatórias" durante as pausas for implementada.
+- [x] Elefante: modelo 3D animado, com Survey/Walk/Run renomeados a
+      partir de 3 dos 28 clipes originais (CC Attribution, Sketchfab) +
+      foto real (CC BY-SA 4.0, Wikimedia) + ficha completa — substitui a
+      girafa (removida: a hierarquia de ossos dela tinha fatores de
+      escala muito desproporcionais entre si, causando travamento
+      intermitente no WebXR — ver CLAUDE.md; validado com
+      `npm run check-model` antes de integrar). Andar sozinho, correr e
+      analógico já funcionam igual a raposa. Os outros 25 clipes originais
+      (attack/eating/sleep/death/etc, mantidos sem uso no arquivo) são
+      candidatos a uma futura feature de "ações extras aleatórias"
+      durante as pausas.
+- [ ] Recompilar `targets.mind` com uma foto de elefante no
+      `targetIndex 1` — hoje esse slot ainda usa a foto-fonte antiga (da
+      época da girafa); funciona tecnicamente, mas fica incoerente pra
+      quem escanear a imagem impressa esperando ver o bicho certo.
 - [ ] Leão: já tem ficha de conteúdo escrita, falta modelo 3D (ver
       `ia/prompts/gerar-modelo-3d.md` — Quaternius/poly.pizza é uma boa
       fonte de modelos animados e gratuitos) e foto real da página do
       livro pra compilar no `targetSrc` (posição 2).
 - [ ] Escolher/gerar as imagens-alvo a partir das páginas reais do livro
-      didático (hoje raposa e girafa usam fotos de banco de imagem —
+      didático (hoje raposa e elefante usam fotos de banco de imagem —
       nenhuma das duas é uma página de livro de verdade ainda).
 
 **Segurança antes de uso real em sala de aula:**
