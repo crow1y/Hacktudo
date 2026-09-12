@@ -103,15 +103,17 @@
 
         <section id="astronomia-info" class="conteudo-materia" data-conteudo="astronomia" hidden>
           <div class="astronomia-layout">
-            <div class="card astronomia-card">
-              <h2>Modelo mecânico (Orrery)</h2>
+            <div class="card astronomia-card" data-astronomia-id="orrery">
+              <h2>Modelo mecânico (Orrery)
+                <span class="astronomia-card__badge" hidden>🔴 Ativo agora</span></h2>
               <p class="astronomia-card__legenda">Réplica de um instrumento antigo que mostra a
                 órbita de cada planeta ao redor do Sol e a distância relativa entre eles.</p>
               <model-viewer src="/aluno/assets/models/orrery.glb" alt="Orrery: modelo mecânico do sistema solar"
                 camera-controls auto-rotate autoplay animation-name="Earth 1 Min Orbit"></model-viewer>
             </div>
-            <div class="card astronomia-card">
-              <h2>Sistema Solar Realista</h2>
+            <div class="card astronomia-card" data-astronomia-id="sistema-solar">
+              <h2>Sistema Solar Realista
+                <span class="astronomia-card__badge" hidden>🔴 Ativo agora</span></h2>
               <p class="astronomia-card__legenda">Sol, planetas e a Lua em órbita, com anéis
                 mostrando o caminho de cada um ao redor do Sol.</p>
               <model-viewer src="/aluno/assets/models/sistema-solar-realista.glb" alt="Sistema solar com o Sol, planetas e a Lua em órbita"

@@ -22,6 +22,16 @@ async function loadAnimals() {
   animalsById = new Map(animals.map((animal) => [animal.id, animal]));
 }
 
+// Conteúdo de Astronomia (orrery, sistema solar) vem do mesmo
+// content/animals.json e do mesmo DB_PATHS.activeAnimal que os animais
+// de verdade — só o campo "materia" diferencia. A lista/detalhe de
+// "Animais" só mostra quem não é astronomia; astronomia tem seu próprio
+// jeito de indicar "ativo agora" (ver atualizarBadgesAstronomia), porque
+// já são cards fixos com <model-viewer>, não uma lista.
+function isAstronomia(animal) {
+  return animal.materia === "astronomia";
+}
+
 function cardAnimalHtml(animal) {
   const imagemHtml = animal.imagem
     ? `<img src="${animal.imagem}" alt="" />`
@@ -41,7 +51,17 @@ function cardAnimalHtml(animal) {
 }
 
 function renderLista() {
-  listaEl.innerHTML = animals.map(cardAnimalHtml).join("");
+  listaEl.innerHTML = animals.filter((animal) => !isAstronomia(animal)).map(cardAnimalHtml).join("");
+}
+
+// Acende/apaga o selo "🔴 Ativo agora" nos cards fixos de Astronomia
+// (painel/index.html, #astronomia-info) — equivalente ao badge da lista
+// de Animais, mas sem lista nenhuma pra re-renderizar.
+function atualizarBadgesAstronomia() {
+  document.querySelectorAll(".astronomia-card[data-astronomia-id]").forEach((card) => {
+    const badge = card.querySelector(".astronomia-card__badge");
+    if (badge) badge.hidden = card.dataset.astronomiaId !== animalAtivoId;
+  });
 }
 
 function fichaItemHtml(rotulo, valor) {
@@ -195,16 +215,23 @@ export async function startApp() {
   await loadAnimals();
   renderLista();
   renderDetalhe(null);
+  atualizarBadgesAstronomia();
 
   onValue(ref(db, DB_PATHS.activeAnimal), (snapshot) => {
     animalAtivoId = snapshot.val();
-    // Só avança a seleção quando tem um animal ativo de verdade — se o
-    // aluno soltar a captura (activeAnimal vira null), o painel continua
-    // mostrando o último animal em vez de voltar pro placeholder vazio.
-    if (animalAtivoId) {
+    const ativoEhAstronomia = animalAtivoId && isAstronomia(animalsById.get(animalAtivoId));
+
+    // Só avança a seleção da aba Animais quando o ativo é de fato um
+    // animal — astronomia tem seu próprio indicador (badge nos cards
+    // fixos), não deve "roubar" o painel de detalhe dos animais nem
+    // aparecer lá. Se o aluno soltar a captura (activeAnimal vira null),
+    // o painel continua mostrando o último animal em vez de voltar pro
+    // placeholder vazio.
+    if (animalAtivoId && !ativoEhAstronomia) {
       animalSelecionadoId = animalAtivoId;
     }
     renderLista();
     renderDetalhe(animalSelecionadoId);
+    atualizarBadgesAstronomia();
   });
 }

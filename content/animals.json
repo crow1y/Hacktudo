@@ -3,6 +3,7 @@
   "_comment_targetSrc": "Todas as imagens-alvo precisam ser compiladas JUNTAS num único arquivo .mind (ferramenta oficial: https://hiukim.github.io/mind-ar-js-doc/tools/compile), salvo em aluno/assets/targets/targets.mind. A ordem em que você sobe as imagens na hora de compilar define o índice (0, 1, 2...) — esse índice é o 'targetIndex' de cada animal abaixo. Pra adicionar um novo alvo real sem quebrar os que já existem, sempre re-suba as imagens-fonte de todos os animais já prontos (nas mesmas posições) junto com a nova, e recompile — os índices não são cumulativos entre compilações separadas.",
   "_comment_alturaRealMetros": "Altura real do animal em pé, em metros — usada só no modo WebXR (aluno/js/webxr-mode.js) pra plantar o modelo em escala real no chão (com um teto de segurança MAX_HEIGHT_METERS pra não estourar o teto da sala) e pro raio de segurança do andar sozinho. Não afeta o modo MindAR normal.",
   "_comment_imagem": "Foto ilustrativa do animal (não é a imagem-alvo de RA, que é binária dentro do .mind e não dá pra exibir) — usada nos cards do painel/. Caminho relativo à raiz do site.",
+  "_comment_materia": "Opcional — omitido (ou qualquer valor diferente de 'astronomia') = aparece na lista de Animais do painel/, ouvindo DB_PATHS.activeAnimal normalmente. 'astronomia' tira a entrada dessa lista e faz o painel/js/main.js acender o selo '🔴 Ativo agora' no card correspondente dentro da aba Astronomia em vez disso (ver painel/index.html, #astronomia-info) — mesmo pipeline de reconhecimento (targetIndex/RA/WebXR), só muda pra qual aba do painel o 'ativo agora' aponta.",
   "targetSrc": "/aluno/assets/targets/targets.mind",
   "animals": [
     {
@@ -82,6 +83,7 @@
       "_comment": "Primeiro conteúdo de Astronomia (não é bicho) com pipeline de RA completa — mesmo tratamento de animal (targetIndex, escala real, RA no chão), mas sem os campos de ficha que só fazem sentido pra um ser vivo (nomeCientifico/habitat/alimentacao/tempoDeVida ficaram de fora de propósito, o painel só mostra o que existir). Modelo glTF ORIGINAL (não FBX convertido) — passou limpo em npm run check-model de primeira, incomum pros modelos desse projeto até agora (ver CLAUDE.md). Tem 2 clipes de órbita reais ('Earth 1 Min Orbit', 'Neptune 1 Min Orbit'); 'clipePreferido' escolhe qual tocar quando não anda sozinho (esse modelo não tem Walk/Survey, então cai direto nesse fallback). Fica em pé no chão que nem um animal — o modelo já tem uma base/pedestal de verdade. CC Attribution, Sketchfab, by Smoggybeard.",
       "id": "orrery",
       "nome": "Sistema Solar (Orrery)",
+      "materia": "astronomia",
       "targetIndex": 3,
       "model": "/aluno/assets/models/orrery.glb",
       "alturaRealMetros": 1.0,
@@ -102,6 +104,7 @@
       "_comment": "Segundo conteúdo de Astronomia — flutuante (flutuante: true), não fica em pé no chão como o orrery ou um animal, já que representa o espaço e não tem 'chão' nenhum. Fica pairando numa altura ajustável pelo aluno (botões, ver FLOAT_HEIGHT_* em aluno/js/webxr-mode.js) — ideia do usuário: 'e se o aluno pudesse decidir a altura, pra poder visualizar?'. Sol, planetas e a Lua com textura realista + anéis de órbita, 1 clipe de animação só ('Animation', tocando todas as órbitas juntas) — não precisou de clipePreferido nem rename-clips por ter um clipe só. Sem esqueleto (SkinnedMesh) — motivou o ajuste no check-model.js que ignora escala de nó suspeita quando não há skin no arquivo (os círculos de órbita de planetas distantes usam escala bem grande de propósito, não é o mesmo bug da girafa). CC Attribution, Sketchfab, by Samer_Arab_S5. Imagem-fonte é domínio público (NASA), não precisa de crédito obrigatório, mas mantido por boa prática.",
       "id": "sistema-solar",
       "nome": "Sistema Solar",
+      "materia": "astronomia",
       "targetIndex": 4,
       "model": "/aluno/assets/models/sistema-solar-realista.glb",
       "alturaRealMetros": 1.5,

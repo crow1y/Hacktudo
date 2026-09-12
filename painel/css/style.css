@@ -107,6 +107,17 @@ main {
   gap: var(--space-md);
 }
 
+/* Mesmo selo "ativo agora" da lista de animais (.animal-link__badge),
+   só que num card fixo em vez de um item de lista — acende via JS
+   (painel/js/main.js) quando um aluno escaneia o orrery/sistema solar. */
+.astronomia-card__badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-danger);
+  white-space: nowrap;
+  margin-left: var(--space-2xs);
+}
+
 .astronomia-card__legenda {
   color: var(--color-ink-soft);
   font-size: 0.92rem;
