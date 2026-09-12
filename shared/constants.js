@@ -14,5 +14,13 @@ export const DB_PATHS = {
 // Valores possíveis do check-in de humor rápido no fim do módulo.
 export const MOOD_VALUES = ["otimo", "bem", "cansado", "confuso"];
 
+// Label exibido (aluno/ na hora de escolher, painel/ na hora de agregar).
+export const MOOD_LABELS = {
+  otimo: "😄 Ótimo",
+  bem: "🙂 Bem",
+  cansado: "😴 Cansado",
+  confuso: "😕 Confuso",
+};
+
 // Duração padrão (ms) de um módulo de "modo aula" antes do lembrete de pausa.
 export const MODO_AULA_DURATION_MS = 15 * 60 * 1000;
