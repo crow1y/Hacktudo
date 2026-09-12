@@ -98,6 +98,29 @@ main {
   font-size: 1.1rem;
 }
 
+/* Dois modelos 3D lado a lado (mecânico vs. realista) — empilha em tela
+   estreita, já que o painel também pode ser aberto num celular/tablet
+   pra conferir, mesmo sendo pensado pra tela de computador/projetor. */
+.astronomia-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+
+.astronomia-card__legenda {
+  color: var(--color-ink-soft);
+  font-size: 0.92rem;
+  margin: var(--space-2xs) 0 var(--space-sm);
+}
+
+.astronomia-card model-viewer {
+  width: 100%;
+  height: 320px;
+  background: radial-gradient(circle, #1a1a2e 0%, #0a0a12 100%);
+  border-radius: var(--radius-md);
+  --poster-color: transparent;
+}
+
 /* Lista de animais (links, cada um com foto) + painel de detalhe ao
    lado. Empilha em telas estreitas. */
 .animais-layout {

@@ -490,10 +490,41 @@ Dois níveis de navegação em `painel/index.html`, os dois 100% client-side
   (`data-subtopico="..."`) mostram/escondem seções `.conteudo-materia`
   (`data-conteudo="..."`), só **dentro** do grupo de uma matéria. Hoje só
   Ciências tem: **Animais** (`#animal-info`, conteúdo real, escuta
-  `DB_PATHS.activeAnimal`) e **Astronomia** (`#astronomia-info`,
-  estático). As outras seis matérias ainda não têm subtópico nenhum — são
-  só um placeholder "Em breve teremos mais conteúdo para apresentar"
-  dentro de `[data-materia-conteudo="..."]`.
+  `DB_PATHS.activeAnimal`) e **Astronomia** (`#astronomia-info`, dois
+  modelos 3D lado a lado — ver abaixo). As outras seis matérias ainda não
+  têm subtópico nenhum — são só um placeholder "Em breve teremos mais
+  conteúdo para apresentar" dentro de `[data-materia-conteudo="..."]`.
+
+  **Astronomia** é diferente do resto do painel: é a única parte que usa
+  `<model-viewer>` fora do `aluno/` (script adicionado no `<head>` de
+  `painel/index.html`). Sem MindAR/WebXR envolvido — é só um modelo 3D
+  giratório, não precisa de câmera nem de reconhecimento de imagem, então
+  a integração é bem mais simples que o pipeline de animais (não usa
+  `content/animals.json`, os modelos ficam em `painel/assets/models/` e
+  o HTML é 100% estático, sem listener nenhum). Dois modelos, escolhidos
+  de propósito pra se complementar (confirmado com o usuário: "por que
+  não os dois"):
+  - `orrery.glb` — réplica de um instrumento mecânico antigo (CC
+    Attribution, Sketchfab, by Smoggybeard) que mostra a órbita de cada
+    planeta e a distância relativa entre eles. Tem 2 clipes de animação
+    (`Earth 1 Min Orbit`, `Neptune 1 Min Orbit`) — o `<model-viewer>` usa
+    `animation-name="Earth 1 Min Orbit"` explicitamente (sem isso ele
+    tocaria o primeiro clipe do arquivo, que pode não ser o mais
+    ilustrativo). Único caso do projeto até agora onde um modelo
+    convertido de FBX passou limpo no `npm run check-model` de primeira.
+  - `sistema-solar-realista.glb` — Sol, planetas e a Lua com texturas
+    realistas e anéis de órbita (CC Attribution, Sketchfab, by
+    Samer_Arab_S5). **Motivou um ajuste no `check-model.js`**: por não
+    ter esqueleto (não é um bicho animado, são nós com animação de
+    transformação rígida direto), os círculos de órbita de planetas
+    distantes (Marte, Júpiter, Saturno, Urano, Netuno, Plutão) precisam
+    de escala bem grande de propósito — o script antes sinalizava isso
+    como suspeito (mesmo padrão numérico do bug da girafa), um falso
+    positivo real. Corrigido: a checagem de "escala de nó fora do normal"
+    só roda quando o arquivo tem pelo menos um `SkinnedMesh` (`skins.length
+    > 0`) — sem esqueleto, essa classe de bug (precisão de shader no
+    cálculo de skin) não pode ocorrer de jeito nenhum, então não há o que
+    sinalizar.
 
 Pra adicionar:
 - **Matéria nova** (sem conteúdo ainda): um botão `.materia-btn` em

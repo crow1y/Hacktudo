@@ -52,8 +52,13 @@ O professor também entra com matrícula e senha (conta de professor
 precisa ser aprovada por um administrador do sistema antes de poder ser
 usada — ver avisos abaixo). A tela do professor (pensada pra ficar
 aberta no computador ligado ao projetor da sala) mostra um **menu de
-matérias**: hoje só existe Ciências, com dois assuntos — **Animais** e
-**Astronomia** (ainda sem conteúdo, mostra um aviso de "em breve").
+matérias**: Ciências (com conteúdo real, dois assuntos — **Animais** e
+**Astronomia**), mais Gramática, Geografia, História, Artes, Física e
+Química (ainda sem conteúdo, mostram um aviso de "em breve"). Dentro de
+Astronomia tem dois modelos 3D giratórios lado a lado, sem precisar de
+celular nem câmera: uma réplica mecânica do sistema solar (um "orrery",
+mostrando a órbita relativa de cada planeta) e um sistema solar com
+texturas realistas do Sol, planetas e a Lua.
 
 Dentro de Animais, cada bicho é um **link com foto** numa lista. Clicando
 num deles, aparece uma ficha completa (nome científico, classificação,
@@ -85,8 +90,9 @@ projetar a mesma imagem pra turma escanear.
   disponíveis (ver `CLAUDE.md`).
 - Cadastro/login por matrícula e senha, com aprovação de professor por
   um administrador.
-- Painel do professor com o menu de matérias e a lista de animais (foto
-  + ficha completa), atualizando em tempo real.
+- Painel do professor com o menu de matérias, a lista de animais (foto +
+  ficha completa) atualizando em tempo real, e Astronomia com dois
+  modelos 3D giratórios (orrery mecânico + sistema solar realista).
 - Página inicial de apresentação do projeto (a que você provavelmente
   está vendo agora, se não estiver direto no app).
 
@@ -95,7 +101,9 @@ projetar a mesma imagem pra turma escanear.
   exemplo, mas foto e conteúdo educativo reais), elefante e leão (modelo,
   imagem e ficha próprios) — a base do sistema já entende vários animais
   ao mesmo tempo, só falta completar o conteúdo de mais espécies.
-- Mais matérias além de Ciências no painel do professor.
+- Gramática, Geografia, História, Artes, Física e Química já existem
+  como abas no painel do professor, mas ainda sem conteúdo (aviso de
+  "em breve").
 - Algumas ilustrações da página inicial (ícones do carrossel) ainda são
   espaços reservados, sem arte final.
 - Sem patrocínio confirmado ainda — em vez de logos placeholder, a seção

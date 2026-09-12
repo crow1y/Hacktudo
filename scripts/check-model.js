@@ -173,18 +173,31 @@ function checkModel(filePath) {
   const anims = gltf.animations || [];
   info.push(`Animações (${anims.length}): ${anims.map((a) => a.name).join(", ") || "(nenhuma)"}`);
 
-  // --- fatores de escala esquisitos em qualquer nó, isolados ---
-  nodes.forEach((node, i) => {
-    if (!node.scale) return;
-    const isSuspicious = node.scale.some((s) => Math.abs(s) < SUSPICIOUS_SCALE_MIN || Math.abs(s) > SUSPICIOUS_SCALE_MAX);
-    if (isSuspicious) {
-      warnings.push(`Nó "${node.name || i}" tem escala local fora do normal: ${JSON.stringify(node.scale)}`);
-    }
-  });
-
-  // --- a checagem que importa de verdade: razão osso vs. malha, por skin ---
+  // --- fatores de escala esquisitos em qualquer nó -- mas só faz sentido
+  // checar isso quando o modelo TEM esqueleto (SkinnedMesh). Fora de um
+  // skin, um nó grande/pequeno é só geometria normal (ex: o círculo de
+  // órbita de um planeta distante numa animação de sistema solar, escalado
+  // por dezenas de vezes de propósito) e não indica risco nenhum.
+  //
+  // ⚠️ Não restrinja isso só aos nós listados em skin.joints: no caso real
+  // que motivou essa checagem (girafa), o nó com a escala mais suspeita
+  // ("giraffe", escala 100) nem está na lista de joints do skin -- é outro
+  // nó qualquer da hierarquia (resíduo da conversão FBX→glTF). Sem saber
+  // ao certo qual nó específico interage mal com o cálculo de skin, o mais
+  // seguro é continuar checando TODOS os nós sempre que existir pelo menos
+  // um skin no arquivo, e só ignorar essa checagem inteira quando não há
+  // esqueleto nenhum (aí sim, garantidamente, essa classe de bug não pode
+  // ocorrer).
   const skins = gltf.skins || [];
-  if (skins.length === 0) {
+  if (skins.length > 0) {
+    nodes.forEach((node, i) => {
+      if (!node.scale) return;
+      const isSuspicious = node.scale.some((s) => Math.abs(s) < SUSPICIOUS_SCALE_MIN || Math.abs(s) > SUSPICIOUS_SCALE_MAX);
+      if (isSuspicious) {
+        warnings.push(`Nó "${node.name || i}" tem escala local fora do normal: ${JSON.stringify(node.scale)}`);
+      }
+    });
+  } else {
     info.push("Modelo sem esqueleto (SkinnedMesh) -- essa classe de bug não se aplica.");
   }
   skins.forEach((skin, skinIdx) => {

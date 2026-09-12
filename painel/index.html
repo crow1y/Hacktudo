@@ -9,6 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/theme.css" />
   <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Visualizador 3D pros modelos de Astronomia (mesmo motor do cartão
+       de prévia do aluno/ — ver CLAUDE.md pra detalhes de por que
+       <model-viewer> em vez de renderizar dentro de alguma cena própria). -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 </head>
 <body>
   <div id="auth-gate">
@@ -96,8 +101,23 @@
           </div>
         </section>
 
-        <section id="astronomia-info" class="card conteudo-materia" data-conteudo="astronomia" hidden>
-          <p>Em breve teremos mais conteúdo para apresentar.</p>
+        <section id="astronomia-info" class="conteudo-materia" data-conteudo="astronomia" hidden>
+          <div class="astronomia-layout">
+            <div class="card astronomia-card">
+              <h2>Modelo mecânico (Orrery)</h2>
+              <p class="astronomia-card__legenda">Réplica de um instrumento antigo que mostra a
+                órbita de cada planeta ao redor do Sol e a distância relativa entre eles.</p>
+              <model-viewer src="/painel/assets/models/orrery.glb" alt="Orrery: modelo mecânico do sistema solar"
+                camera-controls auto-rotate autoplay animation-name="Earth 1 Min Orbit"></model-viewer>
+            </div>
+            <div class="card astronomia-card">
+              <h2>Sistema Solar Realista</h2>
+              <p class="astronomia-card__legenda">Sol, planetas e a Lua em órbita, com anéis
+                mostrando o caminho de cada um ao redor do Sol.</p>
+              <model-viewer src="/painel/assets/models/sistema-solar-realista.glb" alt="Sistema solar com o Sol, planetas e a Lua em órbita"
+                camera-controls auto-rotate autoplay></model-viewer>
+            </div>
+          </div>
         </section>
       </section>
 
