@@ -16,10 +16,10 @@ html, body {
   inset: 0;
 }
 
-#place-floor-btn:not([hidden]) {
+#place-floor-btn:not([hidden]),
+#scan-another-btn:not([hidden]) {
   position: fixed;
   left: 50%;
-  bottom: 1.25rem;
   transform: translateX(-50%);
   z-index: 15;
   background: rgba(0, 0, 0, 0.7);
@@ -29,6 +29,39 @@ html, body {
   padding: 0.6rem 1.2rem;
   font-size: 0.95rem;
   backdrop-filter: blur(4px);
+}
+
+/* place-floor-btn fica acima do scan-another-btn quando os dois aparecem
+   juntos (depois de reconhecer um animal). */
+#place-floor-btn:not([hidden]) {
+  bottom: 4rem;
+}
+
+#scan-another-btn:not([hidden]) {
+  bottom: 1.25rem;
+}
+
+/* Escurece as bordas ao redor do cartão de prévia (centro da tela) —
+   círculo claro no meio, sombreado progressivo pras bordas. */
+#ar-vignette:not([hidden]) {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 0%, transparent 26%, rgba(0, 0, 0, 0.78) 62%);
+}
+
+#preview-name:not([hidden]) {
+  position: fixed;
+  left: 50%;
+  bottom: 8rem;
+  transform: translateX(-50%);
+  z-index: 15;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  text-align: center;
 }
 
 #webxr-container:not([hidden]) {

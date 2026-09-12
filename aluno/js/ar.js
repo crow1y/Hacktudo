@@ -10,12 +10,19 @@
 // Firebase) antes dos assets reais dos animais estarem prontos.
 //
 // MindAR é sempre quem RECONHECE qual animal é (funciona em qualquer
-// celular). Em aparelhos com suporte a WebXR + hit-test (Android/Chrome
-// com ARCore — não existe no Safari/iPhone, ver CLAUDE.md), depois de
-// reconhecido aparece um botão pra "plantar" o animal em escala real num
-// ponto de chão de verdade (aluno/js/webxr-mode.js). Os dois modos não
-// rodam ao mesmo tempo — precisam de controle exclusivo da câmera — por
-// isso o MindAR é parado antes de entrar em WebXR e reiniciado ao sair.
+// celular). O resultado é mostrado como um "cartão de prévia": modelo
+// parado no centro da tela (grudado na câmera, não na página — não fica
+// preso a manter a imagem no quadro), com um círculo atrás e o nome do
+// animal, câmera escurecida nas bordas ao redor. Isso substitui a ideia
+// antiga de "sai da página e anda pela sala", que sempre parecia
+// flutuando de um jeito ou de outro sem rastreamento de mundo de verdade.
+//
+// Em aparelhos com suporte a WebXR + hit-test (Android/Chrome com ARCore
+// — não existe no Safari/iPhone, ver CLAUDE.md), a partir da prévia
+// aparece um botão pra "plantar" o animal em escala real num chão de
+// verdade (aluno/js/webxr-mode.js). Os dois modos não rodam ao mesmo
+// tempo — precisam de controle exclusivo da câmera — por isso o MindAR é
+// parado antes de entrar em WebXR e reiniciado ao sair.
 
 import { ref, set } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { db } from "../../shared/firebase-config.js";
@@ -29,42 +36,22 @@ function isAssetReady(animal) {
   return !animal.model.includes("TODO");
 }
 
-// Faz o modelo "andar" num pequeno círculo ao redor da própria origem, de
-// frente pra direção do movimento. Fica no filho (o a-gltf-model), nunca
-// na a-entity do alvo (mindar-image-target) — o MindAR sobrescreve a
-// matriz da entidade do alvo a cada frame de rastreamento, então qualquer
-// posição definida ali seria imediatamente perdida.
-if (!AFRAME.components["wander"]) {
-  AFRAME.registerComponent("wander", {
-    schema: {
-      radius: { default: 0.12 },
-      speed: { default: 0.5 },
-    },
-    tick(time) {
-      const angle = (time / 1000) * this.data.speed;
-      const x = Math.cos(angle) * this.data.radius;
-      const z = Math.sin(angle) * this.data.radius;
-      this.el.object3D.position.set(x, 0, z);
-      this.el.object3D.rotation.y = -angle - Math.PI / 2;
-    },
-  });
-}
-
-// Escolhe, entre os clipes de animação carregados do glTF, um pra
-// "andar" (contínuo, usado com o componente wander acima) e outro pra
-// "reagir" ao toque — por nome quando possível (convenção comum tipo
-// Mixamo: Walk/Run/Idle/Attack), com fallback pros primeiros/últimos
-// clipes disponíveis para modelos com nomes diferentes.
+// Escolhe, entre os clipes de animação carregados do glTF, um pra tocar
+// "parado" (contínuo, ex: Walk/Idle tocando no lugar — recicla o que o
+// modelo já tem, sem mover a posição) e outro pra "reagir" ao toque — por
+// nome quando possível (convenção comum tipo Mixamo: Walk/Run/Idle/
+// Attack), com fallback pros primeiros/últimos clipes disponíveis para
+// modelos com nomes diferentes.
 function pickClips(clipNames) {
   const findByPattern = (pattern) => clipNames.find((name) => pattern.test(name));
 
-  const walk = findByPattern(/walk/i) ?? clipNames[0];
+  const idle = findByPattern(/walk|idle/i) ?? clipNames[0];
   const react =
     findByPattern(/run|jump|attack|eat|bite|roar/i) ??
-    clipNames.find((name) => name !== walk) ??
-    walk;
+    clipNames.find((name) => name !== idle) ??
+    idle;
 
-  return { walk, react };
+  return { idle, react };
 }
 
 function setupInteraction(gltfEl) {
@@ -76,17 +63,17 @@ function setupInteraction(gltfEl) {
     if (clipNames.length === 0) return;
 
     clips = pickClips(clipNames);
-    gltfEl.setAttribute("animation-mixer", `clip: ${clips.walk}; loop: repeat`);
+    gltfEl.setAttribute("animation-mixer", `clip: ${clips.idle}; loop: repeat`);
   });
 
   gltfEl.addEventListener("click", () => {
-    if (!clips || reacting || clips.react === clips.walk) return;
+    if (!clips || reacting || clips.react === clips.idle) return;
 
     reacting = true;
     gltfEl.setAttribute("animation-mixer", `clip: ${clips.react}; loop: repeat`);
 
     setTimeout(() => {
-      gltfEl.setAttribute("animation-mixer", `clip: ${clips.walk}; loop: repeat`);
+      gltfEl.setAttribute("animation-mixer", `clip: ${clips.idle}; loop: repeat`);
       reacting = false;
     }, 2500);
   });
@@ -110,8 +97,8 @@ export async function initAR() {
   // scale é um chute inicial por animal — cada modelo tem proporções
   // diferentes, ajustar testando no celular. O valor abaixo (0.005) foi
   // calculado para o Fox.glb de teste (~79 unidades de altura nativa);
-  // outros modelos vão precisar de outro valor. Só usada no modo MindAR
-  // normal — o modo WebXR calcula a escala em metros reais na hora.
+  // outros modelos vão precisar de outro valor. Só usada no cartão de
+  // prévia — o modo WebXR calcula a escala em metros reais na hora.
   const scaleByAnimalId = Object.fromEntries(readyAnimals.map((animal) => [animal.id, "0.005 0.005 0.005"]));
 
   const advancedArAvailable = await supportsAdvancedAR();
@@ -120,21 +107,11 @@ export async function initAR() {
     .map((animal) => `<a-asset-item id="model-${animal.id}" src="${animal.model}"></a-asset-item>`)
     .join("");
 
+  // Um único alvo (mindar-image-target) por animal, sem filho visual —
+  // só existe pra disparar targetFound/targetLost. O que aparece na tela
+  // é sempre a prévia abaixo, grudada na câmera.
   const targetsHtml = readyAnimals
-    .map(
-      (animal) => `
-        <a-entity class="ar-target" data-animal-id="${animal.id}" mindar-image-target="targetIndex: ${animal.targetIndex}">
-          <a-gltf-model
-            class="clickable animal-model"
-            src="#model-${animal.id}"
-            position="0 0 0"
-            scale="${scaleByAnimalId[animal.id]}"
-            wander
-            animation-mixer
-          ></a-gltf-model>
-        </a-entity>
-      `
-    )
+    .map((animal) => `<a-entity data-animal-id="${animal.id}" mindar-image-target="targetIndex: ${animal.targetIndex}"></a-entity>`)
     .join("");
 
   document.getElementById("ar-container").innerHTML = `
@@ -146,37 +123,102 @@ export async function initAR() {
       embedded
     >
       <a-assets>${assetsHtml}</a-assets>
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-camera position="0 0 0" look-controls="enabled: false">
+        <!-- Cartão de prévia: círculo (halo/pedestal) atrás do modelo,
+             ambos grudados na câmera (não na página) pra ficarem sempre
+             centralizados na tela, parados. Escondidos até um animal ser
+             reconhecido. -->
+        <a-circle
+          id="preview-platform"
+          position="0 0 -0.62"
+          radius="0.32"
+          color="#ffffff"
+          opacity="0.15"
+          visible="false"
+        ></a-circle>
+        <a-entity
+          id="preview-model"
+          class="clickable"
+          position="0 0 -0.6"
+          animation-mixer
+          visible="false"
+        ></a-entity>
+      </a-camera>
+
       <a-entity cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable"></a-entity>
       ${targetsHtml}
     </a-scene>
   `;
 
   const sceneEl = document.querySelector("a-scene");
+  const previewModelEl = document.getElementById("preview-model");
+  const previewPlatformEl = document.getElementById("preview-platform");
+  const vignetteEl = document.getElementById("ar-vignette");
+  const previewNameEl = document.getElementById("preview-name");
   const placeFloorBtn = document.getElementById("place-floor-btn");
+  const scanAnotherBtn = document.getElementById("scan-another-btn");
 
-  for (const gltfEl of document.querySelectorAll(".animal-model")) {
-    setupInteraction(gltfEl);
-  }
+  setupInteraction(previewModelEl);
 
   sceneEl.addEventListener("arError", (event) => {
     showCameraError(event.detail?.error);
   });
 
-  for (const targetEl of document.querySelectorAll(".ar-target")) {
+  let capturedAnimalId = null;
+  let loadedModelAnimalId = null; // qual animal está de fato carregado no previewModelEl agora
+
+  function showPreview(animal) {
+    capturedAnimalId = animal.id;
+
+    // Só redefine "gltf-model" se for um animal DIFERENTE do que já está
+    // carregado. Depois do primeiro carregamento bem-sucedido, o A-Frame
+    // reescreve esse atributo pra URL já resolvida (não mais "#model-id")
+    // — redefinir com "#model-id" de novo conta como "mudou" e dispara um
+    // recarregamento que falhava silenciosamente (mesh sumia pra sempre).
+    // Reconhecer o mesmo animal de novo agora só reaproveita o que já
+    // está carregado, sem precisar recarregar nada.
+    if (loadedModelAnimalId !== animal.id) {
+      previewModelEl.setAttribute("gltf-model", `#model-${animal.id}`);
+      loadedModelAnimalId = animal.id;
+    }
+    previewModelEl.setAttribute("scale", scaleByAnimalId[animal.id]);
+    previewModelEl.setAttribute("visible", true);
+    previewPlatformEl.setAttribute("visible", true);
+    vignetteEl.hidden = false;
+    previewNameEl.hidden = false;
+    previewNameEl.textContent = animal.nome;
+    scanAnotherBtn.hidden = false;
+
+    if (advancedArAvailable) {
+      placeFloorBtn.hidden = false;
+      placeFloorBtn.onclick = () => enterFloorPlacement(sceneEl, placeFloorBtn, animal);
+    }
+
+    set(ref(db, DB_PATHS.activeAnimal), animal.id);
+  }
+
+  function hidePreview() {
+    capturedAnimalId = null;
+
+    previewModelEl.setAttribute("visible", false);
+    previewPlatformEl.setAttribute("visible", false);
+    vignetteEl.hidden = true;
+    previewNameEl.hidden = true;
+    placeFloorBtn.hidden = true;
+    scanAnotherBtn.hidden = true;
+
+    set(ref(db, DB_PATHS.activeAnimal), null);
+  }
+
+  scanAnotherBtn.addEventListener("click", hidePreview);
+
+  for (const targetEl of document.querySelectorAll("[data-animal-id]")) {
     const animalId = targetEl.dataset.animalId;
 
     targetEl.addEventListener("targetFound", () => {
-      set(ref(db, DB_PATHS.activeAnimal), animalId);
-      if (advancedArAvailable) {
-        placeFloorBtn.hidden = false;
-        placeFloorBtn.onclick = () => enterFloorPlacement(sceneEl, placeFloorBtn, animalsById.get(animalId));
-      }
-    });
-
-    targetEl.addEventListener("targetLost", () => {
-      set(ref(db, DB_PATHS.activeAnimal), null);
-      placeFloorBtn.hidden = true;
+      if (capturedAnimalId) return; // já tem uma prévia mostrada — ignora novas detecções até "escanear outro"
+      showPreview(animalsById.get(animalId));
     });
   }
 }
