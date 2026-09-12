@@ -135,6 +135,84 @@ html, body {
   font-size: 0.95rem;
 }
 
+/* Tutorial rápido antes do modo WebXR abrir de verdade (ver
+   aluno/js/ar.js) — tela cheia, sobre um fundo escuro, com um cartão
+   claro (igual outros modais do site) pra ficar bem legível. */
+#webxr-intro:not([hidden]) {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  padding: var(--space-md);
+}
+
+#webxr-intro-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md);
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+
+#webxr-intro-card h2 {
+  margin: 0 0 var(--space-md);
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--color-ink);
+}
+
+.webxr-intro__passos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.webxr-intro__passo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: left;
+  background: var(--highlight-color-soft, var(--color-primary-soft));
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+}
+
+.webxr-intro__icone {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.webxr-intro__passo p {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.webxr-intro__passo--purple { --highlight-color-soft: var(--color-purple-soft); }
+.webxr-intro__passo--success { --highlight-color-soft: var(--color-success-soft); }
+.webxr-intro__passo--warning { --highlight-color-soft: var(--color-warning-soft); }
+
+#webxr-intro-continuar {
+  width: 100%;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: var(--space-sm) var(--space-lg);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
 /* Botão de pausar/retomar o "andar sozinho" + analógico manual do
    animal (dom-overlay) — agrupados num container flex (ver
    aluno/js/webxr-mode.js) em vez de posições fixas independentes, pra

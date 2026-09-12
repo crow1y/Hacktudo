@@ -91,6 +91,33 @@
     </div>
     <button id="place-floor-btn" hidden>📍 Fixar no chão (tamanho real)</button>
     <button id="scan-another-btn" hidden>🔄 Escanear outro</button>
+
+    <!-- Tutorial rápido antes de abrir a câmera do modo WebXR — aparece
+         só depois de tocar "Fixar no chão", antes da sessão abrir de
+         verdade (aluno/js/ar.js). Existe porque "aponte pro chão" sozinho
+         não é suficiente: testado ao vivo que apontar primeiro pras
+         paredes/móveis (dá pro ARCore mais referência visual) e só depois
+         abaixar pro chão funciona bem melhor que ir direto pro chão. -->
+    <div id="webxr-intro" hidden>
+      <div id="webxr-intro-card">
+        <h2>Antes de fixar no chão</h2>
+        <div class="webxr-intro__passos">
+          <div class="webxr-intro__passo webxr-intro__passo--purple">
+            <span class="webxr-intro__icone" aria-hidden="true">👀</span>
+            <p><strong>Olhe ao redor primeiro</strong><br />Passe a câmera pelas paredes e móveis da sala.</p>
+          </div>
+          <div class="webxr-intro__passo webxr-intro__passo--success">
+            <span class="webxr-intro__icone" aria-hidden="true">📱</span>
+            <p><strong>Só depois, aponte pro chão</strong><br />Abaixe a câmera bem devagar até aparecer o círculo verde.</p>
+          </div>
+          <div class="webxr-intro__passo webxr-intro__passo--warning">
+            <span class="webxr-intro__icone" aria-hidden="true">💡</span>
+            <p><strong>Lugar bem iluminado</strong><br />Ambiente escuro dificulta o reconhecimento.</p>
+          </div>
+        </div>
+        <button type="button" id="webxr-intro-continuar">Entendi, continuar</button>
+      </div>
+    </div>
     <!-- Cena do modo WebXR (aluno/js/webxr-mode.js) — Three.js puro, some
          da tela quando não está em uso. -->
     <div id="webxr-container" hidden></div>

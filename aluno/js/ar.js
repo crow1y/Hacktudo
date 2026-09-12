@@ -84,12 +84,19 @@ export async function initAR() {
   const previewNameEl = document.getElementById("preview-name");
   const placeFloorBtn = document.getElementById("place-floor-btn");
   const scanAnotherBtn = document.getElementById("scan-another-btn");
+  const webxrIntroEl = document.getElementById("webxr-intro");
+  const webxrIntroContinuarBtn = document.getElementById("webxr-intro-continuar");
 
   sceneEl.addEventListener("arError", (event) => {
     showCameraError(event.detail?.error);
   });
 
   let capturedAnimalId = null;
+  // Guardado aqui (fora do onclick por animal) pra sobreviver à etapa
+  // intermediária do tutorial — o clique em "Fixar no chão" só mostra o
+  // #webxr-intro; quem de fato entra no modo WebXR é o clique em
+  // "Entendi, continuar" logo abaixo, que precisa lembrar qual animal era.
+  let animalPendenteWebxr = null;
 
   function showPreview(animal) {
     capturedAnimalId = animal.id;
@@ -103,7 +110,10 @@ export async function initAR() {
 
     if (advancedArAvailable) {
       placeFloorBtn.hidden = false;
-      placeFloorBtn.onclick = () => enterFloorPlacement(sceneEl, placeFloorBtn, animal);
+      placeFloorBtn.onclick = () => {
+        animalPendenteWebxr = animal;
+        webxrIntroEl.hidden = false;
+      };
     }
 
     set(ref(db, DB_PATHS.activeAnimal), animal.id);
@@ -121,6 +131,11 @@ export async function initAR() {
   }
 
   scanAnotherBtn.addEventListener("click", hidePreview);
+
+  webxrIntroContinuarBtn.addEventListener("click", () => {
+    webxrIntroEl.hidden = true;
+    enterFloorPlacement(sceneEl, placeFloorBtn, animalPendenteWebxr);
+  });
 
   for (const targetEl of document.querySelectorAll("[data-animal-id]")) {
     const animalId = targetEl.dataset.animalId;
