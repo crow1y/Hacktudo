@@ -71,6 +71,14 @@ Instruções de projeto para o Claude Code neste repositório.
 - **Rodar num monitor/tela em vez de imprimir a imagem-alvo deixa o
   rastreamento instável** (brilho/refresh da tela atrapalha o MindAR) —
   imagem impressa em papel funciona bem melhor.
+- **Padrão "companion"**: depois da primeira detecção, o modelo se
+  desgruda da página e passa a ficar fixo na câmera (`#companion-model`,
+  filho de `<a-camera>` em `aluno/js/ar.js`), pra o aluno poder andar
+  pela sala com o animal na tela sem manter o livro apontado. Isso é só
+  um objeto grudado na câmera — **não sabe onde está o chão, mesas ou
+  paredes de verdade** (isso exigiria WebXR/ARCore, que não existe no
+  Safari do iPhone). É uma limitação conhecida, não um bug pra corrigir
+  sem entrar em WebXR.
 
 ## Schema do `content/animals.json`
 
