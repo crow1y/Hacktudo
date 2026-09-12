@@ -150,8 +150,34 @@
         <p>Em breve teremos mais conteúdo para apresentar.</p>
       </section>
 
-      <section class="card conteudo-materia-grupo" data-materia-conteudo="fisica" hidden>
-        <p>Em breve teremos mais conteúdo para apresentar.</p>
+      <section class="conteudo-materia-grupo" data-materia-conteudo="fisica" hidden>
+        <nav class="subtopicos-nav" aria-label="Subtópicos de Física">
+          <button type="button" class="subtopico-btn subtopico-btn--active" data-subtopico="buraco-negro">Buraco Negro</button>
+        </nav>
+
+        <!-- Mesmo padrão de card fixo com <model-viewer> já usado em
+             Astronomia (#astronomia-info) — reaproveita .astronomia-layout/
+             .astronomia-card de propósito (mesmo componente visual,
+             não vale duplicar CSS só porque a matéria é outra). -->
+        <section id="buraco-negro-info" class="conteudo-materia" data-conteudo="buraco-negro">
+          <div class="astronomia-layout">
+            <div class="card astronomia-card" data-fisica-id="buraco-negro">
+              <h2>Buraco Negro
+                <span class="astronomia-card__badge" hidden>🔴 Ativo agora</span></h2>
+              <p class="astronomia-card__legenda">Uma região do espaço com gravidade tão forte que
+                nem a luz escapa dela — a foto é a primeira imagem real de um buraco negro já
+                tirada (2019).</p>
+              <!-- Ainda sem alvo de RA compilado (ver _comment_targetIndexPendente em
+                   content/animals.json) — a foto já é a mesma que vai virar o alvo real. -->
+              <button type="button" class="animal-detalhe__foto-btn" data-imagem="/assets/img/buraco-negro.jpg" data-nome="Buraco Negro">
+                <img class="animal-detalhe__foto" src="/assets/img/buraco-negro.jpg" alt="Imagem-alvo do Buraco Negro, pra turma escanear" />
+                <span class="animal-detalhe__foto-hint">🔍 Ver imagem completa</span>
+              </button>
+              <model-viewer src="/aluno/assets/models/buraco-negro.glb" alt="Modelo 3D de um buraco negro com disco de acreção"
+                camera-controls auto-rotate autoplay></model-viewer>
+            </div>
+          </div>
+        </section>
       </section>
 
       <section class="card conteudo-materia-grupo" data-materia-conteudo="quimica" hidden>
