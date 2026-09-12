@@ -34,12 +34,15 @@ export async function initAR() {
     .map(
       (animal) => `
         <a-entity class="ar-target" data-animal-id="${animal.id}" mindar-image-target="targetIndex: ${animal.targetIndex}">
-          <!-- Posição/escala/rotação são um chute inicial — ajustar visualmente
-               testando no celular, cada modelo tem proporções diferentes. -->
+          <!-- scale/position são um chute inicial por animal — cada modelo
+               tem proporções diferentes, ajustar testando no celular. O
+               valor abaixo (0.005) foi calculado para o Fox.glb de teste
+               (~79 unidades de altura nativa); outros modelos vão precisar
+               de outro valor. -->
           <a-gltf-model
             src="#model-${animal.id}"
             position="0 0 0"
-            scale="0.05 0.05 0.05"
+            scale="0.005 0.005 0.005"
             animation-mixer
           ></a-gltf-model>
         </a-entity>
