@@ -67,7 +67,10 @@ function renderDetalhe(animalId) {
 
   const curiosidadesHtml = (info.curiosidades ?? []).map((curiosidade) => `<li>${curiosidade}</li>`).join("");
   const imagemHtml = animal.imagem
-    ? `<img class="animal-detalhe__foto" src="${animal.imagem}" alt="${animal.nome}" />`
+    ? `<button type="button" class="animal-detalhe__foto-btn" data-imagem="${animal.imagem}" data-nome="${animal.nome}">
+         <img class="animal-detalhe__foto" src="${animal.imagem}" alt="${animal.nome}" />
+         <span class="animal-detalhe__foto-hint">🔍 Ver imagem completa</span>
+       </button>`
     : "";
 
   detalheEl.innerHTML = `
@@ -85,6 +88,36 @@ listaEl.addEventListener("click", (event) => {
   animalSelecionadoId = botao.dataset.animalId;
   renderLista();
   renderDetalhe(animalSelecionadoId);
+});
+
+// Modal de imagem em tela cheia (sem o corte do CSS do card) — é a
+// mesma foto usada no card, então também serve como a imagem de
+// verdade pra projetar/escanear com a turma.
+const imagemModalEl = document.getElementById("imagem-modal");
+const imagemModalFotoEl = document.getElementById("imagem-modal-foto");
+
+function abrirImagemModal(src, alt) {
+  imagemModalFotoEl.src = src;
+  imagemModalFotoEl.alt = alt;
+  imagemModalEl.hidden = false;
+}
+
+function fecharImagemModal() {
+  imagemModalEl.hidden = true;
+}
+
+detalheEl.addEventListener("click", (event) => {
+  const botao = event.target.closest(".animal-detalhe__foto-btn");
+  if (!botao) return;
+  abrirImagemModal(botao.dataset.imagem, botao.dataset.nome);
+});
+
+document.getElementById("imagem-modal-fechar").addEventListener("click", fecharImagemModal);
+imagemModalEl.addEventListener("click", (event) => {
+  if (event.target === imagemModalEl) fecharImagemModal();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") fecharImagemModal();
 });
 
 // Menu de matérias: só troca qual .conteudo-materia fica visível — cada
