@@ -7,8 +7,8 @@
 export const DB_PATHS = {
   // Qual animal está ativo no momento (aluno escreve, painel escuta).
   activeAnimal: "session/activeAnimal",
-  // Check-ins de humor da turma (aluno escreve um por sessão, painel agrega).
-  moodCheckins: "session/moodCheckins",
+  // Check-ins de presença da aula (aluno escreve, painel acompanha em tempo real).
+  checkins: "session/checkins",
   // Perfis de conta, indexados por uid do Firebase Auth.
   professores: "users/professores",
   alunos: "users/alunos",
@@ -36,16 +36,9 @@ export const AUTH_EMAIL_SUFFIX = {
 // Realtime Database (ver pendência no README).
 export const ADMIN_ACCESS_CODE = "vivalivro-admin-2026";
 
-// Valores possíveis do check-in de humor rápido no fim do módulo.
-export const MOOD_VALUES = ["otimo", "bem", "cansado", "confuso"];
+// Duração padrão (ms) de uma aula — depois disso não são mais pedidos
+// check-ins de presença.
+export const AULA_DURATION_MS = 45 * 60 * 1000;
 
-// Label exibido (aluno/ na hora de escolher, painel/ na hora de agregar).
-export const MOOD_LABELS = {
-  otimo: "😄 Ótimo",
-  bem: "🙂 Bem",
-  cansado: "😴 Cansado",
-  confuso: "😕 Confuso",
-};
-
-// Duração padrão (ms) de um módulo de "modo aula" antes do lembrete de pausa.
-export const MODO_AULA_DURATION_MS = 15 * 60 * 1000;
+// Intervalo (ms) entre pedidos de check-in de presença durante a aula.
+export const CHECKIN_INTERVAL_MS = 10 * 60 * 1000;

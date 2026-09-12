@@ -50,12 +50,10 @@
     <div id="ar-error" hidden></div>
     <button id="reset-scan-btn" hidden>🔄 Escanear outro animal</button>
 
-    <!-- Camada de "uso consciente": timer de modo aula, pausa e check-in de humor -->
-    <div id="wellbeing-layer">
-      <div id="modo-aula-timer" hidden></div>
-      <div id="pausa-lembrete" hidden></div>
-      <div id="mood-checkin" hidden></div>
-    </div>
+    <!-- Check-in de presença: toast discreto pro check automático, card
+         modal pro pedido de confirmação a cada CHECKIN_INTERVAL_MS. -->
+    <div id="checkin-toast" hidden></div>
+    <div id="checkin-aviso" hidden></div>
 
     <button type="button" id="logout-btn" class="logout-btn">Sair</button>
   </div>
