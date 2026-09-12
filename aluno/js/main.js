@@ -3,5 +3,4 @@ import { startModoAulaTimer } from "./session-timer.js";
 
 // Ponto de entrada do app do aluno. Orquestra AR + camada de uso consciente.
 initAR();
-
-// TODO: chamar startModoAulaTimer() quando session-timer.js estiver implementado.
+startModoAulaTimer();

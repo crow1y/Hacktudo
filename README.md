@@ -116,13 +116,14 @@ pra câmera funcionar no celular do aluno.
       → id do animal em `aluno/js/ar.js`.
 
 **Camada de saúde mental / uso consciente:**
-- [ ] Implementar `aluno/js/session-timer.js`: contagem do "modo aula",
+- [x] Implementar `aluno/js/session-timer.js`: contagem do "modo aula",
       lembrete de pausa/respiração ao atingir `MODO_AULA_DURATION_MS`,
-      check-in de humor no fim da aula.
-- [ ] Escrever os check-ins de humor em `DB_PATHS.moodCheckins` (o painel
-      já lê e agrega isso automaticamente — testado com dados simulados).
-- [ ] Decidir e implementar a UI real de `#modo-aula-timer`,
-      `#pausa-lembrete` e `#mood-checkin` (hoje são só containers vazios).
+      check-in de humor no fim do módulo.
+- [x] Escrever os check-ins de humor em `DB_PATHS.moodCheckins`.
+- [x] Implementar a agregação de humor da turma em `painel/js/main.js`
+      (`#mood-summary`).
+- [x] Decidir e implementar a UI real de `#modo-aula-timer`,
+      `#pausa-lembrete` e `#mood-checkin`.
 
 **Se sobrar tempo:**
 - [ ] Suporte a múltiplos animais/matérias simultâneos.

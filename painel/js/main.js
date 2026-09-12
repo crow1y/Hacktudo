@@ -1,13 +1,6 @@
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { db } from "../../shared/firebase-config.js";
-import { DB_PATHS, MOOD_VALUES } from "../../shared/constants.js";
-
-const MOOD_LABELS = {
-  otimo: "😄 Ótimo",
-  bem: "🙂 Bem",
-  cansado: "😴 Cansado",
-  confuso: "😕 Confuso",
-};
+import { DB_PATHS, MOOD_VALUES, MOOD_LABELS } from "../../shared/constants.js";
 
 const animalInfoEl = document.getElementById("animal-info");
 const moodListEl = document.getElementById("mood-list");
