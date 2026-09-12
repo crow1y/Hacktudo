@@ -1,0 +1,15 @@
+{
+  "_comment": "Base de conteúdo didático. Cada entrada é consumida pelo aluno/ (target + model) e pelo painel/ (info). Adicione animais aqui sem tocar em nenhum JS.",
+  "animals": [
+    {
+      "id": "exemplo-leao",
+      "nome": "Leão",
+      "target": "aluno/assets/targets/TODO.mind",
+      "model": "aluno/assets/models/TODO.glb",
+      "info": {
+        "comportamento": "TODO",
+        "curiosidades": ["TODO"]
+      }
+    }
+  ]
+}
