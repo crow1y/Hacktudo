@@ -64,7 +64,7 @@ const ANIMATION_CROSSFADE_S = 0.3;
 // TikTok"): controla o animal relativo à câmera — empurrar "pra cima"
 // sempre afasta o animal de quem tá segurando o celular, não importa o
 // ângulo. Ver setupAnimalControl.
-const JOYSTICK_MAX_RADIUS_PX = 50;
+const JOYSTICK_MAX_RADIUS_PX = 65;
 const JOYSTICK_DEADZONE = 0.15;
 const MANUAL_RUN_THRESHOLD = 0.75;
 
@@ -197,12 +197,21 @@ function setupAnimalControl(model, mixer, animations, camera, container) {
     idleUntil = performance.now() + IDLE_MIN_MS + Math.random() * (IDLE_MAX_MS - IDLE_MIN_MS);
   }
 
+  // Agrupa o botão de pausar e o analógico num único container flex —
+  // eles ficam empilhados verticalmente sem precisar calcular posições
+  // fixas separadas (foi exatamente isso que fez os dois se sobreporem
+  // na primeira versão: o "bottom" do botão não considerava a altura
+  // real do analógico).
+  const controlsEl = document.createElement("div");
+  controlsEl.id = "wander-controls";
+  container.appendChild(controlsEl);
+
   // --- Botão "Parar"/"Andar sozinha": pausa o modo automático de propósito ---
 
   const toggleBtn = document.createElement("button");
   toggleBtn.id = "wander-toggle-btn";
   toggleBtn.textContent = "⏸ Parar";
-  container.appendChild(toggleBtn);
+  controlsEl.appendChild(toggleBtn);
 
   toggleBtn.addEventListener("click", () => {
     autoWanderEnabled = !autoWanderEnabled;
@@ -221,7 +230,7 @@ function setupAnimalControl(model, mixer, animations, camera, container) {
   const joystickKnob = document.createElement("div");
   joystickKnob.id = "joystick-knob";
   joystickBase.appendChild(joystickKnob);
-  container.appendChild(joystickBase);
+  controlsEl.appendChild(joystickBase);
 
   let dragging = false;
   let joyX = 0;
