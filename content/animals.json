@@ -7,8 +7,13 @@
       "target": "aluno/assets/targets/TODO.mind",
       "model": "aluno/assets/models/TODO.glb",
       "info": {
-        "comportamento": "TODO",
-        "curiosidades": ["TODO"]
+        "comportamento": "Vive em grupos chamados alcateias, geralmente formados por fêmeas aparentadas, seus filhotes e alguns machos. É o único felino verdadeiramente social — as fêmeas costumam caçar em conjunto, enquanto os machos defendem o território.",
+        "curiosidades": [
+          "O rugido de um leão pode ser ouvido a até 8 km de distância.",
+          "Leões dormem ou descansam entre 16 e 20 horas por dia.",
+          "A juba dos machos escurece com a idade e indica níveis de testosterona.",
+          "Filhotes nascem com manchas no pelo, que desaparecem com o crescimento."
+        ]
       }
     }
   ]

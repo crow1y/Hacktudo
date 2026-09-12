@@ -26,4 +26,16 @@ main {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* TODO: estilizar quando o layout do painel (projetor) for definido. */
+#mood-summary h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+#mood-list {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  padding: 0;
+  margin: 0;
+  font-size: 1.1rem;
+}

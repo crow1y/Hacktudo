@@ -1,15 +1,68 @@
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { db } from "../../shared/firebase-config.js";
-import { DB_PATHS } from "../../shared/constants.js";
+import { DB_PATHS, MOOD_VALUES } from "../../shared/constants.js";
 
-// Ponto de entrada do painel do professor.
-// TODO:
-//   1. Carregar content/animals.json (fetch) para ter nome/info por id.
-//   2. Assinar DB_PATHS.activeAnimal com onValue() e renderizar em #animal-info.
-//   3. Assinar DB_PATHS.moodCheckins com onValue() e renderizar agregação em #mood-summary.
+const MOOD_LABELS = {
+  otimo: "😄 Ótimo",
+  bem: "🙂 Bem",
+  cansado: "😴 Cansado",
+  confuso: "😕 Confuso",
+};
 
-onValue(ref(db, DB_PATHS.activeAnimal), (snapshot) => {
-  const animalId = snapshot.val();
-  // TODO: buscar animalId em animals.json e atualizar #animal-info
-  console.log("Animal ativo:", animalId);
-});
+const animalInfoEl = document.getElementById("animal-info");
+const moodListEl = document.getElementById("mood-list");
+
+let animalsById = new Map();
+
+async function loadAnimals() {
+  const response = await fetch("../content/animals.json");
+  const data = await response.json();
+  animalsById = new Map(data.animals.map((animal) => [animal.id, animal]));
+}
+
+function renderAnimal(animalId) {
+  const animal = animalId ? animalsById.get(animalId) : null;
+
+  if (!animal) {
+    animalInfoEl.innerHTML = `<p id="animal-placeholder">Aguardando aluno escanear um animal…</p>`;
+    return;
+  }
+
+  const curiosidadesHtml = animal.info.curiosidades
+    .map((curiosidade) => `<li>${curiosidade}</li>`)
+    .join("");
+
+  animalInfoEl.innerHTML = `
+    <h2>${animal.nome}</h2>
+    <p>${animal.info.comportamento}</p>
+    <ul>${curiosidadesHtml}</ul>
+  `;
+}
+
+function renderMoodSummary(checkins) {
+  const counts = Object.fromEntries(MOOD_VALUES.map((mood) => [mood, 0]));
+
+  for (const checkin of Object.values(checkins ?? {})) {
+    if (checkin.mood in counts) {
+      counts[checkin.mood] += 1;
+    }
+  }
+
+  moodListEl.innerHTML = MOOD_VALUES.map(
+    (mood) => `<li>${MOOD_LABELS[mood]}: ${counts[mood]}</li>`
+  ).join("");
+}
+
+async function main() {
+  await loadAnimals();
+
+  onValue(ref(db, DB_PATHS.activeAnimal), (snapshot) => {
+    renderAnimal(snapshot.val());
+  });
+
+  onValue(ref(db, DB_PATHS.moodCheckins), (snapshot) => {
+    renderMoodSummary(snapshot.val());
+  });
+}
+
+main();
