@@ -142,6 +142,30 @@ function initMateriasNav() {
 
 initMateriasNav();
 
+// Troca qual matéria fica visível (Ciências, Gramática, Geografia...).
+// Cada matéria nova entra só com o placeholder "Em breve..." (igual
+// Astronomia já fazia dentro de Ciências) até ganhar conteúdo de
+// verdade — nesse caso não precisa mexer em JS nenhum, só HTML (ver
+// CLAUDE.md). Ciências é a única com subtópicos próprios por dentro
+// (initMateriasNav acima), então ela guarda um segundo nível de nav.
+function initMateriaTabs() {
+  const botoes = document.querySelectorAll(".materia-btn");
+  const grupos = document.querySelectorAll("[data-materia-conteudo]");
+
+  botoes.forEach((botao) => {
+    botao.addEventListener("click", () => {
+      const materia = botao.dataset.materia;
+
+      botoes.forEach((b) => b.classList.toggle("materia-btn--active", b === botao));
+      grupos.forEach((grupo) => {
+        grupo.hidden = grupo.dataset.materiaConteudo !== materia;
+      });
+    });
+  });
+}
+
+initMateriaTabs();
+
 // Abas de topo do painel: "Matérias" (menu de disciplinas de sempre) e
 // "Presenças" (acompanhamento do professor) — são vistas separadas de
 // propósito, sem misturar com o .materias-nav de dentro de "Matérias".

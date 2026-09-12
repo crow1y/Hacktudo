@@ -54,7 +54,11 @@ main {
   color: #fff;
 }
 
-.materias-nav {
+/* .materias-nav troca qual matéria fica visível (Ciências, Gramática...);
+   .subtopicos-nav é o mesmo visual, mas por dentro de uma matéria pra
+   trocar subtópico (hoje só Ciências tem: Animais/Astronomia). */
+.materias-nav,
+.subtopicos-nav {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -65,13 +69,11 @@ main {
   padding: var(--space-sm);
 }
 
-.materias-nav__materia {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  color: var(--color-ink-soft);
-  padding: 0 var(--space-2xs);
+.subtopicos-nav {
+  margin-bottom: var(--space-md);
 }
 
+.materia-btn,
 .subtopico-btn {
   background: var(--color-bg);
   border: 1.5px solid var(--color-border);
@@ -84,6 +86,7 @@ main {
   cursor: pointer;
 }
 
+.materia-btn--active,
 .subtopico-btn--active {
   background: var(--color-primary);
   border-color: var(--color-primary);

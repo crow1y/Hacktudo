@@ -471,17 +471,43 @@ pra fazer na mão.
 
 ## Menu de matérias do painel
 
-`painel/index.html` tem uma `.materias-nav` com botões `.subtopico-btn`
-(`data-subtopico="..."`) que mostram/escondem seções `.conteudo-materia`
-(`data-conteudo="..."`) — troca 100% client-side, sem Firebase envolvido
-na navegação (`initMateriasNav()` em `painel/js/main.js`). Hoje só existe
-a disciplina Ciências, com dois subtópicos: **Animais** (`#animal-info`,
-conteúdo real, escuta `DB_PATHS.activeAnimal`) e **Astronomia**
-(`#astronomia-info`, estático — "Em breve teremos mais conteúdo para
-apresentar"). Pra adicionar um subtópico novo: um botão
-`.subtopico-btn` + uma seção `.conteudo-materia` com o mesmo valor em
-`data-subtopico`/`data-conteudo`; se o conteúdo for estático (tipo
-Astronomia), não precisa mexer no JS.
+Dois níveis de navegação em `painel/index.html`, os dois 100% client-side
+(sem Firebase envolvido na troca em si) e com o mesmo padrão visual
+(`.materia-btn`/`.subtopico-btn` são estilizados igual, ver
+`painel/css/style.css`):
+
+- **Nível matéria** (`initMateriaTabs()` em `painel/js/main.js`): botões
+  `.materia-btn` (`data-materia="..."`) mostram/escondem seções
+  `[data-materia-conteudo="..."]`. Hoje: Ciências, Gramática, Geografia,
+  História, Artes, Física, Química.
+- **Nível subtópico** (`initMateriasNav()`, função separada de propósito
+  — não confundir com a de cima): botões `.subtopico-btn`
+  (`data-subtopico="..."`) mostram/escondem seções `.conteudo-materia`
+  (`data-conteudo="..."`), só **dentro** do grupo de uma matéria. Hoje só
+  Ciências tem: **Animais** (`#animal-info`, conteúdo real, escuta
+  `DB_PATHS.activeAnimal`) e **Astronomia** (`#astronomia-info`,
+  estático). As outras seis matérias ainda não têm subtópico nenhum — são
+  só um placeholder "Em breve teremos mais conteúdo para apresentar"
+  dentro de `[data-materia-conteudo="..."]`.
+
+Pra adicionar:
+- **Matéria nova** (sem conteúdo ainda): um botão `.materia-btn` em
+  `.materias-nav` + uma `<section class="card conteudo-materia-grupo"
+  data-materia-conteudo="...">` com o placeholder — mesmo valor nos dois
+  `data-materia`/`data-materia-conteudo`. Não precisa mexer em JS.
+- **Subtópico dentro de uma matéria** (como Animais/Astronomia em
+  Ciências): um botão `.subtopico-btn` + uma seção `.conteudo-materia`
+  com o mesmo valor em `data-subtopico`/`data-conteudo`, dentro do
+  `[data-materia-conteudo]` daquela matéria. Se o conteúdo for estático,
+  também não precisa mexer em JS.
+
+⚠️ Ao esconder/mostrar uma seção nova assim, cuidado pra nunca dar
+`display` (flex/grid/etc.) numa classe que também leva `hidden` sem a
+guarda `:not([hidden])` — regra de autor sempre ganha da regra padrão do
+navegador pra `[hidden]`, e a seção fica "presa" visível. Já aconteceu
+uma vez com `.painel-layout` (ver histórico do git) — `.conteudo-materia-grupo`
+de propósito não tem nenhum `display` próprio no CSS pra não repetir o
+mesmo bug.
 
 ## Presenças do painel
 

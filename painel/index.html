@@ -72,18 +72,57 @@
 
     <div class="painel-layout" data-painel-view="materias">
       <nav class="materias-nav" aria-label="Matérias">
-        <span class="materias-nav__materia">Ciências</span>
-        <button type="button" class="subtopico-btn subtopico-btn--active" data-subtopico="animais">Animais</button>
-        <button type="button" class="subtopico-btn" data-subtopico="astronomia">Astronomia</button>
+        <button type="button" class="materia-btn materia-btn--active" data-materia="ciencias">Ciências</button>
+        <button type="button" class="materia-btn" data-materia="gramatica">Gramática</button>
+        <button type="button" class="materia-btn" data-materia="geografia">Geografia</button>
+        <button type="button" class="materia-btn" data-materia="historia">História</button>
+        <button type="button" class="materia-btn" data-materia="artes">Artes</button>
+        <button type="button" class="materia-btn" data-materia="fisica">Física</button>
+        <button type="button" class="materia-btn" data-materia="quimica">Química</button>
       </nav>
 
-      <section id="animal-info" class="conteudo-materia" data-conteudo="animais">
-        <div class="animais-layout">
-          <ul id="animais-lista" class="animais-lista" aria-label="Animais"></ul>
-          <div id="animal-detalhe" class="card animal-detalhe">
-            <p id="animal-placeholder">Escolha um animal na lista ao lado, ou aguarde um aluno escanear um.</p>
+      <section class="conteudo-materia-grupo" data-materia-conteudo="ciencias">
+        <nav class="subtopicos-nav" aria-label="Subtópicos de Ciências">
+          <button type="button" class="subtopico-btn subtopico-btn--active" data-subtopico="animais">Animais</button>
+          <button type="button" class="subtopico-btn" data-subtopico="astronomia">Astronomia</button>
+        </nav>
+
+        <section id="animal-info" class="conteudo-materia" data-conteudo="animais">
+          <div class="animais-layout">
+            <ul id="animais-lista" class="animais-lista" aria-label="Animais"></ul>
+            <div id="animal-detalhe" class="card animal-detalhe">
+              <p id="animal-placeholder">Escolha um animal na lista ao lado, ou aguarde um aluno escanear um.</p>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <section id="astronomia-info" class="card conteudo-materia" data-conteudo="astronomia" hidden>
+          <p>Em breve teremos mais conteúdo para apresentar.</p>
+        </section>
+      </section>
+
+      <section class="card conteudo-materia-grupo" data-materia-conteudo="gramatica" hidden>
+        <p>Em breve teremos mais conteúdo para apresentar.</p>
+      </section>
+
+      <section class="card conteudo-materia-grupo" data-materia-conteudo="geografia" hidden>
+        <p>Em breve teremos mais conteúdo para apresentar.</p>
+      </section>
+
+      <section class="card conteudo-materia-grupo" data-materia-conteudo="historia" hidden>
+        <p>Em breve teremos mais conteúdo para apresentar.</p>
+      </section>
+
+      <section class="card conteudo-materia-grupo" data-materia-conteudo="artes" hidden>
+        <p>Em breve teremos mais conteúdo para apresentar.</p>
+      </section>
+
+      <section class="card conteudo-materia-grupo" data-materia-conteudo="fisica" hidden>
+        <p>Em breve teremos mais conteúdo para apresentar.</p>
+      </section>
+
+      <section class="card conteudo-materia-grupo" data-materia-conteudo="quimica" hidden>
+        <p>Em breve teremos mais conteúdo para apresentar.</p>
       </section>
 
       <!-- Imagem em tela cheia, sem corte (a foto no card acima é
@@ -93,10 +132,6 @@
         <button type="button" id="imagem-modal-fechar" aria-label="Fechar">✕</button>
         <img id="imagem-modal-foto" alt="" />
       </div>
-
-      <section id="astronomia-info" class="card conteudo-materia" data-conteudo="astronomia" hidden>
-        <p>Em breve teremos mais conteúdo para apresentar.</p>
-      </section>
     </div>
 
     <!-- Presença do dia: cada aluno abre um registro automático ao entrar
