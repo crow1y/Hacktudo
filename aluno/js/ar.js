@@ -196,6 +196,27 @@ export async function initAR() {
     }
 
     set(ref(db, DB_PATHS.activeAnimal), animal.id);
+
+    // DEBUG temporário: modelo/plataforma não estavam aparecendo em teste
+    // real mesmo com tudo indicando sucesso (sem erro no console) — esse
+    // log reporta o estado de verdade do objeto 3D pra achar a causa em
+    // vez de continuar chutando. Ver Eruda > Console. Remover depois.
+    setTimeout(() => {
+      const cam = sceneEl.camera?.el?.object3D ?? sceneEl.querySelector("a-camera")?.object3D;
+      console.log(
+        "[preview-debug]",
+        JSON.stringify({
+          modelVisible: previewModelEl.object3D.visible,
+          modelPos: previewModelEl.object3D.position.toArray(),
+          modelParent: previewModelEl.object3D.parent?.el?.tagName,
+          modelChildren: previewModelEl.object3D.children.length,
+          modelMeshLoaded: !!previewModelEl.getObject3D("mesh"),
+          platformVisible: previewPlatformEl.object3D.visible,
+          camChildren: cam?.children.length,
+          camWorldPos: cam?.getWorldPosition(new AFRAME.THREE.Vector3()).toArray(),
+        })
+      );
+    }, 1500);
   }
 
   function hidePreview() {
