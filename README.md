@@ -1,50 +1,159 @@
-# Professor de Realidade Virtual — Hacktudo
+# Vivalivros
 
-Aluno aponta a câmera do celular pra uma imagem de animal em um livro
-didático de biologia → um modelo 3D animado "sai" do livro via Web AR
-(sem instalar app). Em paralelo, um painel web no computador/projetor do
-professor mostra em tempo real qual animal foi ativado e informações
-didáticas sobre ele para a turma toda.
+Aluno aponta a câmera do celular pra uma imagem de animal no livro
+didático → o bicho "ganha vida" em 3D na tela, ali mesmo, na hora, sem
+precisar instalar nenhum app. Projeto criado no Hacktudo.
 
-## Stack
+**Sumário**
+- [O que o projeto faz](#o-que-o-projeto-faz) — pra quem quer entender a
+  ideia e o que já funciona hoje (professor, coordenador, patrocinador,
+  banca não-técnica).
+- [Documentação técnica](#documentação-técnica) — pra quem vai mexer no
+  código.
+
+---
+
+## O que o projeto faz
+
+### Em uma frase
+
+O aluno usa o celular pra "escanear" uma imagem do livro de Ciências, e
+um bicho animado em 3D aparece na tela — como se tivesse saído da
+página. Ao mesmo tempo, a tela do professor (projetada pra turma) mostra
+informações sobre aquele bicho em tempo real.
+
+### Como funciona, do ponto de vista do aluno
+
+1. **Entra com matrícula e senha** (não precisa de e-mail) — se ainda
+   não tem conta, cria uma na hora, pela própria tela do celular.
+2. **Aponta a câmera pra imagem do animal** no livro didático.
+3. Em segundos, o bicho aparece **animado, num cartão na tela**, com o
+   nome dele e uma animação (ele se move, olha ao redor, etc.), como se
+   fosse um cartão de figurinha que ganhou vida.
+4. Se o celular for compatível (ver abaixo), aparece um botão extra:
+   **"Fixar no chão"**. Ao tocar, é só apontar a câmera pro chão de
+   verdade da sala — o bicho aparece parado ali, **no tamanho real dele**
+   (sem elefante do tamanho de um rato nem formiga gigante), e passa a
+   **andar sozinho pela sala**, como se estivesse ali de verdade. Dá pra
+   andar ao redor dele e ver de qualquer ângulo.
+5. Nesse modo avançado, o aluno também pode:
+   - **Assumir o controle do bicho** com uma espécie de "controle de
+     videogame" que aparece na tela (um círculo que você arrasta com o
+     dedo pra guiar ele pra onde quiser, podendo até fazer ele correr).
+   - **Deixar ele paradinho** com um botão de pausa — útil na hora de
+     prestar atenção numa explicação sem o bicho ficando andando de um
+     lado pro outro.
+6. Um botão "🔄 Escanear outro" solta o bicho atual e libera pra
+   escanear um animal diferente.
+
+### Como funciona, do ponto de vista do professor
+
+O professor também entra com matrícula e senha (conta de professor
+precisa ser aprovada por um administrador do sistema antes de poder ser
+usada — ver avisos abaixo). A tela do professor (pensada pra ficar
+aberta no computador ligado ao projetor da sala) mostra um **menu de
+matérias**: hoje só existe Ciências, com dois assuntos — **Animais**
+(mostra automaticamente, em tempo real, o nome e as informações do
+animal que o aluno está vendo no celular naquele momento) e
+**Astronomia** (ainda sem conteúdo, mostra um aviso de "em breve").
+
+### O que já dá pra usar hoje vs. o que ainda tá em construção
+
+**Já funciona, testado em celular de verdade:**
+- Reconhecer a imagem do livro e mostrar o bicho animado na tela.
+- O modo avançado de "plantar" o bicho no chão em tamanho real, andando
+  sozinho, com controle manual e botão de pausa.
+- Cadastro/login por matrícula e senha, com aprovação de professor por
+  um administrador.
+- Painel do professor com o menu de matérias, atualizando em tempo real.
+- Página inicial de apresentação do projeto (a que você provavelmente
+  está vendo agora, se não estiver direto no app).
+
+**Ainda em construção:**
+- **Hoje só existe UM animal de teste** (uma raposa, usando uma imagem e
+  um modelo 3D de exemplo, só pra provar que a ideia funciona) — os
+  animais de verdade do livro (começando por um leão) ainda precisam das
+  fotos reais das páginas do livro e dos modelos 3D animados deles. A
+  base do sistema já entende múltiplos animais ao mesmo tempo; só falta
+  o conteúdo de verdade.
+- Mais matérias além de Ciências no painel do professor.
+- Algumas ilustrações da página inicial (ícones do carrossel) ainda são
+  espaços reservados, sem arte final.
+- Logos de patrocinadores na página inicial — sem patrocínio confirmado
+  ainda, são só espaços reservados.
+
+### Avisos importantes
+
+- **O modo de "plantar no chão" só existe em alguns celulares Android**
+  com o Chrome mais novo — ainda não existe em iPhone. O reconhecimento
+  normal (apontar pro livro) funciona em qualquer celular com câmera.
+- **O bicho plantado no chão não desvia de pessoas ou objetos reais** na
+  frente dele (o celular não consegue "entender" a profundidade da sala
+  o suficiente pra isso) — e também não afasta muito do lugar onde foi
+  colocado, já que o celular não sabe onde estão as paredes de verdade.
+  São limitações conhecidas, não bugs.
+- **O código que libera acesso de professores é só uma trava simples**
+  contra cliques sem querer, não é segurança de verdade — precisa ser
+  trocado por alguém técnico antes de qualquer uso real numa escola.
+- **Os números da seção "Pra onde a gente quer ir"** (tipo "+1.000
+  alunos") são objetivos/sonhos do time, não números reais já
+  alcançados — o projeto acabou de sair de um hackathon.
+- **As logos de patrocinadores são só placeholders**, sem nenhum
+  patrocínio confirmado até agora.
+
+---
+
+## Documentação técnica
+
+### Stack
 
 - **AR / reconhecimento de imagem**: MindAR + A-Frame — roda 100% no
-  navegador do celular do aluno.
-- **Sincronização em tempo real**: Firebase Realtime Database — client-side
-  puro, sem servidor próprio pra manter.
-- **Login/cadastro**: Firebase Authentication (matrícula + senha), client-side
-  puro.
-- **Design**: CSS puro com tokens compartilhados (`shared/theme.css`) — sem
-  framework/build step. Tema claro único, visual lúdico/colorido (público
-  de 7 a 15 anos), tipografia Quicksand/Nunito (Google Fonts), espaçamento
-  fluido via `clamp()`.
+  navegador do celular do aluno, sem instalar nada.
+- **Cartão de prévia do animal**: [`<model-viewer>`](https://modelviewer.dev/)
+  (Web Component do Google), um motor 3D independente da cena
+  MindAR/A-Frame — ver gotcha detalhado no `CLAUDE.md` sobre por que essa
+  separação foi necessária.
+- **Modo avançado (chão real)**: WebXR (`hit-test` + `dom-overlay`), em
+  Three.js puro (`aluno/js/webxr-mode.js`), separado do A-Frame. Suporta
+  Android/Chrome com ARCore; não existe em Safari/iPhone. O bicho anda
+  sozinho (máquina de estados simples: anda/corre/para) dentro de um
+  raio de segurança em torno do ponto onde o chão foi tocado — não há
+  detecção real de paredes (WebXR Plane Detection/Depth API foram
+  avaliadas; Depth API foi tentada e abandonada por instabilidade, ver
+  `CLAUDE.md`). Também dá pra controlar manualmente via um analógico
+  virtual (relativo à câmera) e pausar o andar automático.
+- **Sincronização em tempo real**: Firebase Realtime Database —
+  client-side puro, sem servidor próprio pra manter.
+- **Login/cadastro**: Firebase Authentication (matrícula + senha),
+  client-side puro.
+- **Design**: CSS puro com tokens compartilhados (`shared/theme.css`) —
+  sem framework/build step. Tema claro único, visual lúdico/colorido
+  (público de 7 a 15 anos), tipografia Quicksand/Nunito (Google Fonts),
+  espaçamento fluido via `clamp()`.
 - **Hospedagem**: estática, na Vercel, com HTTPS automático.
 
-## Estrutura do projeto
+### Estrutura do projeto
 
 ```
-index.html → landing page pública na raiz (apresentação do projeto + CTA pra aluno/painel)
-css/, js/  → estilos e comportamento (menu, carrossel) só da landing page
-aluno/     → app que roda no celular (login/cadastro, câmera, AR)
-painel/    → app que roda no computador/projetor do professor (login/cadastro + dashboard)
-admin/     → tela do dono do sistema pra liberar o acesso de professores cadastrados
-shared/    → config do Firebase, auth, validadores, design system (theme.css) e constantes usadas por todos os apps
-content/   → dados didáticos dos animais (JSON), sem lógica
-ia/        → contexto do projeto e prompts prontos para ferramentas de IA
+index.html, css/site.css, js/site.js → landing page pública na raiz (apresentação do projeto + CTA pra aluno/painel)
+assets/img/  → imagens reais já usadas no projeto (hero e logo da landing page)
+aluno/       → app que roda no celular (login/cadastro, câmera, AR, modo WebXR)
+painel/      → app que roda no computador/projetor do professor (login/cadastro + menu de matérias)
+admin/       → tela do dono do sistema pra liberar o acesso de professores cadastrados
+shared/      → config do Firebase, auth, validadores, design system (theme.css) e constantes usadas por todos os apps
+content/     → dados didáticos dos animais (JSON), sem lógica
+ia/          → contexto do projeto e prompts prontos para ferramentas de IA
 ```
 
-Veja os comentários `TODO` dentro de cada arquivo — eles marcam exatamente
-onde cada parte da implementação entra.
+### Setup
 
-## Setup
-
-### 1. Instalar dependências (só o servidor de dev local)
+#### 1. Instalar dependências (só o servidor de dev local)
 
 ```bash
 npm install
 ```
 
-### 2. Firebase
+#### 2. Firebase
 
 Já configurado (projeto `viva-livro`, config em `shared/firebase-config.js`,
 regras do Realtime Database abertas para o hackathon). Se precisarem
@@ -61,7 +170,7 @@ O cadastro pede matrícula (não e-mail), mas o Firebase Auth exige e-mail —
 (`matricula@aluno.viva-livro.app` / `matricula@professor.viva-livro.app`),
 nunca exibido pro usuário.
 
-### 3. Rodar localmente
+#### 3. Rodar localmente
 
 ```bash
 npm run dev:aluno    # abre http://localhost:8080/aluno/
@@ -76,14 +185,20 @@ mesma raiz (igual vai ficar em produção). Se a porta padrão (8080/8081)
 estiver ocupada, o live-server avisa no terminal e sobe em outra — só
 prestar atenção na mensagem `Serving "..." at http://127.0.0.1:XXXXX`.
 
+Pra ver a landing page (`index.html` na raiz) ou o `admin/` localmente,
+não há script dedicado ainda — rodem `npx live-server --ignore=node_modules`
+direto na raiz do projeto (mesma lógica: precisa ser servido a partir da
+raiz).
+
 **Importante:** acesso à câmera do celular exige HTTPS (ou `localhost`, que
 só funciona testando no próprio computador — um IP de rede local tipo
 `http://192.168.x.x:8080` não é considerado contexto seguro pelo navegador).
 Para testar no celular durante o desenvolvimento, exponham o `dev:aluno`
-local via um túnel HTTPS (ex: `ngrok http 8080`) até fazer o deploy real na
-Vercel.
+local via um túnel HTTPS. Usamos o **Cloudflare Tunnel**
+(`cloudflared tunnel --url http://localhost:8080`, sem precisar criar
+conta) em vez do ngrok, que exige login.
 
-### 4. Deploy
+#### 4. Deploy
 
 Hospedado na [Vercel](https://vercel.com) como site estático (sem build —
 ver `vercel.json`). `ia/`, `teste`, `node_modules/` e `package-lock.json`
@@ -99,140 +214,116 @@ Para publicar:
 
 Fica acessível em:
 
+- `https://<projeto>.vercel.app/` — landing page pública.
 - `https://<projeto>.vercel.app/aluno/`
 - `https://<projeto>.vercel.app/painel/`
+- `https://<projeto>.vercel.app/admin/`
 
 HTTPS já vem ativado por padrão na Vercel — obrigatório pra câmera
 funcionar no celular do aluno. Um domínio próprio pode ser adicionado
 depois em Project Settings → Domains.
 
-## Próximos passos (onde continuar)
+### Schema do `content/animals.json`
 
-**Núcleo obrigatório do MVP:**
-- [x] Configurar o Firebase Realtime Database (projeto `viva-livro`, regras
-      abertas para o hackathon).
-- [x] Implementar `painel/js/main.js`: busca `content/animals.json`, escuta
-      o Firebase e renderiza `#animal-info` em tempo real, dentro do menu
-      de matérias (Ciências → Animais). Testado ponta a ponta.
-- [x] Implementar `aluno/js/ar.js`: MindAR + A-Frame, carrega target/model
-      do primeiro animal de `content/animals.json`, escreve o id em
-      `DB_PATHS.activeAnimal` ao detectar/perder o alvo. **Hoje ainda usa
-      um alvo e modelo de exemplo públicos** (entrada `teste-pipeline` em
-      `content/animals.json`) só para validar a pipeline — testado no
-      navegador (scripts, Firebase e download do modelo confirmados
-      funcionando; falta testar detecção de imagem num celular/webcam
-      real, que a automação de teste não tem).
-- [ ] Escolher/gerar as imagens-alvo (`.mind` files do MindAR) a partir das
+- `targetSrc`: um único `.mind` compartilhado por **todos** os animais —
+  compilado com todas as imagens-alvo juntas (ferramenta oficial:
+  https://hiukim.github.io/mind-ar-js-doc/tools/compile). A ordem de
+  upload na hora de compilar define o índice de cada imagem.
+- Cada animal tem `targetIndex` (posição dele dentro desse `.mind`
+  compartilhado) em vez de um target próprio — a base já suporta vários
+  animais/alvos simultâneos.
+- `aluno/js/ar.js` filtra (`isAssetReady`) animais cujo `model` ainda
+  contém `"TODO"` — eles ficam no JSON normalmente, só não viram alvo de
+  AR até o asset real existir (evita travar tentando carregar um arquivo
+  inexistente). Hoje `exemplo-leao` está nessa situação.
+- Existe uma entrada `teste-pipeline` usando alvo/modelo públicos de
+  exemplo (card do MindAR + `Fox.glb` do KhronosGroup) só para validar a
+  pipeline inteira — trocar pelos assets reais quando estiverem prontos
+  (ver `ia/prompts/gerar-modelo-3d.md` e
+  `ia/prompts/gerar-conteudo-animais.md`). `aluno/assets/models/` e
+  `aluno/assets/targets/` existem só com `.gitkeep`, aguardando os
+  arquivos reais.
+- `alturaRealMetros`: altura real aproximada do animal em pé, em metros —
+  usada só pelo modo WebXR (`aluno/js/webxr-mode.js`) pra escala real no
+  chão e pro raio de segurança do andar sozinho. Não afeta o modo MindAR
+  normal.
+
+### Firebase Realtime Database — schema
+
+```
+session/
+  activeAnimal        → string: id do animal ativo (ou null)
+```
+
+```
+users/
+  professores/
+    <uid>/  → nome, matricula, cpf, liberado: boolean, criadoEm: number
+  alunos/
+    <uid>/  → nome, matricula, criadoEm: number
+```
+
+Paths vêm de `shared/constants.js` (`DB_PATHS`) — sempre importar de lá,
+nunca hardcodear strings soltas nos dois lados (`aluno/` e `painel/`).
+`<uid>` é o uid do Firebase Auth (não a matrícula) — sempre resolver o uid
+via sessão autenticada (`ouvirSessao`/`ouvirPerfil` em `shared/auth.js`),
+nunca assumir que a matrícula em si é a chave.
+
+### Próximos passos (onde continuar)
+
+**Conteúdo (bloqueador pra uso real):**
+- [ ] Escolher/gerar as imagens-alvo (`.mind` do MindAR) a partir das
       páginas reais do livro didático.
-- [ ] Conseguir/gerar os modelos 3D animados (`.glb`) reais dos animais —
-      ver `ia/prompts/gerar-modelo-3d.md`. Ao ter os assets do leão
+- [ ] Conseguir/gerar os modelos 3D animados (`.glb`) reais dos animais
+      (ver `ia/prompts/gerar-modelo-3d.md`). Ao ter os assets do leão
       prontos, preencher `target`/`model` na entrada `exemplo-leao` de
-      `content/animals.json` e remover (ou mover para depois) a entrada
-      `teste-pipeline` — `aluno/js/ar.js` sempre usa o primeiro item da
-      lista.
-- [ ] Testar a detecção de imagem de verdade num celular (via `ngrok http
-      8080` ou já no deploy da Vercel).
-- [ ] Ajustar posição/escala do modelo 3D em `aluno/js/ar.js` visualmente
-      (o valor atual, `scale="0.05 0.05 0.05"`, é um chute inicial).
+      `content/animals.json`.
 - [ ] Preencher `content/animals.json` com os demais animais reais do
       livro/turma (usar `ia/prompts/gerar-conteudo-animais.md`).
+- [ ] Testar múltiplos animais simultâneos de verdade (o código já
+      suporta via `targetIndex`; falta só ter mais de um `.mind`
+      compilado com imagens reais pra validar).
+
+**Segurança antes de uso real em sala de aula:**
+- [ ] Trocar `ADMIN_ACCESS_CODE` (`shared/constants.js`) pelo valor real.
 - [ ] Definir e configurar as regras de segurança do Firebase Realtime
-      Database antes de usar em sala de aula de verdade (hoje está
-      totalmente aberto, incluindo os nós `users/professores` e
-      `users/alunos` criados pelo login/cadastro).
-- [ ] Suporte a múltiplos alvos simultâneos: hoje só o primeiro animal do
-      JSON vira alvo de AR. Múltiplos animais ao mesmo tempo exigem
-      compilar todas as imagens num único `.mind` e mapear `targetIndex`
-      → id do animal em `aluno/js/ar.js`.
+      Database (hoje está totalmente aberto, incluindo os nós
+      `users/professores` e `users/alunos`).
 
-**Login / cadastro / hierarquia:**
-- [x] Cadastro e login por matrícula/senha (Firebase Authentication) em
-      `aluno/` e `painel/`, com validação de senha (mínimo 8 caracteres,
-      maiúscula, minúscula, número e caractere especial) em
-      `shared/validators.js`.
-- [x] Cadastro de professor pede Nome, Matrícula e CPF (com validação de
-      dígito verificador) além da senha; conta nasce com `liberado: false`.
-- [x] Tela "Aguardando liberação de conteúdos" no painel enquanto
-      `liberado` for `false` — atualiza em tempo real quando o admin libera.
-- [x] `admin/`: tela do dono do sistema pra liberar/revogar professores
-      (gate por código fixo em `ADMIN_ACCESS_CODE`, `shared/constants.js`
-      — **trocar esse código antes de uso real**, é só uma trava contra
-      cliques acidentais, não segurança de verdade).
-- [x] Sessão não persiste entre fechamentos do navegador
-      (`browserSessionPersistence` em `shared/auth.js`) — aluno/professor
-      precisa logar de novo com matrícula/senha a cada nova sessão do
-      navegador.
-- [ ] Trocar `ADMIN_ACCESS_CODE` pelo valor real antes do hackathon/demo.
+**Landing page:**
+- [x] Ilustração real do hero e logo da marca já adicionadas
+      (`assets/img/HeroVivaLivros.jpg`, `assets/img/logo-mark.png`).
+- [ ] Ícones/ilustrações do carrossel ainda são `.img-placeholder`.
+- [ ] Logos reais de patrocinadores — só trocar quando houver
+      patrocínio confirmado (ver aviso na Seção 1).
+- [ ] **Inconsistência encontrada**: o texto da landing page
+      (`index.html`, seção "Como funciona" e card "Sou aluno") ainda
+      menciona "check-in de presença", mas essa funcionalidade foi
+      removida do app (ver `CLAUDE.md` → "Menu de matérias do painel").
+      Precisa atualizar o texto.
+- [ ] QA visual em todos os apps (mobile e desktop) — revisão até agora
+      foi maior no fluxo do aluno (AR/WebXR) e no hero/logo da landing
+      page.
 
-**Menu de matérias no painel:**
-- [x] `painel/index.html`/`painel/js/main.js`: menu de matérias
-      (`.materias-nav`) com a disciplina Ciências e dois subtópicos —
-      Animais (conteúdo real, `#animal-info` escutando
-      `DB_PATHS.activeAnimal` como antes) e Astronomia (estático, mensagem
-      "Em breve teremos mais conteúdo para apresentar"). Troca de
-      subtópico é só client-side (`.conteudo-materia[hidden]`), sem
-      Firebase envolvido na navegação em si.
-- [ ] Adicionar mais matérias/subtópicos reais conforme o conteúdo for
-      ficando pronto (hoje só Ciências existe).
-- **Removido**: a feature de check-in de presença (`aluno/js/checkin.js`,
-      `#checkin-summary` no painel, `DB_PATHS.checkins`) foi tirada do
-      projeto por decisão do produto — não fazia sentido dentro da nova
-      estrutura de matérias. Dados antigos de check-in também foram
-      apagados do Realtime Database. O check-in de humor (removido antes
-      disso, junto com o cronômetro de "modo aula") continua em aberto
-      pra repensar formato depois, sem relação com essa remoção.
-
-**Design system:**
-- [x] Tokens de cor/tipografia/espaçamento/raio/sombra compartilhados em
-      `shared/theme.css`, inspirados no site elefanteletrado.com.br (cores
-      vivas, cantos bem arredondados, sombras suaves) — decisão do produto
-      de assumir o visual lúdico/colorido pro público de 7 a 15 anos em
-      todo o projeto (revisão de uma direção anterior mais neutra).
-- [x] Componentes reutilizáveis (`.card`, `.field`, `.password-field`,
-      `.btn-primary`/`.btn-primary--form`, `.btn-secondary`, `.btn-link`,
-      `.img-placeholder`) aplicados na landing page, `aluno/`, `painel/`
-      e `admin/`.
-- [x] Tema claro único em todos os apps (o app do aluno era escuro antes;
-      só as camadas sobre a câmera ao vivo continuam escuras, de
-      propósito, pra manter contraste sobre o vídeo).
-- [x] Espaçamento fluido via `clamp()` (cresce com a viewport, quase sem
-      media query) — responsivo mobile/desktop por padrão.
-- [x] Landing page pública (`index.html` + `css/site.css` + `js/site.js`):
-      menu com hambúrguer no mobile, hero, seção de metas (ver ressalva
-      abaixo), carrossel autoplay, passo a passo, cards de entrada
-      (aluno/professor) e rodapé.
-- [ ] **Ilustrações/mascote/logos são placeholders reservados**
-      (`.img-placeholder`, com `data-placeholder-label` descrevendo o que
-      deveria entrar ali) — não gerei arte nem usei fotos de banco de
-      imagem. Precisa de: ilustração do hero (aluno + celular + bicho
-      saindo do livro), logo da marca, ícone de cada slide do carrossel, e
-      as logos reais de patrocinadores (ver próximo item).
-- [ ] **Números da seção "Pra onde a gente quer ir" são metas, não fatos
-      alcançados** — o projeto é recém-saído de hackathon e não tem dados
-      reais de uso ainda. Não trocar o enquadramento pra "já alcançamos"
-      sem ter os números de verdade, pra não apresentar dado fabricado
-      como real.
-- [ ] **Patrocinadores são só placeholders genéricos** — a lista original
-      pedida citava nomes de empresas/órgãos reais (Petrobras, Ministério
-      da Cultura e da Educação, etc.) sem confirmação de patrocínio real;
-      usar logo de terceiro sem acordo implica afiliação falsa. Trocar
-      pelos logos de verdade só quando houver patrocínio confirmado.
-- [ ] **QA visual pendente**: revisão feita só na estrutura (HTML/CSS,
-      balanceamento de tags), a extensão do navegador ficou indisponível
-      a sessão inteira — abrir a landing page, `aluno/`, `painel/` e
-      `admin/` no navegador (mobile e desktop) antes de considerar
-      fechado.
+**Débito técnico pequeno:**
+- [ ] Console de debug **Eruda**, carregado em `aluno/index.html`
+      (marcado `TEMPORÁRIO` no HTML) — decidir se remove ou mantém como
+      ferramenta de debug permanente pra quando não há cabo USB-C
+      disponível pra inspecionar o celular.
 
 **Se sobrar tempo:**
-- [ ] Suporte a múltiplos animais/matérias simultâneos.
+- [ ] Mais matérias/subtópicos no painel (hoje só Ciências existe).
 - [ ] Histórico de uso por aluno/turma.
 - [ ] Estatísticas mais elaboradas no painel.
 
-## Divisão de trabalho sugerida
+### Divisão de trabalho sugerida
 
 Como a separação `aluno/` vs `painel/` é limpa, cada pessoa do time pode
-tocar um lado sem conflitar com o outro — só cuidado ao mexer em
-`shared/constants.js`, que é compartilhado (avisem um ao outro antes de
-mudar nomes de paths ali), e em `content/animals.json`, onde os ids dos
-animais precisam bater entre quem gera o target/model e quem escreve o
-conteúdo didático.
+tocar um lado sem conflitar com o outro — uma na pipeline de RA
+(`aluno/js/ar.js`, `aluno/js/webxr-mode.js` e assets), outra no menu de
+matérias do painel + conteúdo (`painel/js/main.js`,
+`content/animals.json`). Só cuidado ao mexer em `shared/constants.js`,
+que é compartilhado (avisem um ao outro antes de mudar nomes de paths
+ali), e em `content/animals.json`, onde os ids dos animais precisam
+bater entre quem gera o target/model e quem escreve o conteúdo
+didático.
