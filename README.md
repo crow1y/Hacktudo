@@ -359,10 +359,54 @@ nunca assumir que a matrícula em si é a chave.
       imagem — nenhuma delas é uma página de livro de verdade ainda).
 
 **Segurança antes de uso real em sala de aula:**
-- [ ] Trocar `ADMIN_ACCESS_CODE` (`shared/constants.js`) pelo valor real.
-- [ ] Definir e configurar as regras de segurança do Firebase Realtime
-      Database (hoje está totalmente aberto, incluindo os nós
-      `users/professores` e `users/alunos`).
+- [ ] Trocar `ADMIN_ACCESS_CODE` (`shared/constants.js`) pelo valor real —
+      continua sendo só uma trava client-side (não é login de verdade),
+      as regras abaixo já limitam o dano de alguém adivinhar/vazar esse
+      código, mas trocar o valor padrão continua necessário.
+- [x] Regras de segurança do Realtime Database escritas em
+      `database.rules.json` (**ainda não aplicadas** — precisa colar no
+      Firebase Console > Realtime Database > Regras, e publicar; o
+      arquivo no repo não é aplicado sozinho, o projeto não tem
+      Firebase CLI configurado). Resumo do que elas fazem, e o que
+      **ainda** fica aberto de propósito:
+  - `users/alunos`: só o próprio aluno lê/escreve seu perfil.
+  - `users/professores`: leitura continua aberta pra qualquer um (a tela
+    `/admin/` lê a lista inteira sem login — ver limitação do
+    `ADMIN_ACCESS_CODE` acima) — **CPF continua exposto** enquanto
+    `/admin/` não tiver login de verdade. Escrita é por campo: só o
+    próprio professor grava nome/matrícula/cpf/liberado inicial (`false`)
+    no cadastro; depois disso, só o campo `liberado` de um professor que
+    **já existe** pode ser trocado sem login — mesma limitação de hoje,
+    só que restrita a esse único campo em vez do banco inteiro. Isso
+    inclui o **próprio professor podendo se auto-aprovar** (chamando a
+    escrita direto, não pela UI de `/admin/`) — só fecha de verdade
+    quando `/admin/` tiver login real.
+  - `presencas`: exige estar logado pra ler. Escrita liberada pro próprio
+    aluno (seu próprio registro) ou por qualquer professor com
+    `liberado: true` (pra validar `status`) — como não há regra por
+    campo aqui, um aluno tecnicamente ainda consegue escrever no próprio
+    `status` direto pela API do Firebase (não pela UI) sem passar pelo
+    professor; aceito por ora, endurecer isso é trabalho futuro (ver
+    `CLAUDE.md`).
+  - `session/activeAnimal`: exige estar logado pra ler/escrever.
+
+  **Como aplicar**: Firebase Console > Realtime Database > aba "Regras"
+  > colar o conteúdo de `database.rules.json` > Publicar. **Antes de
+  publicar**, vale testar no "Playground" da própria aba de Regras
+  (não precisa instalar nada) pelo menos:
+  - Não autenticado lendo `users/alunos/<qualquer-uid>` → deve **negar**.
+  - Não autenticado lendo `users/professores` → deve **permitir**
+    (esperado, é o que a tela `/admin/` depende).
+  - Autenticado como aluno A escrevendo em
+    `presencas/<data>/<uid-do-aluno-B>/status` → deve **negar**.
+  - Autenticado como professor com `liberado: true` escrevendo em
+    `presencas/<data>/<qualquer-uid>/status` → deve **permitir**.
+  - Não autenticado escrevendo `users/professores/<uid-novo>` (que não
+    existe ainda) → deve **negar** (não dá pra fabricar professor do
+    zero sem login).
+  Essas regras não foram testadas contra o banco de verdade nesta sessão
+  (sem Firebase CLI/emulador disponível) — só verificadas na leitura do
+  código; testar no Playground antes de confiar 100%.
 
 **Painel do professor:**
 - [x] Lista de animais trocada de texto simples pra links com foto,

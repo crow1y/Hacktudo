@@ -92,9 +92,14 @@ linguagem que exclua quem não é criança pequena.
   animação de glTF via `animation-mixer`). Sem bundler/build step de
   propósito.
 - **Realtime sync**: Firebase Realtime Database, projeto `viva-livro`.
-  Regras hoje estão **abertas** (leitura/escrita pública) — ok para o
-  hackathon, mas listado no README como pendência de segurança antes de
-  uso real em sala de aula.
+  Regras vivem em `database.rules.json` (na raiz do repo) — mas **isso é
+  só o arquivo, não o deploy**: o projeto não tem Firebase CLI
+  configurado, então o conteúdo desse arquivo precisa ser colado manualmente
+  em Firebase Console > Realtime Database > Regras (e publicado) toda vez
+  que mudar. Se o comportamento em produção não bater com o que o arquivo
+  diz, suspeitar primeiro de "esqueceram de colar no Console" antes de
+  qualquer outra coisa. Ver "Segurança do Realtime Database" abaixo pro
+  que essas regras cobrem e o que ainda fica aberto de propósito.
 - **Hospedagem**: Vercel, deploy automático a cada push na `main` (site
   estático, sem build — ver `vercel.json`), porque o código usa imports
   relativos entre `aluno/`, `painel/`, `shared/` e `content/` que
@@ -575,3 +580,52 @@ Uma chave por dia por aluno — reabrir o app no mesmo dia soma na mesma
 entrada (via `runTransaction` em `aluno/js/presence.js`, que preserva
 `entrada`/`status` se o registro já existir). `status` começa sempre
 `"pendente"` e só o professor muda (`painel/js/presence.js`).
+
+## Segurança do Realtime Database (`database.rules.json`)
+
+Regras reais (não mais totalmente abertas) — mas **lembrar que colar o
+arquivo no Firebase Console é manual**, ver gotcha acima. Decisão
+consciente do dono do projeto: manter `/admin/` sem login de verdade por
+enquanto (só o `ADMIN_ACCESS_CODE` client-side de sempre), então as
+regras não tentam fingir que esse fluxo é seguro — só reduzem o raio de
+dano de "banco inteiro aberto" pra "esse campo específico continua
+aberto, documentado".
+
+- `users/alunos/<uid>`: só o próprio aluno lê/escreve (`auth.uid ===
+  uid`). Sem exceção — nada em `painel/`/`admin/` precisa ler esse nó
+  (nome/matrícula do aluno já vêm denormalizados em `presencas`).
+- `users/professores/<uid>`: leitura continua **aberta pra qualquer um**
+  de propósito — `/admin/js/main.js` lê a lista inteira sem estar
+  autenticado. Isso significa **CPF continua exposto** publicamente
+  até `/admin/` ganhar login de verdade (não fazer disso um "já
+  resolvido"). Escrita é campo a campo: `nome`/`matricula`/`cpf` só o
+  dono (`auth.uid === uid`); `criadoEm` só na criação; `liberado` só
+  pode ser criado como `false` pelo próprio professor no cadastro, e só
+  pode mudar depois (pra `true`/`false`) se o registro **já existir** —
+  sem exigir login. Ou seja: **qualquer um que descubra o caminho ainda
+  consegue liberar/revogar um professor sem passar pelo código do
+  admin — incluindo o próprio professor se auto-aprovando**, chamando a
+  escrita direto (ex: pelo console do navegador, reaproveitando o SDK já
+  carregado na página) sem nunca abrir `/admin/`. Não é regressão (antes
+  dessas regras o banco inteiro já era assim), mas não tratar "regras
+  configuradas" como "aprovação de professor é confiável agora" — só
+  fica confiável quando `/admin/` ganhar login de verdade (rejeitado por
+  ora, ver decisão do dono do projeto). Mesma limitação de sempre, só
+  que restrita a um campo em vez do banco inteiro. `shared/auth.js` usa
+  `update()` (não `set()`) pra
+  criar o perfil do professor de propósito — um `set()` no nó inteiro
+  exigiria permissão de escrita ampla o bastante pra o próprio professor
+  também conseguir escrever `liberado: true` em si mesmo.
+- `presencas/<data>/<uid>`: exige login pra ler (`auth != null`).
+  Escrita permitida pro próprio aluno (seu registro) OU por qualquer
+  professor com `liberado === true` (consultado via
+  `root.child('users/professores')...`) — não há regra por campo
+  separando "só o professor mexe em `status`", então um aluno
+  tecnicamente ainda consegue escrever no próprio `status` chamando a
+  API do Firebase direto (não pela UI, que nunca faz isso). Aceito por
+  ora pra não arriscar quebrar os heartbeats com uma regra em cascata
+  mal testada — se for endurecer isso depois, testar bem no Simulador de
+  Regras do Firebase Console antes de publicar (o comportamento de
+  cascata de `.write`/`.validate` em nós aninhados é fácil de errar).
+- `session/activeAnimal`: exige login pra ler/escrever (`auth != null`),
+  sem diferenciar papel (aluno escreve, aluno ou professor podem ler).

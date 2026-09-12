@@ -13,7 +13,7 @@ import {
   signOut,
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+import { ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { auth, db } from "./firebase-config.js";
 import { DB_PATHS, ROLES, AUTH_EMAIL_SUFFIX } from "./constants.js";
 
@@ -34,7 +34,12 @@ export async function cadastrarProfessor({ nome, matricula, cpf, senha }) {
   await persistenciaPronta;
   const email = matriculaParaEmail(ROLES.PROFESSOR, matricula);
   const { user } = await createUserWithEmailAndPassword(auth, email, senha);
-  await set(ref(db, perfilPath(ROLES.PROFESSOR, user.uid)), {
+  // update() (não set()) de propósito: as regras do Realtime Database
+  // validam campo a campo (ver database.rules.json) pra impedir que o
+  // próprio professor escreva `liberado: true` em si mesmo — um set() no
+  // nó inteiro exigiria uma permissão de escrita ampla que abriria essa
+  // brecha.
+  await update(ref(db, perfilPath(ROLES.PROFESSOR, user.uid)), {
     nome,
     matricula,
     cpf,
