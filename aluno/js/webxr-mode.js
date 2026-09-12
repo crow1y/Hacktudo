@@ -24,6 +24,20 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 // mais simples que tentar detectar se o ambiente é aberto ou fechado.
 const MAX_HEIGHT_METERS = 2;
 
+// O hit-test do WebXR detecta qualquer superfície plana — parede, mesa,
+// chão — sem diferenciar. Um resultado só conta como "chão" se o eixo
+// "para cima" da superfície detectada estiver bem alinhado com o "para
+// cima" do mundo real (tolerância de ~35°); senão é uma parede ou uma
+// superfície muito inclinada, e a mira nem aparece.
+const FLOOR_UP_DOT_THRESHOLD = 0.8;
+const WORLD_UP = new THREE.Vector3(0, 1, 0);
+
+function isFloorLike(pose) {
+  const { x, y, z, w } = pose.transform.orientation;
+  const up = WORLD_UP.clone().applyQuaternion(new THREE.Quaternion(x, y, z, w));
+  return up.dot(WORLD_UP) > FLOOR_UP_DOT_THRESHOLD;
+}
+
 export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }) {
   if (!navigator.xr) {
     throw new Error("WebXR não disponível neste navegador.");
@@ -142,10 +156,13 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
 
       if (hitTestSource && !placed) {
         const hitTestResults = frame.getHitTestResults(hitTestSource);
-        if (hitTestResults.length > 0) {
-          const pose = hitTestResults[0].getPose(referenceSpace);
+        const floorPose = hitTestResults
+          .map((hit) => hit.getPose(referenceSpace))
+          .find((pose) => pose && isFloorLike(pose));
+
+        if (floorPose) {
           reticle.visible = true;
-          reticle.matrix.fromArray(pose.transform.matrix);
+          reticle.matrix.fromArray(floorPose.transform.matrix);
         } else {
           reticle.visible = false;
         }
