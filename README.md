@@ -15,13 +15,16 @@ didáticas sobre ele para a turma toda.
 - **Login/cadastro**: Firebase Authentication (matrícula + senha), client-side
   puro.
 - **Design**: CSS puro com tokens compartilhados (`shared/theme.css`) — sem
-  framework/build step. Tema claro único, tipografia Quicksand/Nunito
-  (Google Fonts), espaçamento fluido via `clamp()`.
+  framework/build step. Tema claro único, visual lúdico/colorido (público
+  de 7 a 15 anos), tipografia Quicksand/Nunito (Google Fonts), espaçamento
+  fluido via `clamp()`.
 - **Hospedagem**: estática, na Vercel, com HTTPS automático.
 
 ## Estrutura do projeto
 
 ```
+index.html → landing page pública na raiz (apresentação do projeto + CTA pra aluno/painel)
+css/, js/  → estilos e comportamento (menu, carrossel) só da landing page
 aluno/     → app que roda no celular (login/cadastro, câmera, AR, check-in de presença)
 painel/    → app que roda no computador/projetor do professor (login/cadastro + dashboard)
 admin/     → tela do dono do sistema pra liberar o acesso de professores cadastrados
@@ -176,21 +179,44 @@ depois em Project Settings → Domains.
 
 **Design system:**
 - [x] Tokens de cor/tipografia/espaçamento/raio/sombra compartilhados em
-      `shared/theme.css`, inspirados num site de referência de literatura
-      infantil (cores vivas, cantos arredondados) mas com saturação/raio
-      reduzidos pra um público escolar mais amplo, não infantilizado.
-- [x] Componentes de formulário compartilhados (`.card`, `.field`,
-      `.password-field`, `.btn-primary`, `.btn-link`) aplicados em
-      `aluno/`, `painel/` e `admin/`.
+      `shared/theme.css`, inspirados no site elefanteletrado.com.br (cores
+      vivas, cantos bem arredondados, sombras suaves) — decisão do produto
+      de assumir o visual lúdico/colorido pro público de 7 a 15 anos em
+      todo o projeto (revisão de uma direção anterior mais neutra).
+- [x] Componentes reutilizáveis (`.card`, `.field`, `.password-field`,
+      `.btn-primary`/`.btn-primary--form`, `.btn-secondary`, `.btn-link`,
+      `.img-placeholder`) aplicados na landing page, `aluno/`, `painel/`
+      e `admin/`.
 - [x] Tema claro único em todos os apps (o app do aluno era escuro antes;
       só as camadas sobre a câmera ao vivo continuam escuras, de
       propósito, pra manter contraste sobre o vídeo).
 - [x] Espaçamento fluido via `clamp()` (cresce com a viewport, quase sem
       media query) — responsivo mobile/desktop por padrão.
-- [ ] **QA visual pendente**: revisão feita só na estrutura (HTML/CSS), a
-      extensão do navegador ficou indisponível a sessão inteira — abrir
-      `aluno/`, `painel/` e `admin/` no navegador (mobile e desktop) antes
-      de considerar fechado.
+- [x] Landing page pública (`index.html` + `css/site.css` + `js/site.js`):
+      menu com hambúrguer no mobile, hero, seção de metas (ver ressalva
+      abaixo), carrossel autoplay, passo a passo, cards de entrada
+      (aluno/professor) e rodapé.
+- [ ] **Ilustrações/mascote/logos são placeholders reservados**
+      (`.img-placeholder`, com `data-placeholder-label` descrevendo o que
+      deveria entrar ali) — não gerei arte nem usei fotos de banco de
+      imagem. Precisa de: ilustração do hero (aluno + celular + bicho
+      saindo do livro), logo da marca, ícone de cada slide do carrossel, e
+      as logos reais de patrocinadores (ver próximo item).
+- [ ] **Números da seção "Pra onde a gente quer ir" são metas, não fatos
+      alcançados** — o projeto é recém-saído de hackathon e não tem dados
+      reais de uso ainda. Não trocar o enquadramento pra "já alcançamos"
+      sem ter os números de verdade, pra não apresentar dado fabricado
+      como real.
+- [ ] **Patrocinadores são só placeholders genéricos** — a lista original
+      pedida citava nomes de empresas/órgãos reais (Petrobras, Ministério
+      da Cultura e da Educação, etc.) sem confirmação de patrocínio real;
+      usar logo de terceiro sem acordo implica afiliação falsa. Trocar
+      pelos logos de verdade só quando houver patrocínio confirmado.
+- [ ] **QA visual pendente**: revisão feita só na estrutura (HTML/CSS,
+      balanceamento de tags), a extensão do navegador ficou indisponível
+      a sessão inteira — abrir a landing page, `aluno/`, `painel/` e
+      `admin/` no navegador (mobile e desktop) antes de considerar
+      fechado.
 
 **Se sobrar tempo:**
 - [ ] Suporte a múltiplos animais/matérias simultâneos.
