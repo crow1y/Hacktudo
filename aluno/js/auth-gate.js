@@ -74,6 +74,6 @@ ouvirSessao((user) => {
 
   if (user && !appStarted) {
     appStarted = true;
-    startApp();
+    startApp(user);
   }
 });

@@ -273,6 +273,36 @@ apresentar"). Pra adicionar um subtópico novo: um botão
 `data-subtopico`/`data-conteudo`; se o conteúdo for estático (tipo
 Astronomia), não precisa mexer no JS.
 
+## Presenças do painel
+
+`painel/index.html` tem uma `.painel-tabs` (`.painel-tab-btn`,
+`data-painel-tab="..."`) trocando qual seção com `data-painel-view="..."`
+fica visível — **separada** do `.materias-nav` de dentro da aba
+"Matérias" de propósito (`initPainelTabs()` em `painel/js/main.js`, não
+confundir com `initMateriasNav()`).
+
+⚠️ **Histórico**: já existiu uma feature de check-in de presença
+(`aluno/js/checkin.js`) que foi **removida por completo** numa sessão
+anterior porque "não fazia sentido na nova estrutura de matérias" (na
+época, presença e matérias brigavam pelo mesmo espaço de tela). A
+reintrodução aqui foi decisão consciente do dono do projeto, ciente desse
+histórico — o design como aba de topo separada (em vez de misturada no
+menu de disciplinas) existe justamente pra não reproduzir o motivo
+original da remoção. Se cogitar remover de novo, checar primeiro se o
+motivo é esse mesmo conflito de espaço ou outra coisa.
+
+Nada aqui aparece como cronômetro visível pro aluno — é registro
+silencioso só pro professor, seguindo a régua de "não competir pela
+atenção do aluno" (ver "Posicionamento do produto" acima):
+`aluno/js/presence.js` cria a presença do dia automaticamente
+(`iniciarPresenca()`, chamado por `startApp()` em `aluno/js/main.js`
+depois do perfil carregar) e só soma tempo (`duracaoMs`) enquanto a aba
+está visível (`visibilitychange`) — minimizar/trocar de aba congela a
+soma, ela não é exibida em lugar nenhum do app do aluno. `painel/js/presence.js`
+(`initPresenceView()`) lê `presencas/<data>` e deixa o professor confirmar
+ou marcar como não presente (`status`) — só o professor escreve nesse
+campo.
+
 ## Firebase Realtime Database — schema
 
 ```
@@ -294,3 +324,18 @@ users/
 `<uid>` é o uid do Firebase Auth (não a matrícula) — sempre resolver o uid
 via sessão autenticada (`ouvirSessao`/`ouvirPerfil` em `shared/auth.js`),
 nunca assumir que a matrícula em si é a chave.
+
+```
+presencas/
+  <AAAA-MM-DD>/
+    <uid>/  → nome, matricula, entrada: number (timestamp do 1º acesso do
+              dia), saida: number (timestamp do último heartbeat),
+              duracaoMs: number (soma só enquanto a aba fica visível),
+              status: "pendente" | "confirmada" | "rejeitada",
+              online: boolean
+```
+
+Uma chave por dia por aluno — reabrir o app no mesmo dia soma na mesma
+entrada (via `runTransaction` em `aluno/js/presence.js`, que preserva
+`entrada`/`status` se o registro já existir). `status` começa sempre
+`"pendente"` e só o professor muda (`painel/js/presence.js`).

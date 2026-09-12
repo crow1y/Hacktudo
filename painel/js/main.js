@@ -1,6 +1,7 @@
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { db } from "../../shared/firebase-config.js";
 import { DB_PATHS } from "../../shared/constants.js";
+import { initPresenceView } from "./presence.js";
 
 const listaEl = document.getElementById("animais-lista");
 const detalheEl = document.getElementById("animal-detalhe");
@@ -141,9 +142,32 @@ function initMateriasNav() {
 
 initMateriasNav();
 
+// Abas de topo do painel: "Matérias" (menu de disciplinas de sempre) e
+// "Presenças" (acompanhamento do professor) — são vistas separadas de
+// propósito, sem misturar com o .materias-nav de dentro de "Matérias".
+function initPainelTabs() {
+  const botoes = document.querySelectorAll(".painel-tab-btn");
+  const paineis = document.querySelectorAll("[data-painel-view]");
+
+  botoes.forEach((botao) => {
+    botao.addEventListener("click", () => {
+      const view = botao.dataset.painelTab;
+
+      botoes.forEach((b) => b.classList.toggle("painel-tab-btn--active", b === botao));
+      paineis.forEach((painel) => {
+        painel.hidden = painel.dataset.painelView !== view;
+      });
+    });
+  });
+}
+
+initPainelTabs();
+
 // Chamado por auth-gate.js só depois do professor estar autenticado e
 // liberado pelo admin.
 export async function startApp() {
+  initPresenceView();
+
   await loadAnimals();
   renderLista();
   renderDetalhe(null);

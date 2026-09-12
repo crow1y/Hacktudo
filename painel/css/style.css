@@ -23,6 +23,31 @@ main {
   gap: var(--space-md);
 }
 
+/* Abas de topo do painel (Matérias / Presenças) — separadas do
+   .materias-nav de dentro de "Matérias" de propósito. */
+.painel-tabs {
+  display: flex;
+  gap: var(--space-2xs);
+}
+
+.painel-tab-btn {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-ink-soft);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: var(--space-2xs) var(--space-md);
+  cursor: pointer;
+}
+
+.painel-tab-btn--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
 .materias-nav {
   display: flex;
   flex-wrap: wrap;
@@ -270,6 +295,120 @@ main {
 
 #auth-gate h1 {
   text-align: center;
+}
+
+/* Aba de Presenças: lista de cards por aluno, com tempo em aula e
+   botões de validação do professor. */
+.presencas-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.presencas-data-field {
+  width: auto;
+}
+
+.presencas-data-field input {
+  width: auto;
+}
+
+.presencas-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.presenca-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm);
+}
+
+.presenca-item__aluno {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+}
+
+.presenca-item__aluno strong {
+  font-family: var(--font-heading);
+}
+
+.presenca-item__aluno span {
+  font-size: 0.85rem;
+  color: var(--color-ink-faint);
+}
+
+.presenca-item__tempos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+}
+
+.presenca-item__online {
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.presenca-item__validacao {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.presenca-item__acoes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+.presenca-item__acoes .btn-secondary {
+  padding: var(--space-3xs) var(--space-sm);
+  font-size: 0.85rem;
+}
+
+.presenca-badge {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.8rem;
+  border-radius: var(--radius-pill);
+  padding: var(--space-3xs) var(--space-sm);
+  white-space: nowrap;
+}
+
+.presenca-badge--pendente {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.presenca-badge--confirmada {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.presenca-badge--rejeitada {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.presencas-vazio {
+  background: var(--color-bg);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-ink-faint);
+  text-align: center;
+  padding: var(--space-md);
 }
 
 .logout-btn {
