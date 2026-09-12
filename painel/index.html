@@ -72,8 +72,13 @@
         <button type="button" class="subtopico-btn" data-subtopico="astronomia">Astronomia</button>
       </nav>
 
-      <section id="animal-info" class="card conteudo-materia" data-conteudo="animais">
-        <p id="animal-placeholder">Aguardando aluno escanear um animal…</p>
+      <section id="animal-info" class="conteudo-materia" data-conteudo="animais">
+        <div class="animais-layout">
+          <ul id="animais-lista" class="animais-lista" aria-label="Animais"></ul>
+          <div id="animal-detalhe" class="card animal-detalhe">
+            <p id="animal-placeholder">Escolha um animal na lista ao lado, ou aguarde um aluno escanear um.</p>
+          </div>
+        </div>
       </section>
 
       <section id="astronomia-info" class="card conteudo-materia" data-conteudo="astronomia" hidden>
