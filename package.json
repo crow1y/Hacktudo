@@ -4,8 +4,8 @@
   "private": true,
   "description": "Professor de RA educacional - MindAR + Three.js + Firebase Realtime Database",
   "scripts": {
-    "dev:aluno": "live-server aluno --port=8080",
-    "dev:painel": "live-server painel --port=8081"
+    "dev:aluno": "live-server --port=8080 --open=/aluno/",
+    "dev:painel": "live-server --port=8081 --open=/painel/"
   },
   "devDependencies": {
     "live-server": "^1.2.2"
