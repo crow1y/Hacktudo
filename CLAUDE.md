@@ -83,14 +83,78 @@ Instruções de projeto para o Claude Code neste repositório.
 - **Rodar num monitor/tela em vez de imprimir a imagem-alvo deixa o
   rastreamento instável** (brilho/refresh da tela atrapalha o MindAR) —
   imagem impressa em papel funciona bem melhor.
-- **Padrão "companion"**: depois da primeira detecção, o modelo se
-  desgruda da página e passa a ficar fixo na câmera (`#companion-model`,
-  filho de `<a-camera>` em `aluno/js/ar.js`), pra o aluno poder andar
-  pela sala com o animal na tela sem manter o livro apontado. Isso é só
-  um objeto grudado na câmera — **não sabe onde está o chão, mesas ou
-  paredes de verdade** (isso exigiria WebXR/ARCore, que não existe no
-  Safari do iPhone). É uma limitação conhecida, não um bug pra corrigir
-  sem entrar em WebXR.
+- **Cartão de prévia** (`aluno/js/ar.js`, `#preview-card`): quando o
+  MindAR reconhece um animal, ele NÃO aparece ancorado na página nem anda
+  em círculo — vira um "cartão" centralizado na tela, renderizado por um
+  **`<model-viewer>`** (Web Component do Google, motor 3D próprio,
+  totalmente separado da cena MindAR/A-Frame), com o nome do animal e a
+  câmera escurecida nas bordas (`#ar-vignette`, gradiente radial). Botão
+  "🔄 Escanear outro" solta a captura pra reconhecer um animal diferente.
+  Isso substitui uma abordagem antiga (bicho "saindo da página" e
+  andando em círculo via um componente `wander`) — removida por decisão
+  do produto: focar a experiência "real"/imersiva no modo WebXR abaixo, e
+  usar o MindAR só como reconhecimento + prévia apresentável, não fingir
+  ser RA de verdade sem rastreamento de mundo.
+  ⚠️ **Gotcha real encontrado (histórico, motivo da escolha do
+  `<model-viewer>`)**: a primeira tentativa de prévia tentava grudar o
+  modelo do animal na câmera *dentro* da cena do MindAR/A-Frame (posição
+  estática, depois um componente rodando a cada frame). Nunca renderizou
+  em dispositivo real, apesar de todo estado introspectável reportar
+  correto (`visible: true`, mesh carregado, posição certa, parent certo).
+  Depuração encontrou uma causa real: `sceneEl.camera` (a câmera que o
+  A-Frame de fato usa em `renderer.render(scene, camera)`) é um objeto
+  **diferente** do `object3D` da `<a-camera>` declarada no HTML — ou
+  seja, o conteúdo estava grudado na câmera errada. Reparentar direto
+  pra `sceneEl.camera` via `object3D.add()` confirmou (via
+  `renderer.info.render.triangles`) que o conteúdo passou a ser
+  processado no frame renderizado — e AINDA ASSIM não aparecia na tela
+  real (luz explícita também não resolveu). A causa final nunca foi
+  100% identificada nesse nível. O que resolveu de fato foi abandonar
+  renderização anexada à cena MindAR/A-Frame e usar um motor totalmente
+  independente (`<model-viewer>`, posicionado só via CSS) — confirmado
+  funcionando em dispositivo real. Lição: se algo parecido for tentado
+  de novo (conteúdo grudado na câmera do A-Frame), desconfiar cedo da
+  premissa "a câmera declarada é a câmera renderizada" e considerar um
+  motor separado antes de investir muito tempo depurando dentro da cena
+  do A-Frame. Histórico completo da investigação (incluindo as tentativas
+  descartadas) está nos commits da branch `feature/preview-card`.
+  O gotcha de `gltf-model`/`loadedModelAnimalId` (A-Frame reescrevendo o
+  atributo pra URL resolvida e recarregar silenciosamente falhando) era
+  específico da abordagem antiga baseada em `<a-gltf-model>` e não se
+  aplica mais ao `<model-viewer>`.
+- **Modo WebXR avançado** (`aluno/js/webxr-mode.js`): depois que o MindAR
+  reconhece um animal, em aparelhos com suporte a WebXR + hit-test
+  (Android/Chrome com ARCore — não existe no Safari/iPhone) aparece um
+  botão "Fixar no chão" que planta o modelo num ponto real da sala em
+  **escala real** (metros, campo `alturaRealMetros` no
+  `content/animals.json`, com teto de segurança `MAX_HEIGHT_METERS = 2`
+  pra não estourar o teto). MindAR sempre continua sendo quem reconhece
+  qual animal é — WebXR só cuida de ancorar no mundo real depois. Os dois
+  não rodam ao mesmo tempo (disputam a câmera): `aluno/js/ar.js` chama
+  `mindarSystem.stop()`/`.start()` ao entrar/sair do modo WebXR.
+  Roda em **Three.js puro** (não A-Frame), importado via import map em
+  `aluno/index.html` — é uma instância separada da que o A-Frame usa
+  internamente (gera um warning inofensivo "Multiple instances of
+  Three.js" no console, esperado).
+  **Tentamos antes** um modelo "grudado na câmera" (companion) pra
+  resolver isso sem WebXR — foi descartado porque sem saber onde é o
+  chão de verdade, o animal sempre parecia flutuando/errado, quebrando a
+  imersão. Não reintroduzir essa abordagem.
+  **Testado em dispositivo real** (Motorola Edge 20 Pro): hit-test,
+  filtro de chão (`isFloorLike`), escala real e o botão "❌ Sair da RA"
+  (via `dom-overlay` — sessão WebXR não vem com botão de sair garantido
+  pelo navegador) confirmados funcionando.
+  **Oclusão real por profundidade (Depth API) foi tentada e ABANDONADA**:
+  mesmo só pedindo o recurso `depth-sensing` sem usar pra nada, a aba do
+  Chrome travava ao encerrar a sessão nesse aparelho — não era bug do
+  cálculo de oclusão (chegou a ser testado isoladamente, matemática
+  confirmada correta), o próprio recurso se mostrou instável nessa
+  combinação de hardware/navegador. **Não pedir `depth-sensing` de novo
+  sem investigar antes se é uma limitação conhecida** — ver histórico do
+  git (branch `feature/webxr-occlusion`, descartada) se for retomar essa
+  investigação depois do hackathon. Resultado: o animal plantado no chão
+  não respeita objetos reais na frente dele (ex: uma mão passando não o
+  oclui) — limitação aceita, não um bug pendente.
 
 ## Schema do `content/animals.json`
 
@@ -108,6 +172,9 @@ Instruções de projeto para o Claude Code neste repositório.
   exemplo (card do MindAR + `Fox.glb` do KhronosGroup) só para validar a
   pipeline — trocar pelos assets reais quando estiverem prontos (ver
   `ia/prompts/gerar-modelo-3d.md` e `ia/prompts/gerar-conteudo-animais.md`).
+- `alturaRealMetros`: altura real aproximada do animal em pé, em metros —
+  usada só pelo modo WebXR (`aluno/js/webxr-mode.js`) pra escala real no
+  chão. Não afeta o modo MindAR normal.
 - **Reconhecimento é por imagem pré-cadastrada, não por IA/classificação**
   — o MindAR só compara contra a imagem exata que foi compilada no
   `.mind`, não "entende" que é um leão. Isso importa pra qualquer "banco
