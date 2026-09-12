@@ -10,12 +10,23 @@ export const DB_PATHS = {
   // Perfis de conta, indexados por uid do Firebase Auth.
   professores: "users/professores",
   alunos: "users/alunos",
+  // Presença por dia: presencas/<AAAA-MM-DD>/<uid>. Aluno escreve
+  // (entrada/tempo em aula), professor só lê e atualiza `status`.
+  presencas: "presencas",
 };
 
 // Papéis de conta suportados pelo cadastro/login.
 export const ROLES = {
   PROFESSOR: "professor",
   ALUNO: "aluno",
+};
+
+// Status de validação de uma presença — o aluno sempre entra como
+// PENDENTE; só o professor muda pra CONFIRMADA/REJEITADA no painel.
+export const PRESENCA_STATUS = {
+  PENDENTE: "pendente",
+  CONFIRMADA: "confirmada",
+  REJEITADA: "rejeitada",
 };
 
 // Sufixo de e-mail sintético usado para autenticar por matrícula no Firebase

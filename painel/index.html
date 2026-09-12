@@ -65,7 +65,12 @@
   <main id="app-content" hidden>
     <button type="button" data-logout class="logout-btn">Sair</button>
 
-    <div class="painel-layout">
+    <nav class="painel-tabs" aria-label="Seções do painel">
+      <button type="button" class="painel-tab-btn painel-tab-btn--active" data-painel-tab="materias">📚 Matérias</button>
+      <button type="button" class="painel-tab-btn" data-painel-tab="presencas">✅ Presenças</button>
+    </nav>
+
+    <div class="painel-layout" data-painel-view="materias">
       <nav class="materias-nav" aria-label="Matérias">
         <span class="materias-nav__materia">Ciências</span>
         <button type="button" class="subtopico-btn subtopico-btn--active" data-subtopico="animais">Animais</button>
@@ -93,6 +98,19 @@
         <p>Em breve teremos mais conteúdo para apresentar.</p>
       </section>
     </div>
+
+    <!-- Presença do dia: cada aluno abre um registro automático ao entrar
+         na área do aluno (aluno/js/presence.js); aqui o professor só
+         confere e valida se de fato esteve na aula. -->
+    <section class="painel-layout" data-painel-view="presencas" hidden>
+      <div class="presencas-header">
+        <label class="field presencas-data-field">Data
+          <input type="date" id="presenca-data" />
+        </label>
+      </div>
+      <ul id="presencas-lista" class="presencas-lista" aria-label="Presenças do dia"></ul>
+      <p id="presencas-vazio" class="presencas-vazio">Nenhum aluno entrou na aula nessa data ainda.</p>
+    </section>
   </main>
 
   <script type="module" src="js/auth-gate.js"></script>
