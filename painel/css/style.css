@@ -122,6 +122,10 @@ main {
   color: var(--color-ink-soft);
   font-size: 0.92rem;
   margin: var(--space-2xs) 0 var(--space-sm);
+  /* Altura fixa (~3 linhas, no line-height de 1.6 do body) pra a foto e
+     o modelo 3D abaixo começarem na mesma altura nos dois cards, não
+     importa se o texto de um quebra em menos linhas que o outro. */
+  min-height: 4.5rem;
 }
 
 .astronomia-card model-viewer {
