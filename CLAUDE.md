@@ -217,7 +217,24 @@ linguagem que exclua quem não é criança pequena.
   **Testado em dispositivo real** (Motorola Edge 20 Pro): hit-test,
   filtro de chão (`isFloorLike`), escala real e o botão "❌ Sair da RA"
   (via `dom-overlay` — sessão WebXR não vem com botão de sair garantido
-  pelo navegador) confirmados funcionando.
+  pelo navegador) confirmados funcionando na maior parte das vezes.
+  ⚠️ **"❌ Sair da RA" tem um travamento INTERMITENTE e não resolvido**:
+  às vezes, ao sair, o Chrome inteiro trava (ANR — "o Google parou"),
+  não só a aba. Tentativas de correção por código: (1) reordenar
+  `cleanup()` pra parar o `setAnimationLoop` antes de mexer no
+  DOM/WebGL + `renderer.forceContextLoss()`; (2) um `setTimeout` de
+  segurança que força `cleanup()`/`onExit()` mesmo se o evento nativo
+  `"end"` nunca disparar. **Nenhuma das duas resolve o caso mais grave**
+  — confirmado que quando trava de verdade, é o processo do
+  navegador/GPU que trava (ANR), não uma Promise nossa presa; nesse
+  nível, nenhum JavaScript da página consegue rodar pra se recuperar
+  (nem o `setTimeout`), então não adianta tentar mais uma correção
+  parecida sem uma pista nova. Mesma categoria do problema do Depth API
+  abaixo — instabilidade do WebXR nesse aparelho/Chrome, não bug de
+  lógica. Mitigação prática: evitar depender do botão de sair em
+  demonstrações ao vivo (mostrar até "Fixar no chão" funcionando já é
+  suficiente) — se travar, é só recarregar a página (só a aba trava, o
+  celular continua funcionando normalmente).
   **Oclusão real por profundidade (Depth API) foi tentada e ABANDONADA**:
   mesmo só pedindo o recurso `depth-sensing` sem usar pra nada, a aba do
   Chrome travava ao encerrar a sessão nesse aparelho — não era bug do
