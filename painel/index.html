@@ -11,7 +11,12 @@
     <form id="login-form">
       <h1>Área do professor</h1>
       <label>Matrícula <input name="matricula" required autocomplete="username" /></label>
-      <label>Senha <input name="senha" type="password" required autocomplete="current-password" /></label>
+      <label>Senha
+        <span class="password-field">
+          <input name="senha" type="password" required autocomplete="current-password" />
+          <button type="button" class="toggle-senha" aria-label="Mostrar senha">👁</button>
+        </span>
+      </label>
       <p id="login-error" class="auth-error"></p>
       <button type="submit">Entrar</button>
       <button type="button" id="to-signup" class="auth-link">Criar conta</button>
@@ -22,8 +27,18 @@
       <label>Nome <input name="nome" required autocomplete="name" /></label>
       <label>Número de matrícula <input name="matricula" required autocomplete="username" /></label>
       <label>CPF <input name="cpf" required autocomplete="off" placeholder="000.000.000-00" /></label>
-      <label>Senha <input name="senha" type="password" required autocomplete="new-password" /></label>
-      <label>Confirmar senha <input name="confirmarSenha" type="password" required autocomplete="new-password" /></label>
+      <label>Senha
+        <span class="password-field">
+          <input name="senha" type="password" required autocomplete="new-password" />
+          <button type="button" class="toggle-senha" aria-label="Mostrar senha">👁</button>
+        </span>
+      </label>
+      <label>Confirmar senha
+        <span class="password-field">
+          <input name="confirmarSenha" type="password" required autocomplete="new-password" />
+          <button type="button" class="toggle-senha" aria-label="Mostrar senha">👁</button>
+        </span>
+      </label>
       <p class="password-rules">
         Mínimo 8 caracteres, com letra maiúscula, minúscula, número e
         caractere especial.

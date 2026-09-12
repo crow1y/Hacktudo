@@ -2,7 +2,10 @@
 // autenticado — ver startApp() em main.js.
 import { cadastrarAluno, entrar, sair, ouvirSessao, traduzErroAuth } from "../../shared/auth.js";
 import { requisitosSenhaFaltando } from "../../shared/validators.js";
+import { ativarToggleDeSenha } from "../../shared/ui.js";
 import { startApp } from "./main.js";
+
+ativarToggleDeSenha();
 
 const ROLE = "aluno";
 

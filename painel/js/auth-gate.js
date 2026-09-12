@@ -10,7 +10,10 @@ import {
   traduzErroAuth,
 } from "../../shared/auth.js";
 import { requisitosSenhaFaltando, cpfValido } from "../../shared/validators.js";
+import { ativarToggleDeSenha } from "../../shared/ui.js";
 import { startApp } from "./main.js";
+
+ativarToggleDeSenha();
 
 const ROLE = "professor";
 
