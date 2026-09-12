@@ -46,7 +46,7 @@
       }
     },
     {
-      "_comment": "Segundo animal com pipeline de RA completa: modelo animado (clipe único 'Walk', renomeado à mão de 'Giraffe_armature|Action' pra bater com o que aluno/js/webxr-mode.js procura — ver aluno/assets/models/girafa.glb, CC Attribution, by augusto.v via Sketchfab) e alvo real compilado junto com o da raposa (targetIndex 1). Sem clipe de parado separado — durante as pausas do andar sozinho, toca o mesmo 'Walk' parado no lugar (sem clipe 'Survey'/idle próprio). alturaRealMetros real é 5,5m, mas MAX_HEIGHT_METERS (webxr-mode.js) trava em 2m no modo 'Fixar no chão' — ainda assim bem maior que a raposa (0,4m), suficiente pra mostrar a diferença de escala.",
+      "_comment": "Segundo animal com pipeline de RA completa: modelo animado (5 clipes originais — Idle/Walk/Run/Eating/Death —, renomeados à mão pra Survey/Walk/Run pra bater com o que aluno/js/webxr-mode.js procura; Eating/Death mantidos sem uso, candidatos a 'ações extras' se essa feature for implementada depois — ver aluno/assets/models/girafa.glb, CC Attribution, by planeta-elefante via Sketchfab) e alvo real compilado junto com o da raposa (targetIndex 1). alturaRealMetros real é 5,5m, mas MAX_HEIGHT_METERS (webxr-mode.js) trava em 2m no modo 'Fixar no chão' — ainda assim bem maior que a raposa (0,4m), suficiente pra mostrar a diferença de escala.",
       "id": "girafa",
       "nome": "Girafa",
       "targetIndex": 1,

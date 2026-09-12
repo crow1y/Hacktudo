@@ -316,12 +316,14 @@ nunca assumir que a matrícula em si é a chave.
       mesmo `.mind`, confirmado funcionando.
 - [x] Raposa: conteúdo educativo real (ficha completa) + foto real,
       substituindo o texto de "modelo de teste".
-- [x] Girafa: modelo 3D animado (CC Attribution, Sketchfab) + foto real
-      (CC BY-SA 3.0, Wikimedia) + alvo compilado + ficha completa —
-      adicionada especificamente pra mostrar escala grande (contraste
-      com a raposa). Tem um clipe "Walk" (andar sozinho/analógico já
-      funcionam), mas sem clipe de parado separado — durante as pausas,
-      toca o "Walk" parado no lugar, sem uma animação de idle própria.
+- [x] Girafa: modelo 3D animado, com Survey/Walk/Run próprios (CC
+      Attribution, Sketchfab) + foto real (CC BY-SA 3.0, Wikimedia) +
+      alvo compilado + ficha completa — adicionada especificamente pra
+      mostrar escala grande (contraste com a raposa). Andar sozinho,
+      correr e analógico já funcionam igual a raposa. O modelo original
+      também tem clipes "Eating"/"Death" (mantidos sem uso no arquivo,
+      não renomeados) — dá pra aproveitar depois se a ideia de "ações
+      extras aleatórias" durante as pausas for implementada.
 - [ ] Leão: já tem ficha de conteúdo escrita, falta modelo 3D (ver
       `ia/prompts/gerar-modelo-3d.md` — Quaternius/poly.pizza é uma boa
       fonte de modelos animados e gratuitos) e foto real da página do
