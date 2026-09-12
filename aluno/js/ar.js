@@ -41,12 +41,13 @@ export async function initAR() {
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
-        <!-- Posição/escala/rotação são um chute inicial — ajustar visualmente
-             testando no celular, cada modelo tem proporções diferentes. -->
+        <!-- scale calculada a partir da geometria real do Fox.glb (altura ~79
+             unidades nativas) para ficar com ~0.4 unidades de altura no
+             espaço do alvo. Cada modelo novo vai precisar recalcular isso. -->
         <a-gltf-model
           src="#animal-model"
           position="0 0 0"
-          scale="0.05 0.05 0.05"
+          scale="0.005 0.005 0.005"
           animation-mixer
         ></a-gltf-model>
       </a-entity>
