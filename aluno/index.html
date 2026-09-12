@@ -15,6 +15,19 @@
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+
+  <!-- Usado só pelo modo WebXR (aluno/js/webxr-mode.js), carregado sob
+       demanda (import dinâmico) — não é o mesmo build de Three.js que o
+       A-Frame usa internamente (aquele é um fork/vendored), por isso uma
+       instância própria em vez de reaproveitar AFRAME.THREE. -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 <body>
   <div id="auth-gate">
@@ -48,7 +61,10 @@
          a partir do target/model definidos em content/animals.json. -->
     <div id="ar-container"></div>
     <div id="ar-error" hidden></div>
-    <button id="reset-scan-btn" hidden>🔄 Escanear outro animal</button>
+    <button id="place-floor-btn" hidden>📍 Fixar no chão (tamanho real)</button>
+    <!-- Cena do modo WebXR (aluno/js/webxr-mode.js) — Three.js puro, some
+         da tela quando não está em uso. -->
+    <div id="webxr-container" hidden></div>
 
     <!-- Camada de "uso consciente": timer de modo aula, pausa e check-in de humor -->
     <div id="wellbeing-layer">
