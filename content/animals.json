@@ -1,6 +1,7 @@
 {
   "_comment": "Base de conteúdo didático. Cada entrada é consumida pelo aluno/ (targetIndex + model) e pelo painel/ (info). Adicione animais aqui sem tocar em nenhum JS.",
   "_comment_targetSrc": "Todas as imagens-alvo precisam ser compiladas JUNTAS num único arquivo .mind (ferramenta oficial: https://hiukim.github.io/mind-ar-js-doc/tools/compile). A ordem em que você sobe as imagens na hora de compilar define o índice (0, 1, 2...) — esse índice é o 'targetIndex' de cada animal abaixo. Enquanto só existir 1 imagem real, deixe só 1 animal com targetIndex 0 apontando pra ela.",
+  "_comment_alturaRealMetros": "Altura real aproximada do animal em pé, em metros — usada só no modo WebXR (aluno/js/webxr-mode.js) pra plantar o modelo em escala real no chão. Tem um teto de segurança (MAX_HEIGHT_METERS) pra não estourar o teto da sala. Não afeta o modo MindAR normal (que usa a 'scale' calculada a partir do bounding box do glTF).",
   "targetSrc": "https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind",
   "animals": [
     {
@@ -9,6 +10,7 @@
       "nome": "Raposa (modelo de teste)",
       "targetIndex": 0,
       "model": "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb",
+      "alturaRealMetros": 0.4,
       "info": {
         "comportamento": "Modelo de teste usado só para validar a pipeline de realidade aumentada antes de termos os modelos reais dos animais.",
         "curiosidades": [
@@ -22,6 +24,7 @@
       "nome": "Leão",
       "targetIndex": 1,
       "model": "aluno/assets/models/TODO.glb",
+      "alturaRealMetros": 1.2,
       "info": {
         "comportamento": "Vive em grupos chamados alcateias, geralmente formados por fêmeas aparentadas, seus filhotes e alguns machos. É o único felino verdadeiramente social — as fêmeas costumam caçar em conjunto, enquanto os machos defendem o território.",
         "curiosidades": [

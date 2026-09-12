@@ -16,7 +16,7 @@ html, body {
   inset: 0;
 }
 
-#reset-scan-btn:not([hidden]) {
+#place-floor-btn:not([hidden]) {
   position: fixed;
   left: 50%;
   bottom: 1.25rem;
@@ -29,6 +29,12 @@ html, body {
   padding: 0.6rem 1.2rem;
   font-size: 0.95rem;
   backdrop-filter: blur(4px);
+}
+
+#webxr-container:not([hidden]) {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
 }
 
 #ar-error:not([hidden]) {

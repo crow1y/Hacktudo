@@ -9,14 +9,13 @@
 // só para validar a pipeline inteira (câmera → detecção → modelo 3D →
 // Firebase) antes dos assets reais dos animais estarem prontos.
 //
-// Fluxo de "captura": a primeira vez que um alvo é detectado, o modelo é
-// escondido na página e um "companion" (mesmo modelo, mesma escala) passa
-// a ficar grudado na câmera — assim o aluno pode andar pela sala com o
-// animal na tela sem precisar manter a página apontada. O botão
-// "Escanear outro animal" solta a captura e libera o app pra detectar um
-// novo alvo. Isso não usa rastreamento de mundo/WebXR (que não existe no
-// Safari do iPhone) — o companion só acompanha rigidamente a câmera, não
-// respeita móveis/paredes de verdade (ver CLAUDE.md).
+// MindAR é sempre quem RECONHECE qual animal é (funciona em qualquer
+// celular). Em aparelhos com suporte a WebXR + hit-test (Android/Chrome
+// com ARCore — não existe no Safari/iPhone, ver CLAUDE.md), depois de
+// reconhecido aparece um botão pra "plantar" o animal em escala real num
+// ponto de chão de verdade (aluno/js/webxr-mode.js). Os dois modos não
+// rodam ao mesmo tempo — precisam de controle exclusivo da câmera — por
+// isso o MindAR é parado antes de entrar em WebXR e reiniciado ao sair.
 
 import { ref, set } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { db } from "../../shared/firebase-config.js";
@@ -30,29 +29,22 @@ function isAssetReady(animal) {
   return !animal.model.includes("TODO");
 }
 
-// Faz o modelo "andar" num pequeno círculo ao redor de um ponto "center"
-// (padrão: a própria origem do pai), de frente pra direção do movimento.
-// Fica no filho (o a-gltf-model/a-entity), nunca na a-entity do alvo
-// (mindar-image-target) — o MindAR sobrescreve a matriz da entidade do
-// alvo a cada frame de rastreamento, então qualquer posição definida ali
-// seria imediatamente perdida.
-//
-// "center" existe porque o wander redefine a posição inteira a cada tick
-// — sem ele, qualquer deslocamento inicial (ex: o companion grudado na
-// câmera, afastado pra baixo/frente) seria descartado e o modelo voltaria
-// pra perto da origem do pai a cada frame.
+// Faz o modelo "andar" num pequeno círculo ao redor da própria origem, de
+// frente pra direção do movimento. Fica no filho (o a-gltf-model), nunca
+// na a-entity do alvo (mindar-image-target) — o MindAR sobrescreve a
+// matriz da entidade do alvo a cada frame de rastreamento, então qualquer
+// posição definida ali seria imediatamente perdida.
 if (!AFRAME.components["wander"]) {
   AFRAME.registerComponent("wander", {
     schema: {
       radius: { default: 0.12 },
       speed: { default: 0.5 },
-      center: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
     },
     tick(time) {
       const angle = (time / 1000) * this.data.speed;
-      const x = this.data.center.x + Math.cos(angle) * this.data.radius;
-      const z = this.data.center.z + Math.sin(angle) * this.data.radius;
-      this.el.object3D.position.set(x, this.data.center.y, z);
+      const x = Math.cos(angle) * this.data.radius;
+      const z = Math.sin(angle) * this.data.radius;
+      this.el.object3D.position.set(x, 0, z);
       this.el.object3D.rotation.y = -angle - Math.PI / 2;
     },
   });
@@ -100,16 +92,29 @@ function setupInteraction(gltfEl) {
   });
 }
 
+async function supportsAdvancedAR() {
+  if (!navigator.xr) return false;
+  try {
+    return await navigator.xr.isSessionSupported("immersive-ar");
+  } catch {
+    return false;
+  }
+}
+
 export async function initAR() {
   const response = await fetch("../content/animals.json");
   const { targetSrc, animals } = await response.json();
   const readyAnimals = animals.filter(isAssetReady);
+  const animalsById = new Map(readyAnimals.map((animal) => [animal.id, animal]));
 
   // scale é um chute inicial por animal — cada modelo tem proporções
   // diferentes, ajustar testando no celular. O valor abaixo (0.005) foi
   // calculado para o Fox.glb de teste (~79 unidades de altura nativa);
-  // outros modelos vão precisar de outro valor.
+  // outros modelos vão precisar de outro valor. Só usada no modo MindAR
+  // normal — o modo WebXR calcula a escala em metros reais na hora.
   const scaleByAnimalId = Object.fromEntries(readyAnimals.map((animal) => [animal.id, "0.005 0.005 0.005"]));
+
+  const advancedArAvailable = await supportsAdvancedAR();
 
   const assetsHtml = readyAnimals
     .map((animal) => `<a-asset-item id="model-${animal.id}" src="${animal.model}"></a-asset-item>`)
@@ -141,31 +146,15 @@ export async function initAR() {
       embedded
     >
       <a-assets>${assetsHtml}</a-assets>
-
-      <a-camera position="0 0 0" look-controls="enabled: false">
-        <!-- "Companion": modelo grudado na câmera depois da primeira
-             captura (ver comentário no topo do arquivo). Posição é um
-             chute inicial (mais baixo na tela pra parecer "andando no
-             chão") — ajustar testando no celular. -->
-        <a-entity
-          id="companion-model"
-          class="clickable"
-          wander="radius: 0.06; speed: 0.6; center: 0 -0.3 -0.7"
-          animation-mixer
-          visible="false"
-        ></a-entity>
-      </a-camera>
-
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
       <a-entity cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable"></a-entity>
       ${targetsHtml}
     </a-scene>
   `;
 
   const sceneEl = document.querySelector("a-scene");
-  const companionEl = document.getElementById("companion-model");
-  const resetBtn = document.getElementById("reset-scan-btn");
+  const placeFloorBtn = document.getElementById("place-floor-btn");
 
-  setupInteraction(companionEl);
   for (const gltfEl of document.querySelectorAll(".animal-model")) {
     setupInteraction(gltfEl);
   }
@@ -174,35 +163,41 @@ export async function initAR() {
     showCameraError(event.detail?.error);
   });
 
-  let capturedAnimalId = null;
-
-  resetBtn.addEventListener("click", () => {
-    if (!capturedAnimalId) return;
-
-    document.querySelector(`.ar-target[data-animal-id="${capturedAnimalId}"] .animal-model`).setAttribute("visible", true);
-    companionEl.setAttribute("visible", false);
-    resetBtn.hidden = true;
-    capturedAnimalId = null;
-
-    set(ref(db, DB_PATHS.activeAnimal), null);
-  });
-
   for (const targetEl of document.querySelectorAll(".ar-target")) {
     const animalId = targetEl.dataset.animalId;
 
     targetEl.addEventListener("targetFound", () => {
-      if (capturedAnimalId) return; // já tem um animal capturado — ignora novas detecções até "escanear outro"
-
-      capturedAnimalId = animalId;
-      targetEl.querySelector(".animal-model").setAttribute("visible", false);
-
-      companionEl.setAttribute("gltf-model", `#model-${animalId}`);
-      companionEl.setAttribute("scale", scaleByAnimalId[animalId]);
-      companionEl.setAttribute("visible", true);
-      resetBtn.hidden = false;
-
       set(ref(db, DB_PATHS.activeAnimal), animalId);
+      if (advancedArAvailable) {
+        placeFloorBtn.hidden = false;
+        placeFloorBtn.onclick = () => enterFloorPlacement(sceneEl, placeFloorBtn, animalsById.get(animalId));
+      }
     });
+
+    targetEl.addEventListener("targetLost", () => {
+      set(ref(db, DB_PATHS.activeAnimal), null);
+      placeFloorBtn.hidden = true;
+    });
+  }
+}
+
+async function enterFloorPlacement(sceneEl, placeFloorBtn, animal) {
+  placeFloorBtn.hidden = true;
+
+  const mindarSystem = sceneEl.systems["mindar-image-system"];
+  mindarSystem.stop(); // libera a câmera de vez — WebXR precisa de controle exclusivo dela
+
+  const { startFloorPlacement } = await import("./webxr-mode.js");
+
+  try {
+    await startFloorPlacement({
+      modelUrl: animal.model,
+      realHeightMeters: animal.alturaRealMetros,
+      onExit: () => mindarSystem.start(),
+    });
+  } catch (error) {
+    console.error("Falha ao iniciar o modo WebXR", error);
+    mindarSystem.start();
   }
 }
 
