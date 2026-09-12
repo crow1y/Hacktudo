@@ -14,6 +14,9 @@ didáticas sobre ele para a turma toda.
   puro, sem servidor próprio pra manter.
 - **Login/cadastro**: Firebase Authentication (matrícula + senha), client-side
   puro.
+- **Design**: CSS puro com tokens compartilhados (`shared/theme.css`) — sem
+  framework/build step. Tema claro único, tipografia Quicksand/Nunito
+  (Google Fonts), espaçamento fluido via `clamp()`.
 - **Hospedagem**: estática, na Vercel, com HTTPS automático.
 
 ## Estrutura do projeto
@@ -22,7 +25,7 @@ didáticas sobre ele para a turma toda.
 aluno/     → app que roda no celular (login/cadastro, câmera, AR, check-in de presença)
 painel/    → app que roda no computador/projetor do professor (login/cadastro + dashboard)
 admin/     → tela do dono do sistema pra liberar o acesso de professores cadastrados
-shared/    → config do Firebase, auth, validadores e constantes usadas pelos dois lados
+shared/    → config do Firebase, auth, validadores, design system (theme.css) e constantes usadas por todos os apps
 content/   → dados didáticos dos animais (JSON), sem lógica
 ia/        → contexto do projeto e prompts prontos para ferramentas de IA
 ```
@@ -170,6 +173,24 @@ depois em Project Settings → Domains.
       horário do último.
 - [ ] Decidir o que fazer com o check-in de humor (removido por enquanto
       junto com o cronômetro de "modo aula" — repensar formato depois).
+
+**Design system:**
+- [x] Tokens de cor/tipografia/espaçamento/raio/sombra compartilhados em
+      `shared/theme.css`, inspirados num site de referência de literatura
+      infantil (cores vivas, cantos arredondados) mas com saturação/raio
+      reduzidos pra um público escolar mais amplo, não infantilizado.
+- [x] Componentes de formulário compartilhados (`.card`, `.field`,
+      `.password-field`, `.btn-primary`, `.btn-link`) aplicados em
+      `aluno/`, `painel/` e `admin/`.
+- [x] Tema claro único em todos os apps (o app do aluno era escuro antes;
+      só as camadas sobre a câmera ao vivo continuam escuras, de
+      propósito, pra manter contraste sobre o vídeo).
+- [x] Espaçamento fluido via `clamp()` (cresce com a viewport, quase sem
+      media query) — responsivo mobile/desktop por padrão.
+- [ ] **QA visual pendente**: revisão feita só na estrutura (HTML/CSS), a
+      extensão do navegador ficou indisponível a sessão inteira — abrir
+      `aluno/`, `painel/` e `admin/` no navegador (mobile e desktop) antes
+      de considerar fechado.
 
 **Se sobrar tempo:**
 - [ ] Suporte a múltiplos animais/matérias simultâneos.
