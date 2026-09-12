@@ -2,34 +2,123 @@ import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebas
 import { db } from "../../shared/firebase-config.js";
 import { DB_PATHS } from "../../shared/constants.js";
 
-const animalInfoEl = document.getElementById("animal-info");
+const listaEl = document.getElementById("animais-lista");
+const detalheEl = document.getElementById("animal-detalhe");
 
+let animals = [];
 let animalsById = new Map();
+// Dois estados separados de propósito: "ativo" é o que o Firebase diz que
+// algum aluno escaneou agora; "selecionado" é o que aparece no painel de
+// detalhes (segue o ativo automaticamente, mas o professor pode clicar
+// noutro animal da lista pra consultar sem perder o que já apareceu).
+let animalAtivoId = null;
+let animalSelecionadoId = null;
 
 async function loadAnimals() {
   const response = await fetch("../content/animals.json");
   const data = await response.json();
-  animalsById = new Map(data.animals.map((animal) => [animal.id, animal]));
+  animals = data.animals;
+  animalsById = new Map(animals.map((animal) => [animal.id, animal]));
 }
 
-function renderAnimal(animalId) {
+function cardAnimalHtml(animal) {
+  const imagemHtml = animal.imagem
+    ? `<img src="${animal.imagem}" alt="" />`
+    : `<span class="animal-link__sem-foto">${animal.nome.charAt(0)}</span>`;
+  const classes = ["animal-link"];
+  if (animal.id === animalSelecionadoId) classes.push("animal-link--selecionado");
+
+  return `
+    <li>
+      <button type="button" class="${classes.join(" ")}" data-animal-id="${animal.id}">
+        ${imagemHtml}
+        <span class="animal-link__nome">${animal.nome}</span>
+        ${animal.id === animalAtivoId ? '<span class="animal-link__badge">🔴 Ativo agora</span>' : ""}
+      </button>
+    </li>
+  `;
+}
+
+function renderLista() {
+  listaEl.innerHTML = animals.map(cardAnimalHtml).join("");
+}
+
+function fichaItemHtml(rotulo, valor) {
+  return valor ? `<div class="ficha-item"><dt>${rotulo}</dt><dd>${valor}</dd></div>` : "";
+}
+
+function renderDetalhe(animalId) {
   const animal = animalId ? animalsById.get(animalId) : null;
 
   if (!animal) {
-    animalInfoEl.innerHTML = `<p id="animal-placeholder">Aguardando aluno escanear um animal…</p>`;
+    detalheEl.innerHTML = `<p id="animal-placeholder">Escolha um animal na lista ao lado, ou aguarde um aluno escanear um.</p>`;
     return;
   }
 
-  const curiosidadesHtml = animal.info.curiosidades
-    .map((curiosidade) => `<li>${curiosidade}</li>`)
-    .join("");
+  const info = animal.info ?? {};
+  const fichaHtml = [
+    fichaItemHtml("Nome científico", info.nomeCientifico),
+    fichaItemHtml("Classificação", info.classificacao),
+    fichaItemHtml("Habitat", info.habitat),
+    fichaItemHtml("Alimentação", info.alimentacao),
+    fichaItemHtml("Tamanho", info.tamanho),
+    fichaItemHtml("Tempo de vida", info.tempoDeVida),
+  ].join("");
 
-  animalInfoEl.innerHTML = `
+  const curiosidadesHtml = (info.curiosidades ?? []).map((curiosidade) => `<li>${curiosidade}</li>`).join("");
+  const imagemHtml = animal.imagem
+    ? `<button type="button" class="animal-detalhe__foto-btn" data-imagem="${animal.imagem}" data-nome="${animal.nome}">
+         <img class="animal-detalhe__foto" src="${animal.imagem}" alt="${animal.nome}" />
+         <span class="animal-detalhe__foto-hint">🔍 Ver imagem completa</span>
+       </button>`
+    : "";
+
+  detalheEl.innerHTML = `
+    ${imagemHtml}
     <h2>${animal.nome}</h2>
-    <p>${animal.info.comportamento}</p>
-    <ul>${curiosidadesHtml}</ul>
+    ${info.comportamento ? `<p>${info.comportamento}</p>` : ""}
+    ${fichaHtml ? `<dl class="ficha">${fichaHtml}</dl>` : ""}
+    ${curiosidadesHtml ? `<h3>Curiosidades</h3><ul>${curiosidadesHtml}</ul>` : ""}
   `;
 }
+
+listaEl.addEventListener("click", (event) => {
+  const botao = event.target.closest("button[data-animal-id]");
+  if (!botao) return;
+  animalSelecionadoId = botao.dataset.animalId;
+  renderLista();
+  renderDetalhe(animalSelecionadoId);
+});
+
+// Modal de imagem em tela cheia (sem o corte do CSS do card) — é a
+// mesma foto usada no card, então também serve como a imagem de
+// verdade pra projetar/escanear com a turma.
+const imagemModalEl = document.getElementById("imagem-modal");
+const imagemModalFotoEl = document.getElementById("imagem-modal-foto");
+
+function abrirImagemModal(src, alt) {
+  imagemModalFotoEl.src = src;
+  imagemModalFotoEl.alt = alt;
+  imagemModalEl.hidden = false;
+}
+
+function fecharImagemModal() {
+  imagemModalEl.hidden = true;
+}
+
+detalheEl.addEventListener("click", (event) => {
+  const botao = event.target.closest(".animal-detalhe__foto-btn");
+  if (!botao) return;
+  abrirImagemModal(botao.dataset.imagem, botao.dataset.nome);
+});
+
+document.getElementById("imagem-modal-fechar").addEventListener("click", fecharImagemModal);
+imagemModalEl.addEventListener("click", (event) => {
+  if (event.target === imagemModalEl) fecharImagemModal();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") fecharImagemModal();
+});
 
 // Menu de matérias: só troca qual .conteudo-materia fica visível — cada
 // subtópico já tem seu conteúdo pronto no HTML (estático, como
@@ -56,8 +145,18 @@ initMateriasNav();
 // liberado pelo admin.
 export async function startApp() {
   await loadAnimals();
+  renderLista();
+  renderDetalhe(null);
 
   onValue(ref(db, DB_PATHS.activeAnimal), (snapshot) => {
-    renderAnimal(snapshot.val());
+    animalAtivoId = snapshot.val();
+    // Só avança a seleção quando tem um animal ativo de verdade — se o
+    // aluno soltar a captura (activeAnimal vira null), o painel continua
+    // mostrando o último animal em vez de voltar pro placeholder vazio.
+    if (animalAtivoId) {
+      animalSelecionadoId = animalAtivoId;
+    }
+    renderLista();
+    renderDetalhe(animalSelecionadoId);
   });
 }

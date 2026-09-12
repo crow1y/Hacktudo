@@ -1,29 +1,39 @@
 {
-  "_comment": "Base de conteúdo didático. Cada entrada é consumida pelo aluno/ (targetIndex + model) e pelo painel/ (info). Adicione animais aqui sem tocar em nenhum JS.",
-  "_comment_targetSrc": "Todas as imagens-alvo precisam ser compiladas JUNTAS num único arquivo .mind (ferramenta oficial: https://hiukim.github.io/mind-ar-js-doc/tools/compile). A ordem em que você sobe as imagens na hora de compilar define o índice (0, 1, 2...) — esse índice é o 'targetIndex' de cada animal abaixo. Enquanto só existir 1 imagem real, deixe só 1 animal com targetIndex 0 apontando pra ela.",
-  "_comment_alturaRealMetros": "Altura real aproximada do animal em pé, em metros — usada só no modo WebXR (aluno/js/webxr-mode.js) pra plantar o modelo em escala real no chão. Tem um teto de segurança (MAX_HEIGHT_METERS) pra não estourar o teto da sala. Não afeta o modo MindAR normal (que usa a 'scale' calculada a partir do bounding box do glTF).",
-  "targetSrc": "https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind",
+  "_comment": "Base de conteúdo didático. Cada entrada é consumida pelo aluno/ (targetIndex + model, só as com isAssetReady) e pelo painel/ (imagem + info, TODAS as entradas — o painel não exige o modelo 3D pronto pra mostrar o card do animal). Adicione animais aqui sem tocar em nenhum JS.",
+  "_comment_targetSrc": "Todas as imagens-alvo precisam ser compiladas JUNTAS num único arquivo .mind (ferramenta oficial: https://hiukim.github.io/mind-ar-js-doc/tools/compile), salvo em aluno/assets/targets/targets.mind. A ordem em que você sobe as imagens na hora de compilar define o índice (0, 1, 2...) — esse índice é o 'targetIndex' de cada animal abaixo. Pra adicionar um novo alvo real sem quebrar os que já existem, sempre re-suba as imagens-fonte de todos os animais já prontos (nas mesmas posições) junto com a nova, e recompile — os índices não são cumulativos entre compilações separadas.",
+  "_comment_alturaRealMetros": "Altura real do animal em pé, em metros — usada só no modo WebXR (aluno/js/webxr-mode.js) pra plantar o modelo em escala real no chão (com um teto de segurança MAX_HEIGHT_METERS pra não estourar o teto da sala) e pro raio de segurança do andar sozinho. Não afeta o modo MindAR normal.",
+  "_comment_imagem": "Foto ilustrativa do animal (não é a imagem-alvo de RA, que é binária dentro do .mind e não dá pra exibir) — usada nos cards do painel/. Caminho relativo à raiz do site.",
+  "targetSrc": "/aluno/assets/targets/targets.mind",
   "animals": [
     {
-      "_comment": "Entrada de teste (não é um animal real): usa o alvo de exemplo público do MindAR + um modelo animado público, só para validar a pipeline de RA (aluno/js/ar.js) antes dos assets reais existirem. Remover quando tiverem o .mind real compilado com as páginas do livro.",
+      "_comment": "Alvo real (targetIndex 0, foto original do card de exemplo do MindAR, recompilada localmente junto com a da girafa) + modelo animado público do Khronos. O conteúdo (imagem/info) já é real, não é mais só teste de pipeline.",
       "id": "teste-pipeline",
-      "nome": "Raposa (modelo de teste)",
+      "nome": "Raposa-vermelha",
       "targetIndex": 0,
       "model": "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb",
       "alturaRealMetros": 0.4,
+      "imagem": "/assets/img/raposa.jpg",
       "info": {
-        "comportamento": "Modelo de teste usado só para validar a pipeline de realidade aumentada antes de termos os modelos reais dos animais.",
+        "nomeCientifico": "Vulpes vulpes",
+        "classificacao": "Mamífero da família Canidae (parente de cachorros e lobos)",
+        "habitat": "Um dos mamíferos com distribuição mais ampla do mundo — vive em florestas, campos, montanhas e até em áreas urbanas, na Europa, Ásia, América do Norte e norte da África.",
+        "alimentacao": "Onívora: caça pequenos roedores, coelhos e aves, mas também come insetos, frutas e o que encontrar pela frente.",
+        "tamanho": "Corpo de 45 a 90 cm, mais a cauda de 30 a 55 cm; pesa entre 3,5 e 9 kg.",
+        "tempoDeVida": "Cerca de 2 a 4 anos na natureza (pode passar dos 10 em cativeiro).",
+        "comportamento": "Mais ativa ao entardecer e à noite. Vive sozinha a maior parte do tempo, é muito ágil e usa a audição apurada pra localizar presas escondidas — inclusive sob neve.",
         "curiosidades": [
-          "Para ativar, aponte a câmera do celular para a imagem de exemplo do MindAR (link em targetSrc acima)."
+          "A cauda longa e felpuda ajuda no equilíbrio e serve como um \"cobertor\" pra se proteger do frio enquanto dorme.",
+          "Consegue pular mais de 2 metros de altura pra caçar roedores escondidos embaixo da neve.",
+          "Tem pupilas verticais parecidas com as de um gato, o que melhora a visão noturna."
         ]
       }
     },
     {
-      "_comment": "targetIndex ainda é um placeholder (1) — só vai funcionar de verdade depois que targetSrc virar um .mind compilado com as imagens reais do livro, incluindo esta na posição 1.",
+      "_comment": "targetIndex ainda é um placeholder (2) — só vai funcionar de verdade depois que uma foto real da página do livro for compilada junto no targetSrc, nessa posição.",
       "id": "exemplo-leao",
       "nome": "Leão",
-      "targetIndex": 1,
-      "model": "aluno/assets/models/TODO.glb",
+      "targetIndex": 2,
+      "model": "/aluno/assets/models/TODO.glb",
       "alturaRealMetros": 1.2,
       "info": {
         "comportamento": "Vive em grupos chamados alcateias, geralmente formados por fêmeas aparentadas, seus filhotes e alguns machos. É o único felino verdadeiramente social — as fêmeas costumam caçar em conjunto, enquanto os machos defendem o território.",
@@ -32,6 +42,31 @@
           "Leões dormem ou descansam entre 16 e 20 horas por dia.",
           "A juba dos machos escurece com a idade e indica níveis de testosterona.",
           "Filhotes nascem com manchas no pelo, que desaparecem com o crescimento."
+        ]
+      }
+    },
+    {
+      "_comment": "Segundo animal com pipeline de RA completa: modelo estático (sem animação — ver aluno/assets/models/girafa.glb, CC BY 3.0, by elkiotbear via poly.pizza) e alvo real compilado junto com o da raposa (targetIndex 1). alturaRealMetros real é 5,5m, mas MAX_HEIGHT_METERS (webxr-mode.js) trava em 2m no modo 'Fixar no chão' — ainda assim bem maior que a raposa (0,4m), suficiente pra mostrar a diferença de escala.",
+      "id": "girafa",
+      "nome": "Girafa",
+      "targetIndex": 1,
+      "model": "/aluno/assets/models/girafa.glb",
+      "alturaRealMetros": 5.5,
+      "imagem": "/assets/img/girafa.jpg",
+      "_comment_imagemCredito": "Foto: Miroslav Duchacek, CC BY-SA 3.0 (Wikimedia Commons) — https://commons.wikimedia.org/wiki/File:Giraffe_standing.jpg",
+      "info": {
+        "nomeCientifico": "Giraffa camelopardalis",
+        "classificacao": "Mamífero, o maior ruminante do mundo (família Giraffidae)",
+        "habitat": "Savanas e florestas abertas da África, ao sul do Saara.",
+        "alimentacao": "Herbívora: come principalmente folhas de acácia, usando a língua — que chega a 45-50 cm — pra driblar os espinhos da árvore.",
+        "tamanho": "Até 5,5 m de altura (o animal terrestre mais alto do mundo) e quase 2.000 kg.",
+        "tempoDeVida": "Entre 20 e 25 anos na natureza.",
+        "comportamento": "Vive em grupos soltos e dorme muito pouco — só entre 30 minutos e 2 horas por dia, quase sempre em pé.",
+        "curiosidades": [
+          "Cada girafa tem um padrão de manchas único, como uma impressão digital.",
+          "Apesar do pescoço gigante, tem só 7 vértebras cervicais — o mesmo número que um ser humano, só que bem maiores.",
+          "Mesmo sendo enorme, consegue correr até 60 km/h em curtas distâncias.",
+          "Os filhotes já nascem com quase 2 metros de altura e caem no chão ao nascer — a queda ajuda a romper o cordão umbilical."
         ]
       }
     }

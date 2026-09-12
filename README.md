@@ -52,30 +52,45 @@ O professor também entra com matrícula e senha (conta de professor
 precisa ser aprovada por um administrador do sistema antes de poder ser
 usada — ver avisos abaixo). A tela do professor (pensada pra ficar
 aberta no computador ligado ao projetor da sala) mostra um **menu de
-matérias**: hoje só existe Ciências, com dois assuntos — **Animais**
-(mostra automaticamente, em tempo real, o nome e as informações do
-animal que o aluno está vendo no celular naquele momento) e
+matérias**: hoje só existe Ciências, com dois assuntos — **Animais** e
 **Astronomia** (ainda sem conteúdo, mostra um aviso de "em breve").
+
+Dentro de Animais, cada bicho é um **link com foto** numa lista. Clicando
+num deles, aparece uma ficha completa (nome científico, classificação,
+habitat, alimentação, tamanho, tempo de vida, comportamento e
+curiosidades) — informação suficiente pra o professor explicar de
+verdade, não só um resumo de uma linha. A lista também **segue
+automaticamente** o que o aluno está escaneando no celular naquele
+momento (um selo "🔴 Ativo agora" aparece no card correspondente), mas o
+professor pode clicar em qualquer outro animal a qualquer momento pra
+consultar, sem perder o que já apareceu. Clicando na foto, ela abre em
+tela cheia sem corte — útil tanto pra explicar melhor quanto pra
+projetar a mesma imagem pra turma escanear.
 
 ### O que já dá pra usar hoje vs. o que ainda tá em construção
 
 **Já funciona, testado em celular de verdade:**
-- Reconhecer a imagem do livro e mostrar o bicho animado na tela.
-- O modo avançado de "plantar" o bicho no chão em tamanho real, andando
-  sozinho, com controle manual e botão de pausa.
+- Reconhecer a imagem do livro e mostrar o bicho animado na tela — hoje
+  com **dois animais reais simultâneos**: raposa e girafa (ver abaixo).
+- O modo avançado de "plantar" o bicho no chão em tamanho real. A raposa
+  anda sozinha, aceita controle manual e o botão de pausa; a girafa fica
+  parada no lugar (o modelo 3D dela não tem animação), mas já mostra bem
+  a diferença de tamanho real entre os dois.
 - Cadastro/login por matrícula e senha, com aprovação de professor por
   um administrador.
-- Painel do professor com o menu de matérias, atualizando em tempo real.
+- Painel do professor com o menu de matérias e a lista de animais (foto
+  + ficha completa), atualizando em tempo real.
 - Página inicial de apresentação do projeto (a que você provavelmente
   está vendo agora, se não estiver direto no app).
 
 **Ainda em construção:**
-- **Hoje só existe UM animal de teste** (uma raposa, usando uma imagem e
-  um modelo 3D de exemplo, só pra provar que a ideia funciona) — os
-  animais de verdade do livro (começando por um leão) ainda precisam das
-  fotos reais das páginas do livro e dos modelos 3D animados deles. A
-  base do sistema já entende múltiplos animais ao mesmo tempo; só falta
-  o conteúdo de verdade.
+- **Só dois animais têm conteúdo/RA completos hoje**: raposa (modelo 3D
+  de exemplo, mas foto e conteúdo educativo reais) e girafa (modelo e
+  imagem próprios, escolhidos justamente pelo tamanho grande). O leão já
+  tem texto escrito em `content/animals.json`, mas ainda falta o modelo
+  3D e a foto real da página do livro pra ele aparecer na câmera — a
+  base do sistema já entende vários animais ao mesmo tempo, só falta
+  completar o conteúdo de cada um.
 - Mais matérias além de Ciências no painel do professor.
 - Algumas ilustrações da página inicial (ícones do carrossel) ainda são
   espaços reservados, sem arte final.
@@ -225,28 +240,50 @@ depois em Project Settings → Domains.
 
 ### Schema do `content/animals.json`
 
-- `targetSrc`: um único `.mind` compartilhado por **todos** os animais —
-  compilado com todas as imagens-alvo juntas (ferramenta oficial:
+- `targetSrc`: um único `.mind` compartilhado por **todos** os animais,
+  salvo localmente em `aluno/assets/targets/targets.mind` — compilado
+  com todas as imagens-alvo juntas (ferramenta oficial:
   https://hiukim.github.io/mind-ar-js-doc/tools/compile). A ordem de
-  upload na hora de compilar define o índice de cada imagem.
+  upload na hora de compilar define o índice de cada imagem, e **não é
+  cumulativa entre compilações**: pra adicionar um alvo novo sem quebrar
+  os que já existem, re-suba as imagens-fonte de todos os animais já
+  prontos (nas mesmas posições) junto com a nova, e recompile.
 - Cada animal tem `targetIndex` (posição dele dentro desse `.mind`
-  compartilhado) em vez de um target próprio — a base já suporta vários
-  animais/alvos simultâneos.
+  compartilhado) em vez de um target próprio. Hoje: raposa = 0, girafa =
+  1, leão = 2 (placeholder, ainda não compilado).
 - `aluno/js/ar.js` filtra (`isAssetReady`) animais cujo `model` ainda
   contém `"TODO"` — eles ficam no JSON normalmente, só não viram alvo de
   AR até o asset real existir (evita travar tentando carregar um arquivo
-  inexistente). Hoje `exemplo-leao` está nessa situação.
-- Existe uma entrada `teste-pipeline` usando alvo/modelo públicos de
-  exemplo (card do MindAR + `Fox.glb` do KhronosGroup) só para validar a
-  pipeline inteira — trocar pelos assets reais quando estiverem prontos
-  (ver `ia/prompts/gerar-modelo-3d.md` e
-  `ia/prompts/gerar-conteudo-animais.md`). `aluno/assets/models/` e
-  `aluno/assets/targets/` existem só com `.gitkeep`, aguardando os
-  arquivos reais.
-- `alturaRealMetros`: altura real aproximada do animal em pé, em metros —
-  usada só pelo modo WebXR (`aluno/js/webxr-mode.js`) pra escala real no
-  chão e pro raio de segurança do andar sozinho. Não afeta o modo MindAR
-  normal.
+  inexistente). Hoje só `exemplo-leao` está nessa situação.
+- `model`: URL ou caminho pro `.glb`. Caminhos locais devem ser
+  **root-relative** (`/aluno/assets/models/...`, com `/` na frente) —
+  sem isso, resolvem errado quando usados a partir de páginas dentro de
+  `aluno/` (ex: viraria `aluno/aluno/...`).
+- `imagem` (opcional): foto ilustrativa usada nos cards do `painel/` —
+  não é a imagem-alvo de RA (essa fica binária dentro do `.mind` e não
+  dá pra exibir). Pode ter um `_comment_imagemCredito` do lado pra
+  documentar a licença/autor de fotos de terceiros.
+- `info`: objeto livre, mas os campos que o painel sabe renderizar numa
+  ficha estruturada são `nomeCientifico`, `classificacao`, `habitat`,
+  `alimentacao`, `tamanho`, `tempoDeVida`, `comportamento` (parágrafo) e
+  `curiosidades` (lista) — todos opcionais, o painel só mostra o que
+  existir (ver `painel/js/main.js` → `renderDetalhe`).
+- `alturaRealMetros`: altura real do animal em pé, em metros — usada só
+  pelo modo WebXR (`aluno/js/webxr-mode.js`) pra escala real no chão e
+  pro raio de segurança do andar sozinho (respeitando o teto
+  `MAX_HEIGHT_METERS = 2`). Não afeta o modo MindAR normal.
+- Hoje existem dois animais com pipeline de RA completa (`teste-pipeline`
+  = raposa, `Fox.glb` do KhronosGroup; `girafa`, modelo CC BY 3.0 via
+  poly.pizza) e um só com conteúdo escrito, ainda sem RA (`exemplo-leao`)
+  — ver `ia/prompts/gerar-modelo-3d.md` e
+  `ia/prompts/gerar-conteudo-animais.md` pra completar os que faltam.
+- `assets/img/raposa.jpg` e `assets/img/girafa.jpg` cumprem dois papéis
+  ao mesmo tempo: são a foto ilustrativa exibida no `painel/` **e** a
+  imagem de verdade que a câmera precisa reconhecer pra ativar cada
+  animal (compiladas nessas mesmas fotos, nessa ordem, dentro de
+  `targets.mind`). Antes a raposa usava o cartão de exemplo genérico do
+  MindAR — foi trocado pela foto real dela pra ficar consistente com a
+  girafa e mais claro do que apontar a câmera.
 
 ### Firebase Realtime Database — schema
 
@@ -272,17 +309,23 @@ nunca assumir que a matrícula em si é a chave.
 ### Próximos passos (onde continuar)
 
 **Conteúdo (bloqueador pra uso real):**
-- [ ] Escolher/gerar as imagens-alvo (`.mind` do MindAR) a partir das
-      páginas reais do livro didático.
-- [ ] Conseguir/gerar os modelos 3D animados (`.glb`) reais dos animais
-      (ver `ia/prompts/gerar-modelo-3d.md`). Ao ter os assets do leão
-      prontos, preencher `target`/`model` na entrada `exemplo-leao` de
-      `content/animals.json`.
-- [ ] Preencher `content/animals.json` com os demais animais reais do
-      livro/turma (usar `ia/prompts/gerar-conteudo-animais.md`).
-- [ ] Testar múltiplos animais simultâneos de verdade (o código já
-      suporta via `targetIndex`; falta só ter mais de um `.mind`
-      compilado com imagens reais pra validar).
+- [x] Testar múltiplos animais simultâneos de verdade — raposa
+      (targetIndex 0) e girafa (targetIndex 1) compiladas juntas no
+      mesmo `.mind`, confirmado funcionando.
+- [x] Raposa: conteúdo educativo real (ficha completa) + foto real,
+      substituindo o texto de "modelo de teste".
+- [x] Girafa: modelo 3D (CC BY 3.0, poly.pizza) + foto real (CC BY-SA
+      3.0, Wikimedia) + alvo compilado + ficha completa — adicionada
+      especificamente pra mostrar escala grande (contraste com a
+      raposa). Sem animação própria: fica parada quando plantada no
+      chão (não anda sozinha nem responde ao analógico).
+- [ ] Leão: já tem ficha de conteúdo escrita, falta modelo 3D (ver
+      `ia/prompts/gerar-modelo-3d.md` — Quaternius/poly.pizza é uma boa
+      fonte de modelos animados e gratuitos) e foto real da página do
+      livro pra compilar no `targetSrc` (posição 2).
+- [ ] Escolher/gerar as imagens-alvo a partir das páginas reais do livro
+      didático (hoje raposa e girafa usam fotos de banco de imagem —
+      nenhuma das duas é uma página de livro de verdade ainda).
 
 **Segurança antes de uso real em sala de aula:**
 - [ ] Trocar `ADMIN_ACCESS_CODE` (`shared/constants.js`) pelo valor real.
@@ -290,17 +333,31 @@ nunca assumir que a matrícula em si é a chave.
       Database (hoje está totalmente aberto, incluindo os nós
       `users/professores` e `users/alunos`).
 
+**Painel do professor:**
+- [x] Lista de animais trocada de texto simples pra links com foto,
+      cada um abrindo uma ficha completa (`painel/js/main.js` →
+      `renderLista`/`renderDetalhe`), lendo os campos estruturados de
+      `info` no JSON.
+- [x] Sincronização em tempo real mantida como "segue automaticamente"
+      (badge "🔴 Ativo agora"), sem travar a navegação manual do
+      professor pelos outros animais.
+- [x] Botão "ver imagem completa" na foto (abre em modal, sem o corte
+      do `object-fit: cover` do card) — pensado tanto pra o professor
+      ver melhor quanto pra projetar a mesma imagem pra turma escanear.
+- [ ] `session/activeAnimal` não limpa sozinho se o aluno fechar a aba
+      sem clicar em "Escanear outro" (fica com o último valor pra
+      sempre) — daria pra resolver com `onDisconnect()` do Firebase,
+      não implementado ainda.
+
 **Landing page:**
 - [x] Ilustração real do hero e logo da marca já adicionadas
       (`assets/img/HeroVivaLivros.jpg`, `assets/img/logo-mark.png`).
 - [ ] Ícones/ilustrações do carrossel ainda são `.img-placeholder`.
 - [ ] Logos reais de patrocinadores — só trocar quando houver
       patrocínio confirmado (ver aviso na Seção 1).
-- [ ] **Inconsistência encontrada**: o texto da landing page
-      (`index.html`, seção "Como funciona" e card "Sou aluno") ainda
-      menciona "check-in de presença", mas essa funcionalidade foi
-      removida do app (ver `CLAUDE.md` → "Menu de matérias do painel").
-      Precisa atualizar o texto.
+- [x] Texto da landing page corrigido: não menciona mais "check-in de
+      presença" (a feature foi removida do app antes, mas o texto de
+      marketing tinha ficado pra trás).
 - [ ] QA visual em todos os apps (mobile e desktop) — revisão até agora
       foi maior no fluxo do aluno (AR/WebXR) e no hero/logo da landing
       page.

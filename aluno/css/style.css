@@ -12,6 +12,16 @@ html, body {
   inset: 0;
 }
 
+/* TEMPORÁRIO: botão "Entrar em VR" que o próprio A-Frame injeta sozinho
+   (mesmo com vr-mode-ui="enabled: false" no <a-scene>) — não é usado
+   hoje e ficava sobreposto ao botão de sair. Escondido só via CSS, de
+   propósito, pra ser fácil de reverter quando for usado de verdade —
+   é só remover essa regra. */
+.a-enter-vr,
+.a-enter-ar {
+  display: none !important;
+}
+
 /* Camadas sobre a câmera (erro, botões de AR, toast/aviso de check-in)
    ficam escuras e translúcidas de propósito — a imagem de fundo é a
    câmera ao vivo, imprevisível em brilho/cor, então um overlay claro
