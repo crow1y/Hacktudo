@@ -383,6 +383,92 @@ linguagem que exclua quem não é criança pequena.
   alvo (a foto/página usada pra compilar o `.mind`), separado do
   `targetSrc` compilado.
 
+## Como adicionar um animal/modelo 3D novo (passo a passo)
+
+Processo consolidado depois de trocar a girafa pelo elefante nesta
+sessão (ver gotchas de escala/skin acima pra entender o "porquê" de
+alguns desses passos). Vale tanto pra quem tá usando Claude Code quanto
+pra fazer na mão.
+
+1. **Achar um modelo animado e com licença livre** (Sketchfab é a fonte
+   usada até agora — filtrar por "Downloadable" + licença CC). Preferir
+   modelos com clipes de Idle/Walk/Run (ou nomes parecidos) já
+   separados. CC Attribution/CC BY(-SA) são as licenças usadas no
+   projeto até agora — exigem só crédito ao autor, sem restrição de uso
+   comercial.
+2. **Baixar o `.glb`** (não FBX/OBJ — o projeto usa glTF binário direto,
+   sem pipeline de conversão) e rodar
+   `npm run check-model -- caminho/do/modelo.glb` **antes de qualquer
+   outra coisa**. Se der `⚠️`, principalmente por causa da razão
+   osso/malha ou nó com escala fora de `[0.05, 20]`, desconfiar — foi
+   exatamente esse padrão que quebrou a girafa (travamento intermitente
+   no WebXR, não relacionado ao tamanho do arquivo). Não é garantia
+   (só reduz risco), mas se der ruim aqui, procurar outro modelo antes
+   de investir mais tempo.
+3. **Conferir/renomear os clipes de animação** — `aluno/js/webxr-mode.js`
+   procura por `Walk`, `Run` e `Survey` (case-insensitive) via
+   `findClip()`; sem `Walk`+`Survey` o modelo só fica parado (sem
+   quebrar nada, é um fallback silencioso). O `check-model.js` já lista
+   os nomes de clipe que o arquivo tem. Se os nomes não baterem (ex.:
+   `TRS|walk`, `Giraffe_Idle`), renomear com:
+   ```
+   node scripts/rename-clips.js caminho/do/modelo.glb "NomeAntigo=Walk" "OutroNome=Run" "OutroNome=Survey"
+   ```
+   (sobrescreve o arquivo in-place). Rodar `check-model.js` de novo
+   depois só pra conferir que os nomes novos aparecem na lista.
+4. **Validar visualmente antes de integrar de vez** — criar um
+   `aluno/_test-<nome>.html` descartável (Three.js + GLTFLoader, sem
+   MindAR/WebXR) que carrega o `.glb`, aplica a mesma lógica de escala
+   do `placeModel` (`aluno/js/webxr-mode.js`: `computeWorldBox` +
+   recentralização pelo bounding box, não só `Box3().setFromObject`
+   cru) e renderiza com uma câmera orbitando o modelo por alguns
+   segundos. Confirma visualmente: proporção/escala plausível, sem
+   "piscar" (frustum culling), sem malha branca/sobras (props
+   decorativos tipo o "ring" da girafa, que só apareciam fora do
+   `<model-viewer>`). Servir pelo `python3 -m http.server` já rodando na
+   raiz do projeto, abrir via Claude in Chrome. **Apagar o arquivo de
+   teste no final** — nunca commitar `_test-*.html`.
+5. **Sourcing de conteúdo real**: uma foto ilustrativa CC-licenciada
+   (Wikimedia Commons é a fonte usada até agora — procurar "featured
+   picture"/"quality image" costuma garantir licença clara e boa
+   resolução) pra `imagem`, e uma ficha didática (`nomeCientifico`,
+   `classificacao`, `habitat`, `alimentacao`, `tamanho`, `tempoDeVida`,
+   `comportamento`, `curiosidades` — ver schema acima) escrita à mão.
+6. **Adicionar a entrada em `content/animals.json`**: `id`, `nome`,
+   `targetIndex` (ver passo 7 — só é definitivo depois de recompilar o
+   `.mind`), `model` (root-relative, com `/` na frente), `alturaRealMetros`
+   (real, mesmo que `MAX_HEIGHT_METERS` capote em 2m depois), `imagem`,
+   `_comment_imagemCredito` (autor/licença/link) e `info`. Um `_comment`
+   no topo da entrada documentando fonte/licença do modelo e quais
+   clipes foram renomeados/ficaram sem uso ajuda muito o próximo que for
+   mexer nisso (ver entrada `elefante` como exemplo).
+7. **Recompilar `aluno/assets/targets/targets.mind`** — ⚠️ **isso é fácil
+   de esquecer e o app "funciona" tecnicamente sem fazer isso** (o
+   MindAR só reconhece o padrão visual que já estava compilado, então a
+   câmera continua "achando" o alvo antigo — só que abre o conteúdo/
+   modelo novo, o que fica incoerente com a foto impressa de verdade).
+   A compilação **não é aditiva**: precisa subir de novo TODAS as fotos
+   dos animais que já têm alvo (nas mesmas posições/ordem de sempre) +
+   a foto nova, juntas, na ferramenta oficial
+   (https://hiukim.github.io/mind-ar-js-doc/tools/compile), e baixar o
+   `.mind` resultante por cima de `aluno/assets/targets/targets.mind`.
+   Hoje a ordem é: raposa (`assets/img/raposa.jpg`) = índice 0, o novo
+   animal = índice 1 (era a foto da girafa, agora é a do elefante). Se
+   o Claude Code estiver fazendo isso: dá pra automatizar via
+   `mcp__claude-in-chrome__file_upload` nos dois arquivos de imagem, e
+   capturar o blob do botão "Download compiled" com um pequeno servidor
+   HTTP local (`http.server`-like, aceitando POST com CORS liberado)
+   em vez de depender da pasta de Downloads do Chrome da extensão (que
+   não é a mesma do usuário) — o `javascript_tool` bloqueia retornar
+   dados em base64 diretamente por segurança, então essa ponte local é
+   o caminho que funcionou.
+8. **Testar no celular de verdade** (câmera + WebXR) antes de considerar
+   pronto — nenhum passo acima substitui isso, principalmente o
+   comportamento de `placeModel`/animação em condições reais.
+9. Atualizar `CLAUDE.md` (se achar algum gotcha novo) e `README.md`
+   (checklist "Próximos passos" e qualquer menção ao animal antigo, se
+   for uma substituição).
+
 ## Menu de matérias do painel
 
 `painel/index.html` tem uma `.materias-nav` com botões `.subtopico-btn`

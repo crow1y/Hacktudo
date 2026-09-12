@@ -286,18 +286,21 @@ depois em Project Settings → Domains.
   de ossos tem fatores de escala muito desproporcionais entre si (o tipo
   de problema, não o tamanho do arquivo, que já causou um travamento
   intermitente real no modo WebXR — ver CLAUDE.md). Não substitui testar
-  no celular, só reduz o risco antes de investir tempo integrando.
-- `assets/img/raposa.jpg` cumpre dois papéis ao mesmo tempo: é a foto
-  ilustrativa exibida no `painel/` **e** a imagem de verdade que a
-  câmera precisa reconhecer pra ativar o animal (compilada nessa mesma
-  foto dentro de `targets.mind`). **`assets/img/elefante.jpg` ainda não
-  é assim** — é só a foto ilustrativa nova; a imagem-alvo compilada no
-  `targetIndex 1` continua sendo a foto antiga (de quando esse slot era
-  a girafa). Funciona tecnicamente (o MindAR só reconhece a imagem, não
-  sabe que "deveria" ser um elefante), mas fica incoerente pra quem for
-  escanear com a imagem impressa antiga esperando ver uma girafa — vale
-  recompilar `targets.mind` com uma foto de elefante nessa posição antes
-  de qualquer demonstração real.
+  no celular, só reduz o risco antes de investir tempo integrando. Se os
+  clipes de animação não vierem com os nomes que `aluno/js/webxr-mode.js`
+  procura (`Walk`/`Run`/`Survey`), `npm run rename-clips -- modelo.glb
+  "NomeAntigo=Walk"` renomeia direto no `.glb`. Processo completo de
+  adicionar um animal novo (achar modelo → checar → renomear clipe →
+  validar visual → recompilar `targets.mind` → JSON) documentado em
+  `CLAUDE.md` → "Como adicionar um animal/modelo 3D novo".
+- `assets/img/raposa.jpg` e `assets/img/elefante.jpg` cumprem dois papéis
+  ao mesmo tempo: são a foto ilustrativa exibida no `painel/` **e** a
+  imagem de verdade que a câmera precisa reconhecer pra ativar cada
+  animal (compiladas nessas mesmas fotos, nessa ordem, dentro de
+  `targets.mind`). Recompilado via a ferramenta oficial
+  (https://hiukim.github.io/mind-ar-js-doc/tools/compile) depois da
+  troca da girafa pelo elefante — a foto antiga da girafa não reconhece
+  mais nada nessa posição, só a foto nova do elefante.
 
 ### Firebase Realtime Database — schema
 
