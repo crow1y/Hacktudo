@@ -51,12 +51,31 @@ html, body {
   background: radial-gradient(circle at center, transparent 0%, transparent 26%, rgba(0, 0, 0, 0.78) 62%);
 }
 
-#preview-name:not([hidden]) {
+#preview-card:not([hidden]) {
   position: fixed;
+  top: 50%;
   left: 50%;
-  bottom: 8rem;
-  transform: translateX(-50%);
-  z-index: 15;
+  transform: translate(-50%, -50%);
+  z-index: 13;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+/* model-viewer precisa de largura/altura explícitas em px — depender só
+   de aspect-ratio/porcentagem não é confiável pro tamanho interno do
+   canvas dele. */
+#preview-model-viewer {
+  width: min(70vw, 320px);
+  height: min(70vw, 320px);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
+  pointer-events: auto;
+  --poster-color: transparent;
+}
+
+#preview-name {
   color: #fff;
   font-size: 1.3rem;
   font-weight: 700;
