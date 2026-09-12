@@ -1,13 +1,6 @@
-// Tela de login/cadastro do aluno. Só libera o app (AR + check-in de
-// presença) depois de autenticado — ver startApp() em main.js.
-import {
-  cadastrarAluno,
-  entrar,
-  sair,
-  ouvirSessao,
-  obterPerfil,
-  traduzErroAuth,
-} from "../../shared/auth.js";
+// Tela de login/cadastro do aluno. Só libera o app (AR) depois de
+// autenticado — ver startApp() em main.js.
+import { cadastrarAluno, entrar, sair, ouvirSessao, traduzErroAuth } from "../../shared/auth.js";
 import { requisitosSenhaFaltando } from "../../shared/validators.js";
 import { ativarToggleDeSenha } from "../../shared/ui.js";
 import { startApp } from "./main.js";
@@ -75,13 +68,12 @@ signupForm?.addEventListener("submit", async (event) => {
 
 logoutBtn?.addEventListener("click", () => sair());
 
-ouvirSessao(async (user) => {
+ouvirSessao((user) => {
   gateEl.hidden = Boolean(user);
   appContentEl.hidden = !user;
 
   if (user && !appStarted) {
     appStarted = true;
-    const perfil = await obterPerfil(ROLE, user.uid);
-    startApp({ uid: user.uid, nome: perfil?.nome, matricula: perfil?.matricula });
+    startApp();
   }
 });

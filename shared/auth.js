@@ -13,7 +13,7 @@ import {
   signOut,
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+import { ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { auth, db } from "./firebase-config.js";
 import { DB_PATHS, ROLES, AUTH_EMAIL_SUFFIX } from "./constants.js";
 
@@ -76,13 +76,6 @@ export function ouvirSessao(callback) {
 // o professor em tempo real enquanto ele está na tela de espera).
 export function ouvirPerfil(role, uid, callback) {
   return onValue(ref(db, perfilPath(role, uid)), (snapshot) => callback(snapshot.val()));
-}
-
-// Lê o perfil uma única vez (ex: pegar nome/matrícula pra anexar num
-// registro, sem manter um listener vivo).
-export async function obterPerfil(role, uid) {
-  const snapshot = await get(ref(db, perfilPath(role, uid)));
-  return snapshot.val();
 }
 
 export function traduzErroAuth(error) {

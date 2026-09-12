@@ -7,8 +7,6 @@
 export const DB_PATHS = {
   // Qual animal está ativo no momento (aluno escreve, painel escuta).
   activeAnimal: "session/activeAnimal",
-  // Check-ins de presença da aula (aluno escreve, painel acompanha em tempo real).
-  checkins: "session/checkins",
   // Perfis de conta, indexados por uid do Firebase Auth.
   professores: "users/professores",
   alunos: "users/alunos",
@@ -35,10 +33,3 @@ export const AUTH_EMAIL_SUFFIX = {
 // qualquer uso real em sala de aula, junto com o hardening das regras do
 // Realtime Database (ver pendência no README).
 export const ADMIN_ACCESS_CODE = "vivalivro-admin-2026";
-
-// Duração padrão (ms) de uma aula — depois disso não são mais pedidos
-// check-ins de presença.
-export const AULA_DURATION_MS = 45 * 60 * 1000;
-
-// Intervalo (ms) entre pedidos de check-in de presença durante a aula.
-export const CHECKIN_INTERVAL_MS = 10 * 60 * 1000;

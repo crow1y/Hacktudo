@@ -65,14 +65,21 @@
   <main id="app-content" hidden>
     <button type="button" data-logout class="logout-btn">Sair</button>
 
-    <section id="animal-info" class="card">
-      <p id="animal-placeholder">Aguardando aluno escanear um animal…</p>
-    </section>
+    <div class="painel-layout">
+      <nav class="materias-nav" aria-label="Matérias">
+        <span class="materias-nav__materia">Ciências</span>
+        <button type="button" class="subtopico-btn subtopico-btn--active" data-subtopico="animais">Animais</button>
+        <button type="button" class="subtopico-btn" data-subtopico="astronomia">Astronomia</button>
+      </nav>
 
-    <section id="checkin-summary" class="card">
-      <h2>Check-ins de presença</h2>
-      <ul id="checkin-list"></ul>
-    </section>
+      <section id="animal-info" class="card conteudo-materia" data-conteudo="animais">
+        <p id="animal-placeholder">Aguardando aluno escanear um animal…</p>
+      </section>
+
+      <section id="astronomia-info" class="card conteudo-materia" data-conteudo="astronomia" hidden>
+        <p>Em breve teremos mais conteúdo para apresentar.</p>
+      </section>
+    </div>
   </main>
 
   <script type="module" src="js/auth-gate.js"></script>
