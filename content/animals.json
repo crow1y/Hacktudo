@@ -2,6 +2,19 @@
   "_comment": "Base de conteúdo didático. Cada entrada é consumida pelo aluno/ (target + model) e pelo painel/ (info). Adicione animais aqui sem tocar em nenhum JS.",
   "animals": [
     {
+      "_comment": "Entrada de teste (não é um animal real): usa o alvo de exemplo público do MindAR + um modelo animado público, só para validar a pipeline de RA (aluno/js/ar.js) antes dos assets reais existirem. Remover esta entrada (ou movê-la para depois das reais) quando o target/model do leão abaixo estiverem prontos — aluno/js/ar.js sempre usa o primeiro item da lista.",
+      "id": "teste-pipeline",
+      "nome": "Raposa (modelo de teste)",
+      "target": "https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind",
+      "model": "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb",
+      "info": {
+        "comportamento": "Modelo de teste usado só para validar a pipeline de realidade aumentada antes de termos os modelos reais dos animais.",
+        "curiosidades": [
+          "Para ativar, aponte a câmera do celular para a imagem de exemplo do MindAR (link em aluno/js/ar.js)."
+        ]
+      }
+    },
+    {
       "id": "exemplo-leao",
       "nome": "Leão",
       "target": "aluno/assets/targets/TODO.mind",

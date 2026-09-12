@@ -6,13 +6,13 @@
   <title>Professor de RA — Aluno</title>
   <link rel="stylesheet" href="css/style.css" />
 
-  <!-- TODO: adicionar CDN do A-Frame + MindAR (ou Three.js + MindAR) aqui.
-       Exemplo (A-Frame):
-       <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-       <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script> -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
 </head>
 <body>
-  <!-- TODO: container da cena AR (a-scene do MindAR) entra aqui -->
+  <!-- A cena do MindAR/A-Frame é injetada aqui dinamicamente por js/ar.js,
+       a partir do target/model definidos em content/animals.json. -->
   <div id="ar-container"></div>
 
   <!-- Camada de "uso consciente": timer de modo aula, pausa e check-in de humor -->
