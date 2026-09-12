@@ -77,6 +77,26 @@ Instruções de projeto para o Claude Code neste repositório.
 - **Rodar num monitor/tela em vez de imprimir a imagem-alvo deixa o
   rastreamento instável** (brilho/refresh da tela atrapalha o MindAR) —
   imagem impressa em papel funciona bem melhor.
+- **Cartão de prévia** (`aluno/js/ar.js`, `#preview-model`): quando o
+  MindAR reconhece um animal, ele NÃO aparece ancorado na página nem anda
+  em círculo — vira um "cartão" centralizado na tela (modelo parado
+  tocando animação reciclada dos próprios clipes, ex: "Walk" tocando no
+  lugar), grudado na câmera (não no alvo rastreado) com um círculo atrás
+  (`#preview-platform`) e o nome do animal, câmera escurecida nas bordas
+  (`#ar-vignette`, gradiente radial). Botão "🔄 Escanear outro" solta a
+  captura pra reconhecer um animal diferente. Isso substitui uma
+  abordagem antiga (bicho "saindo da página" e andando em círculo via um
+  componente `wander`) — removida por decisão do produto: focar a
+  experiência "real"/imersiva no modo WebXR abaixo, e usar o MindAR só
+  como reconhecimento + prévia apresentável, não fingir ser RA de
+  verdade sem rastreamento de mundo.
+  ⚠️ **Gotcha real encontrado**: ao mostrar o MESMO animal de novo depois
+  de "escanear outro", NÃO redefinir o atributo `gltf-model` se o animal
+  já é o que está carregado (`loadedModelAnimalId` em `ar.js`) — depois
+  do primeiro carregamento bem-sucedido, o A-Frame reescreve esse
+  atributo pra URL já resolvida (não mais `#model-id`); setar de novo
+  com `#model-id` conta como "mudou" e dispara um recarregamento que
+  falha silenciosamente (mesh some pra sempre, sem erro no console).
 - **Modo WebXR avançado** (`aluno/js/webxr-mode.js`): depois que o MindAR
   reconhece um animal, em aparelhos com suporte a WebXR + hit-test
   (Android/Chrome com ARCore — não existe no Safari/iPhone) aparece um
