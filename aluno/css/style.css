@@ -199,6 +199,7 @@ html, body {
 .webxr-intro__passo--purple { --highlight-color-soft: var(--color-purple-soft); }
 .webxr-intro__passo--success { --highlight-color-soft: var(--color-success-soft); }
 .webxr-intro__passo--warning { --highlight-color-soft: var(--color-warning-soft); }
+.webxr-intro__passo--accent { --highlight-color-soft: var(--color-accent-soft); }
 
 #webxr-intro-continuar {
   width: 100%;
