@@ -394,10 +394,17 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
 
   function cleanup() {
     window.removeEventListener("pagehide", endSessionOnPageHide);
+    // Para o loop de render ANTES de mexer no DOM/WebGL — se um frame
+    // ainda em voo tentasse renderizar depois do innerHTML="" ou do
+    // dispose(), poderia travar em vez de só dar erro.
+    renderer.setAnimationLoop(null);
     container.hidden = true;
     container.innerHTML = "";
-    renderer.setAnimationLoop(null);
     renderer.dispose();
+    // dispose() libera os recursos, mas não força a GPU a soltar o
+    // contexto WebGL de verdade — forceContextLoss() garante isso,
+    // relevante numa página que entra/sai desse modo várias vezes.
+    renderer.forceContextLoss();
   }
 
   session.addEventListener("end", () => {
