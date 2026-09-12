@@ -16,6 +16,21 @@ html, body {
   inset: 0;
 }
 
+#reset-scan-btn:not([hidden]) {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 15;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  backdrop-filter: blur(4px);
+}
+
 #ar-error:not([hidden]) {
   position: fixed;
   inset: 0;
