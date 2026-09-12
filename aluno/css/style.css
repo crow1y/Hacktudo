@@ -42,5 +42,100 @@ html, body {
   pointer-events: auto;
 }
 
-/* TODO: estilizar #modo-aula-timer, #pausa-lembrete e #mood-checkin
-   conforme a UI final for definida. */
+/* Badge discreto com a contagem do modo aula. */
+#modo-aula-timer {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  backdrop-filter: blur(4px);
+}
+
+#modo-aula-label {
+  opacity: 0.7;
+}
+
+#modo-aula-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* Pausa/respiração e check-in de humor: modais em tela cheia sobre a câmera.
+   :not([hidden]) porque o display:flex abaixo teria especificidade maior
+   que a regra padrão do navegador pra [hidden], reexibindo o modal mesmo
+   com o atributo hidden presente. */
+#pausa-lembrete:not([hidden]),
+#mood-checkin:not([hidden]) {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  padding: 1.5rem;
+}
+
+#pausa-card,
+#mood-card {
+  width: 100%;
+  max-width: 320px;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+#pausa-titulo,
+#mood-titulo {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+#pausa-texto {
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+#pausa-continuar {
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#mood-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.mood-option {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 0.75rem 0.5rem;
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.mood-option:hover,
+.mood-option:active {
+  background: rgba(255, 255, 255, 0.18);
+}
