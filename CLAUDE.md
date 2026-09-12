@@ -36,8 +36,8 @@ Instruções de projeto para o Claude Code neste repositório.
   Regras hoje estão **abertas** (leitura/escrita pública) — ok para o
   hackathon, mas listado no README como pendência de segurança antes de
   uso real em sala de aula.
-- **Hospedagem**: Hostinger, deploy via Git direto do hPanel (branch
-  `main`, raiz do repo — não uma subpasta), porque o código usa imports
+- **Hospedagem**: Vercel, deploy automático a cada push na `main` (site
+  estático, sem build — ver `vercel.json`), porque o código usa imports
   relativos entre `aluno/`, `painel/`, `shared/` e `content/` que
   precisam estar todos acessíveis a partir da mesma raiz.
 

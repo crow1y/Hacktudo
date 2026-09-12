@@ -34,7 +34,7 @@ Além do núcleo de AR, o app do aluno tem uma camada de "uso consciente":
 - **Sincronização em tempo real**: Firebase Realtime Database. Escolhido
   por ser client-side puro (sem servidor próprio pra manter) e ter setup
   rápido — decisivo com só ~40h de hackathon e hospedagem estática.
-- **Hospedagem**: estática, na Hostinger, com HTTPS.
+- **Hospedagem**: estática, na Vercel, com HTTPS automático.
 
 Time: 2 pessoas, sem experiência prévia em Unity (por isso a escolha de
 Web AR em vez de app nativo), com boa experiência em desenvolvimento web.

@@ -12,7 +12,7 @@ didáticas sobre ele para a turma toda.
   navegador do celular do aluno.
 - **Sincronização em tempo real**: Firebase Realtime Database — client-side
   puro, sem servidor próprio pra manter.
-- **Hospedagem**: estática, na Hostinger, com HTTPS.
+- **Hospedagem**: estática, na Vercel, com HTTPS automático.
 
 ## Estrutura do projeto
 
@@ -66,16 +66,26 @@ Hostinger.
 
 ### 4. Deploy
 
-Subir `aluno/`, `painel/`, `shared/` e `content/` juntos, mantendo a mesma
-estrutura relativa, como raiz pública do site na Hostinger (não subir
-`ia/`, `node_modules/`, `.git`, `package.json`/`package-lock.json` — são só
-de desenvolvimento). Ficaria acessível em algo como:
+Hospedado na [Vercel](https://vercel.com) como site estático (sem build —
+ver `vercel.json`). `ia/`, `teste`, `node_modules/` e `package-lock.json`
+ficam fora do deploy via `.vercelignore`.
 
-- `https://seudominio.com/aluno/`
-- `https://seudominio.com/painel/`
+Para publicar:
 
-Não esquecer de **ativar SSL/HTTPS** no hPanel da Hostinger — obrigatório
-pra câmera funcionar no celular do aluno.
+1. Importar o repositório no [dashboard da Vercel](https://vercel.com/new)
+   (New Project → conectar o repo `crow1y/Hacktudo`). A Vercel detecta o
+   `vercel.json` e não roda build nenhum.
+2. Todo push em `main` gera um deploy novo automaticamente em produção;
+   pushes em outras branches geram preview deployments.
+
+Fica acessível em:
+
+- `https://<projeto>.vercel.app/aluno/`
+- `https://<projeto>.vercel.app/painel/`
+
+HTTPS já vem ativado por padrão na Vercel — obrigatório pra câmera
+funcionar no celular do aluno. Um domínio próprio pode ser adicionado
+depois em Project Settings → Domains.
 
 ## Próximos passos (onde continuar)
 

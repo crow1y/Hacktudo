@@ -41,5 +41,5 @@ and, if possible, a walk cycle.
    bater com o usado em `content/animals.json`).
 3. Testar o tamanho do arquivo — se passar de alguns MB, considerar
    comprimir com [gltf-transform](https://gltf-transform.dev/) (`gltf-transform
-   optimize entrada.glb saida.glb`) antes de subir pra Hostinger, pra não
+   optimize entrada.glb saida.glb`) antes de subir pra Vercel, pra não
    pesar o carregamento no celular do aluno em rede móvel.
