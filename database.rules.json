@@ -1,0 +1,58 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "session": {
+      "activeAnimal": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".validate": "newData.val() === null || newData.isString()"
+      }
+    },
+
+    "users": {
+      "professores": {
+        ".read": true,
+        "$uid": {
+          "nome": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.isString()"
+          },
+          "matricula": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.isString()"
+          },
+          "cpf": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.isString()"
+          },
+          "criadoEm": {
+            ".write": "auth != null && auth.uid === $uid && !data.exists()",
+            ".validate": "newData.isNumber()"
+          },
+          "liberado": {
+            ".write": "(!data.exists() && auth != null && auth.uid === $uid && newData.val() === false) || (data.exists() && newData.isBoolean())",
+            ".validate": "newData.isBoolean()"
+          }
+        }
+      },
+      "alunos": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['nome', 'matricula', 'criadoEm'])"
+        }
+      }
+    },
+
+    "presencas": {
+      "$data": {
+        "$uid": {
+          ".read": "auth != null",
+          ".write": "auth != null && (auth.uid === $uid || root.child('users/professores').child(auth.uid).child('liberado').val() === true)"
+        }
+      }
+    }
+  }
+}
