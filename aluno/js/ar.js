@@ -161,20 +161,40 @@ function restartMindAR(mindarSystem) {
 async function enterFloorPlacement(sceneEl, placeFloorBtn, animal) {
   placeFloorBtn.hidden = true;
 
+  // O <model-viewer> do cartão de prévia (autoplay/auto-rotate) só fica
+  // coberto visualmente pelo container do WebXR — ele continua rodando
+  // com o PRÓPRIO contexto WebGL o tempo inteiro, ao mesmo tempo que o
+  // WebXR usa outro pra renderizar a cena. Dois contextos WebGL ativos
+  // ao mesmo tempo nesse aparelho é a suspeita mais forte pro
+  // travamento intermitente do Chrome ao sair do modo WebXR (só
+  // acontecia com o cartão ainda "ativo", ou seja, com o model-viewer
+  // carregado). Descarrega o modelo e esconde o cartão enquanto durar o
+  // WebXR; volta ao normal ao sair (ver voltarPreview abaixo).
+  const previewCardEl = document.getElementById("preview-card");
+  const previewModelViewerEl = document.getElementById("preview-model-viewer");
+  previewCardEl.hidden = true;
+  previewModelViewerEl.src = "";
+
   const mindarSystem = sceneEl.systems["mindar-image-system"];
   mindarSystem.stop(); // libera a câmera de vez — WebXR precisa de controle exclusivo dela
 
   const { startFloorPlacement } = await import("./webxr-mode.js");
 
+  function voltarPreview() {
+    previewModelViewerEl.src = animal.model;
+    previewCardEl.hidden = false;
+    restartMindAR(mindarSystem);
+  }
+
   try {
     await startFloorPlacement({
       modelUrl: animal.model,
       realHeightMeters: animal.alturaRealMetros,
-      onExit: () => restartMindAR(mindarSystem),
+      onExit: voltarPreview,
     });
   } catch (error) {
     console.error("Falha ao iniciar o modo WebXR", error);
-    restartMindAR(mindarSystem);
+    voltarPreview();
   }
 }
 
