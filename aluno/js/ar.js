@@ -79,6 +79,15 @@ function setupInteraction(gltfEl) {
   let clips = null;
 
   gltfEl.addEventListener("model-loaded", (event) => {
+    // Modelos animados/com esqueleto às vezes têm a esfera de bounding
+    // (usada pra frustum culling) calculada errado logo após carregar —
+    // o Three.js decide "isso não está na tela" e nunca desenha, mesmo
+    // com object3D.visible=true e tudo mais correto. Desativa o culling
+    // por segurança (modelo pequeno, custo de sempre desenhar é baixo).
+    event.detail.model.traverse((node) => {
+      if (node.isMesh) node.frustumCulled = false;
+    });
+
     const clipNames = (event.detail.model.animations ?? []).map((clip) => clip.name);
     if (clipNames.length === 0) return;
 
@@ -204,11 +213,8 @@ export async function initAR() {
     }
     previewModelEl.setAttribute("scale", scaleByAnimalId[animal.id]);
     previewModelEl.setAttribute("visible", true);
-    // DIAGNÓSTICO TEMPORÁRIO: círculo e vinheta desativados de propósito
-    // — testando se estavam "lavando" visualmente o modelo (ambos são
-    // translúcidos, sobrepostos na mesma área da tela).
-    // previewPlatformEl.setAttribute("visible", true);
-    // vignetteEl.hidden = false;
+    previewPlatformEl.setAttribute("visible", true);
+    vignetteEl.hidden = false;
     previewNameEl.hidden = false;
     previewNameEl.textContent = animal.nome;
     scanAnotherBtn.hidden = false;
