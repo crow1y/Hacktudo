@@ -155,6 +155,15 @@ export async function initAR() {
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
+      <!-- Sem isso o modelo pode ser desenhado (processado no frame) mas
+           ficar preto/invisível contra o fundo escuro — o A-Frame injeta
+           luz padrão sozinho SE não houver nenhuma luz na cena, mas isso
+           não parece acontecer de forma confiável quando a cena inteira é
+           montada via innerHTML depois do carregamento (em vez de já
+           estar no HTML desde o início). Luz explícita por segurança. -->
+      <a-light type="ambient" color="#ffffff" intensity="1.2"></a-light>
+      <a-light type="directional" color="#ffffff" intensity="0.8" position="0.5 1 1"></a-light>
+
       <!-- Cartão de prévia: círculo (halo/pedestal) atrás do modelo, ambos
            re-grudados via JS na câmera REAL usada pra renderizar (ver
            attachPreviewToActiveCamera abaixo — não é necessariamente a
