@@ -387,15 +387,15 @@ nunca assumir que a matrícula em si é a chave.
 - [ ] Escolher/gerar as imagens-alvo a partir das páginas reais do livro
       didático (hoje raposa, elefante e leão usam fotos de banco de
       imagem — nenhuma delas é uma página de livro de verdade ainda).
-- [ ] Buraco Negro (Física): modelo 3D ("Black hole" da extinta Google
-      Poly, CC BY 3.0, baixado direto de static.poly.pizza sem precisar
-      de login — o modelo pedido originalmente, do Sketchfab, exige login
-      pra baixar mesmo sendo CC BY 4.0 gratuito) + foto real (Event
-      Horizon Telescope, primeira foto de um buraco negro já tirada, CC
-      BY 4.0) + ficha completa já prontos em `content/animals.json`
-      (`materia: "fisica"`). **Falta só recompilar
-      `aluno/assets/targets/targets.mind`** incluindo essa foto como 6ª
-      imagem, junto com as 5 já compiladas (ver
+- [ ] Buraco Negro (Física): modelo 3D ("Blackhole" by rubykamen,
+      Sketchfab, CC BY 4.0 — trocado de um modelo anterior que tinha só
+      1.572 triângulos e visualmente ficava com os "jatos" quebrados/
+      poligonais; ver `CLAUDE.md` pra investigação completa) + foto real
+      (Event Horizon Telescope, primeira foto de um buraco negro já
+      tirada, CC BY 4.0) + ficha completa já prontos em
+      `content/animals.json` (`materia: "fisica"`). **Falta só
+      recompilar `aluno/assets/targets/targets.mind`** incluindo essa
+      foto como 6ª imagem, junto com as 5 já compiladas (ver
       `_comment_targetIndexPendente` na entrada `buraco-negro` do JSON
       pra ordem exata) — até lá o card aparece completo no painel, mas
       não é reconhecido pela câmera do aluno (`targetIndex: null`).
