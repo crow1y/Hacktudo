@@ -446,6 +446,10 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
 
   function cleanup() {
     window.removeEventListener("pagehide", endSessionOnPageHide);
+    if (hitTestSource) {
+      hitTestSource.cancel();
+      hitTestSource = null;
+    }
     // Para o loop de render ANTES de mexer no DOM/WebGL — se um frame
     // ainda em voo tentasse renderizar depois do innerHTML="" ou do
     // dispose(), poderia travar em vez de só dar erro.
@@ -479,6 +483,21 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
     placed = true;
     reticle.visible = false;
     scanHintEl.hidden = true;
+
+    // Depois de plantado a gente já ignora o resultado do hit-test (ver
+    // "if (hitTestSource && !placed)" mais abaixo), mas sem cancelar o
+    // ARCore continua rodando a busca de plano/chão por baixo dos panos
+    // pro resto da sessão -- trabalho que fica bem mais pesado quando a
+    // câmera aponta pra uma superfície ruim pra tracking (teto, longe,
+    // pouca textura), exatamente o que acontece ao olhar pra cima pra
+    // ver a cabeça de um animal alto. Suspeita forte pro travamento
+    // relatado nesse cenário específico -- cancelar libera esse trabalho
+    // de vez, já que não precisamos mais dele.
+    if (hitTestSource) {
+      hitTestSource.cancel();
+      hitTestSource = null;
+    }
+
     placeModel(reticle.matrix);
   });
 
@@ -554,7 +573,14 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
         hitTestSourceRequested = true;
         xrSession.requestReferenceSpace("viewer").then((viewerSpace) => {
           xrSession.requestHitTestSource({ space: viewerSpace }).then((source) => {
-            hitTestSource = source;
+            // Pode já ter sido plantado enquanto essa Promise pendia --
+            // cancela na hora em vez de deixar um hit-test source órfão
+            // rodando pro resto da sessão (ver select acima).
+            if (placed) {
+              source.cancel();
+            } else {
+              hitTestSource = source;
+            }
           });
         });
       }

@@ -301,6 +301,25 @@ linguagem que exclua quem não é criança pequena.
   simular câmera girando ao redor do ponto de colocação e checar
   visualmente que nada pisca/aparece errado; só o hit-test em si (achar o
   chão de verdade) exige o aparelho real.
+  ⚠️ **Histórico: girafa travando especificamente ao olhar pra cima**
+  (pra ver a cabeça, depois de já plantada) — mesmo sem tocar em "Sair da
+  RA". Suspeita: depois de plantado o modelo, o código já ignora o
+  resultado do hit-test (`if (hitTestSource && !placed)`), mas nunca
+  cancelava a busca em si — o ARCore continuava rastreando plano/chão o
+  resto da sessão à toa, e essa busca fica mais pesada quando a câmera
+  aponta pra uma superfície ruim pra tracking (pouca textura, longe,
+  iluminação diferente) — exatamente o caso de apontar pro teto pra ver
+  a cabeça de um animal alto. Somado ao resto do trabalho da cena (mesh
+  pesada, skinning), suspeita forte de estourar o orçamento de frame do
+  Chrome nesse momento específico. **Corrigido**: `hitTestSource.cancel()`
+  assim que o modelo é plantado (no handler de `select`, e também se a
+  Promise de `requestHitTestSource` resolver depois disso), e de novo em
+  `cleanup()` caso a sessão termine antes de plantar. ⚠️ Ainda não
+  confirmado no aparelho se resolve de vez — se persistir, o próximo
+  suspeito é o hit-test em si não ser a causa e sim algo mais fundo do
+  ARCore ao perder tracking apontando pra teto (mesma categoria do Depth
+  API abaixo: instabilidade da combinação hardware/navegador, não bug de
+  lógica).
   **Oclusão real por profundidade (Depth API) foi tentada e ABANDONADA**:
   mesmo só pedindo o recurso `depth-sensing` sem usar pra nada, a aba do
   Chrome travava ao encerrar a sessão nesse aparelho — não era bug do
