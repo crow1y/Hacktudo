@@ -48,8 +48,8 @@
 
     "presencas": {
       "$data": {
+        ".read": "auth != null",
         "$uid": {
-          ".read": "auth != null",
           ".write": "auth != null && (auth.uid === $uid || root.child('users/professores').child(auth.uid).child('liberado').val() === true)"
         }
       }
