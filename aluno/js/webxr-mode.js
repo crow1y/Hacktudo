@@ -10,10 +10,17 @@
 // exclusivo da câmera, e é mais simples não misturar com o pipeline do
 // MindAR pra essa parte.
 //
-// NÃO TESTADO EM DISPOSITIVO REAL por quem escreveu isso (sem acesso a
-// hardware com ARCore) — a lógica segue o padrão oficial documentado do
-// WebXR (hit-test + reticle + select), mas comportamento fino (jitter,
-// precisão do hit-test, etc.) só validado testando no celular de verdade.
+// Testado em dispositivo real (Motorola Edge 20 Pro): hit-test, filtro
+// de chão, escala real e botão de sair confirmados funcionando.
+//
+// Oclusão real por profundidade (Depth API) foi tentada e ABANDONADA:
+// mesmo só pedindo o recurso "depth-sensing" sem usar pra nada, a sessão
+// travava a aba ao encerrar nesse aparelho — não é bug de algoritmo, é o
+// próprio recurso que se mostrou instável nesse aparelho/Chrome. Não
+// tentar de novo sem investigar primeiro se é uma limitação conhecida
+// dessa combinação de hardware/navegador. Ver histórico do git
+// (commits da branch feature/webxr-occlusion, descartada) se for
+// retomar essa investigação depois do hackathon.
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -56,6 +63,15 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
   renderer.xr.enabled = true;
   container.appendChild(renderer.domElement);
 
+  // Sessão WebXR não vem com um botão de sair garantido pelo navegador —
+  // o app precisa fornecer o próprio, via o recurso "dom-overlay" (esse
+  // elemento é composto por cima da visão de RA pelo próprio navegador
+  // durante a sessão).
+  const exitButton = document.createElement("button");
+  exitButton.textContent = "❌ Sair da RA";
+  exitButton.id = "webxr-exit-btn";
+  container.appendChild(exitButton);
+
   scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
   const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
   dirLight.position.set(0.5, 3, 1);
@@ -79,13 +95,21 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
   try {
     session = await navigator.xr.requestSession("immersive-ar", {
       requiredFeatures: ["hit-test"],
+      // Opcional de propósito: em aparelhos sem suporte, a sessão segue
+      // normal, só sem o botão sobreposto (fica só a rede de segurança
+      // do "pagehide" abaixo pra sair).
+      optionalFeatures: ["dom-overlay"],
+      domOverlay: { root: container },
     });
   } catch (error) {
     cleanup();
     throw error;
   }
 
+  exitButton.addEventListener("click", () => session.end().catch(() => {}));
+
   function cleanup() {
+    window.removeEventListener("pagehide", endSessionOnPageHide);
     container.hidden = true;
     container.innerHTML = "";
     renderer.setAnimationLoop(null);
@@ -96,6 +120,16 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
     cleanup();
     onExit?.();
   });
+
+  // Sair da PÁGINA (botão voltar do navegador/celular) com a sessão WebXR
+  // ainda ativa é um desmonte mais pesado pro navegador que só encerrar a
+  // sessão. Rede de segurança pra quando o aluno usa o botão voltar em
+  // vez do "❌ Sair da RA": encerra a sessão explicitamente antes da
+  // página descarregar.
+  function endSessionOnPageHide() {
+    session.end().catch(() => {});
+  }
+  window.addEventListener("pagehide", endSessionOnPageHide);
 
   renderer.xr.setReferenceSpaceType("local");
   await renderer.xr.setSession(session);

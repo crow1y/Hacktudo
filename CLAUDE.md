@@ -95,12 +95,21 @@ Instruções de projeto para o Claude Code neste repositório.
   resolver isso sem WebXR — foi descartado porque sem saber onde é o
   chão de verdade, o animal sempre parecia flutuando/errado, quebrando a
   imersão. Não reintroduzir essa abordagem.
-  ⚠️ Essa parte não foi validada em dispositivo real por quem escreveu —
-  só o suficiente pra confirmar que a API é chamada certa (testado até o
-  ponto onde o ambiente de teste esbarra em limitações de automação:
-  sem câmera, sem hardware AR, `document.visibilityState` sempre
-  "hidden"). Comportamento fino (precisão do hit-test, jitter, etc.)
-  precisa ser validado testando no celular de verdade.
+  **Testado em dispositivo real** (Motorola Edge 20 Pro): hit-test,
+  filtro de chão (`isFloorLike`), escala real e o botão "❌ Sair da RA"
+  (via `dom-overlay` — sessão WebXR não vem com botão de sair garantido
+  pelo navegador) confirmados funcionando.
+  **Oclusão real por profundidade (Depth API) foi tentada e ABANDONADA**:
+  mesmo só pedindo o recurso `depth-sensing` sem usar pra nada, a aba do
+  Chrome travava ao encerrar a sessão nesse aparelho — não era bug do
+  cálculo de oclusão (chegou a ser testado isoladamente, matemática
+  confirmada correta), o próprio recurso se mostrou instável nessa
+  combinação de hardware/navegador. **Não pedir `depth-sensing` de novo
+  sem investigar antes se é uma limitação conhecida** — ver histórico do
+  git (branch `feature/webxr-occlusion`, descartada) se for retomar essa
+  investigação depois do hackathon. Resultado: o animal plantado no chão
+  não respeita objetos reais na frente dele (ex: uma mão passando não o
+  oclui) — limitação aceita, não um bug pendente.
 
 ## Schema do `content/animals.json`
 
