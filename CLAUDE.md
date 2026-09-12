@@ -150,6 +150,23 @@ linguagem que exclua quem não é criança pequena.
   mesh) para calcular a escala certa. O `Fox.glb` de teste tem ~79
   unidades de altura nativa; `scale="0.005"` dá ~0.4 unidades no espaço
   do alvo MindAR.
+- **Antes de integrar um modelo animado (skin/ossos) novo, rodar
+  `npm run check-model -- caminho/do/modelo.glb`** (`scripts/
+  check-model.js`, sem dependências). Motivado por um bug real: a girafa
+  travava o Chrome no modo WebXR (ver gotcha "girafa piscando" abaixo) —
+  a causa **não era o tamanho do arquivo** (923 KB / 1.258 triângulos é
+  irrisório pra qualquer GPU de celular), era a hierarquia de ossos ter
+  fatores de escala muito desproporcionais entre si (achado: nó da malha
+  com escala efetiva ~0.01 e um osso com escala local 100 — resíduo
+  comum de conversão automática de FBX pra glTF no Sketchfab/Mixamo).
+  Isso obriga o cálculo de skin a multiplicar números muito grandes por
+  muito pequenos pra se cancelar, terreno arriscado pra precisão de
+  shader em GPU de celular. O script sinaliza nó com escala fora do
+  intervalo `[0.05, 20]` e a razão de escala osso/malha — rodado contra a
+  girafa (achou o problema) e a raposa (`Fox.glb`, passou limpo) validou
+  que a checagem funciona antes de confiar num modelo novo. **Não é
+  garantia de que o modelo vai funcionar** (só reduz o risco desse tipo
+  específico de bug), e não substitui testar de verdade no celular.
 - **MindAR emite evento `arError`** com `{error: "VIDEO_FAIL"}` no
   `<a-scene>` quando a câmera falha — é assim que `aluno/js/ar.js` mostra
   a mensagem em português em `#ar-error`, em vez da tela de erro padrão

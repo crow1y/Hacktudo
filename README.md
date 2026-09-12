@@ -279,6 +279,12 @@ depois em Project Settings → Domains.
   poly.pizza) e um só com conteúdo escrito, ainda sem RA (`exemplo-leao`)
   — ver `ia/prompts/gerar-modelo-3d.md` e
   `ia/prompts/gerar-conteudo-animais.md` pra completar os que faltam.
+- **Antes de adicionar um modelo animado novo**, rodar
+  `npm run check-model -- caminho/do/modelo.glb` — checa se a hierarquia
+  de ossos tem fatores de escala muito desproporcionais entre si (o tipo
+  de problema, não o tamanho do arquivo, que já causou um travamento
+  intermitente real no modo WebXR — ver CLAUDE.md). Não substitui testar
+  no celular, só reduz o risco antes de investir tempo integrando.
 - `assets/img/raposa.jpg` e `assets/img/girafa.jpg` cumprem dois papéis
   ao mesmo tempo: são a foto ilustrativa exibida no `painel/` **e** a
   imagem de verdade que a câmera precisa reconhecer pra ativar cada

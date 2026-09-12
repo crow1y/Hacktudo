@@ -5,7 +5,8 @@
   "description": "Professor de RA educacional - MindAR + Three.js + Firebase Realtime Database",
   "scripts": {
     "dev:aluno": "live-server --port=8080 --open=/aluno/ --ignore=node_modules",
-    "dev:painel": "live-server --port=8081 --open=/painel/ --ignore=node_modules"
+    "dev:painel": "live-server --port=8081 --open=/painel/ --ignore=node_modules",
+    "check-model": "node scripts/check-model.js"
   },
   "devDependencies": {
     "live-server": "^1.2.2"
