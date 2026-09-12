@@ -21,6 +21,70 @@ function isAssetReady(animal) {
   return !animal.model.includes("TODO");
 }
 
+// Faz o modelo "andar" num pequeno círculo ao redor do próprio ponto de
+// ancoragem, de frente pra direção do movimento. Fica no filho (o
+// a-gltf-model), nunca na a-entity do alvo (mindar-image-target) — o
+// MindAR sobrescreve a matriz da entidade do alvo a cada frame de
+// rastreamento, então qualquer posição definida ali seria imediatamente
+// perdida.
+if (!AFRAME.components["wander"]) {
+  AFRAME.registerComponent("wander", {
+    schema: {
+      radius: { default: 0.12 },
+      speed: { default: 0.5 },
+    },
+    tick(time) {
+      const angle = (time / 1000) * this.data.speed;
+      const x = Math.cos(angle) * this.data.radius;
+      const z = Math.sin(angle) * this.data.radius;
+      this.el.object3D.position.set(x, 0, z);
+      this.el.object3D.rotation.y = -angle - Math.PI / 2;
+    },
+  });
+}
+
+// Escolhe, entre os clipes de animação carregados do glTF, um pra
+// "andar" (contínuo, usado com o componente wander acima) e outro pra
+// "reagir" ao toque — por nome quando possível (convenção comum tipo
+// Mixamo: Walk/Run/Idle/Attack), com fallback pros primeiros/últimos
+// clipes disponíveis para modelos com nomes diferentes.
+function pickClips(clipNames) {
+  const findByPattern = (pattern) => clipNames.find((name) => pattern.test(name));
+
+  const walk = findByPattern(/walk/i) ?? clipNames[0];
+  const react =
+    findByPattern(/run|jump|attack|eat|bite|roar/i) ??
+    clipNames.find((name) => name !== walk) ??
+    walk;
+
+  return { walk, react };
+}
+
+function setupInteraction(gltfEl) {
+  let reacting = false;
+  let clips = null;
+
+  gltfEl.addEventListener("model-loaded", (event) => {
+    const clipNames = (event.detail.model.animations ?? []).map((clip) => clip.name);
+    if (clipNames.length === 0) return;
+
+    clips = pickClips(clipNames);
+    gltfEl.setAttribute("animation-mixer", `clip: ${clips.walk}; loop: repeat`);
+  });
+
+  gltfEl.addEventListener("click", () => {
+    if (!clips || reacting || clips.react === clips.walk) return;
+
+    reacting = true;
+    gltfEl.setAttribute("animation-mixer", `clip: ${clips.react}; loop: repeat`);
+
+    setTimeout(() => {
+      gltfEl.setAttribute("animation-mixer", `clip: ${clips.walk}; loop: repeat`);
+      reacting = false;
+    }, 2500);
+  });
+}
+
 export async function initAR() {
   const response = await fetch("../content/animals.json");
   const { targetSrc, animals } = await response.json();
@@ -34,15 +98,19 @@ export async function initAR() {
     .map(
       (animal) => `
         <a-entity class="ar-target" data-animal-id="${animal.id}" mindar-image-target="targetIndex: ${animal.targetIndex}">
-          <!-- scale/position são um chute inicial por animal — cada modelo
-               tem proporções diferentes, ajustar testando no celular. O
-               valor abaixo (0.005) foi calculado para o Fox.glb de teste
-               (~79 unidades de altura nativa); outros modelos vão precisar
-               de outro valor. -->
+          <!-- scale é um chute inicial por animal — cada modelo tem
+               proporções diferentes, ajustar testando no celular. O valor
+               abaixo (0.005) foi calculado para o Fox.glb de teste (~79
+               unidades de altura nativa); outros modelos vão precisar de
+               outro valor. wander faz o modelo andar em círculo; a classe
+               "clickable" + animation-mixer permitem reagir ao toque
+               (ver setupInteraction). -->
           <a-gltf-model
+            class="clickable animal-model"
             src="#model-${animal.id}"
             position="0 0 0"
             scale="0.005 0.005 0.005"
+            wander
             animation-mixer
           ></a-gltf-model>
         </a-entity>
@@ -52,7 +120,7 @@ export async function initAR() {
 
   document.getElementById("ar-container").innerHTML = `
     <a-scene
-      mindar-image="imageTargetSrc: ${targetSrc}; autoStart: true; uiScanning: no;"
+      mindar-image="imageTargetSrc: ${targetSrc}; autoStart: true; uiScanning: no; missTolerance: 60;"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: false"
       renderer="colorManagement: true"
@@ -60,6 +128,7 @@ export async function initAR() {
     >
       <a-assets>${assetsHtml}</a-assets>
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-entity cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable"></a-entity>
       ${targetsHtml}
     </a-scene>
   `;
@@ -69,6 +138,10 @@ export async function initAR() {
   sceneEl.addEventListener("arError", (event) => {
     showCameraError(event.detail?.error);
   });
+
+  for (const gltfEl of document.querySelectorAll(".animal-model")) {
+    setupInteraction(gltfEl);
+  }
 
   for (const targetEl of document.querySelectorAll(".ar-target")) {
     const animalId = targetEl.dataset.animalId;
