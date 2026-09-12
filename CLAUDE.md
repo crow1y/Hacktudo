@@ -47,11 +47,23 @@ Instruções de projeto para o Claude Code neste repositório.
   Realtime Database, não no Firebase Auth. `admin/` libera professores
   (gate por `ADMIN_ACCESS_CODE`, não é segurança real).
 - **Design**: tokens (cor, tipografia, espaçamento, raio, sombra) e
-  componentes de formulário (`.card`, `.field`, `.password-field`,
-  `.btn-primary`, `.btn-link`) ficam em `shared/theme.css`, importado
-  pelos três apps antes do CSS específico de cada um. Mudar um token ali
-  afeta `aluno/`, `painel/` e `admin/` ao mesmo tempo — não duplicar cor/
-  espaçamento hardcoded nos CSS específicos, usar as `var(--...)`.
+  componentes reutilizáveis (`.card`, `.field`, `.password-field`,
+  `.btn-primary`, `.btn-secondary`, `.btn-link`, `.img-placeholder`)
+  ficam em `shared/theme.css`, importado por `index.html` (landing page
+  na raiz) e pelos três apps antes do CSS específico de cada um. Mudar um
+  token ali afeta o projeto inteiro — não duplicar cor/espaçamento
+  hardcoded nos CSS específicos, usar as `var(--...)`. Visual lúdico e
+  colorido de propósito (público de 7 a 15 anos, inspirado em
+  elefanteletrado.com.br) — decisão de produto, não usar tom mais neutro
+  sem confirmar antes.
+- **Landing page** (`index.html`, `css/site.css`, `js/site.js`): página
+  pública de apresentação do projeto, com CTA pra `/aluno/` e `/painel/`.
+  Toda ilustração/mascote/logo é um `.img-placeholder` com
+  `data-placeholder-label` — nenhuma arte real foi gerada. **Nunca listar
+  patrocinador real sem confirmação** (a lista original pedida citava
+  empresas/órgãos reais sem acordo — trocado por placeholders genéricos).
+  Números de impacto na seção de metas são objetivos, não dados reais —
+  não virar estatística "alcançada" sem números de verdade.
 
 ## Gotchas técnicos importantes
 
