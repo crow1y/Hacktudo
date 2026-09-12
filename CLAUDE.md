@@ -239,6 +239,29 @@ linguagem que exclua quem não é criança pequena.
   `<model-viewer>`/canvas com seu próprio loop de render continua
   consumindo GPU mesmo fora de vista, e isso importa especialmente ao
   rodar WebXR em paralelo.
+  ⚠️ **Histórico: girafa "sumia" ao tocar "Fixar no chão"** (cartão de
+  prévia funcionava normal, WebXR não mostrava nada): causa raiz tinha
+  duas partes, as duas específicas de modelo com esqueleto (skin/bones) —
+  não afetava a raposa (`Fox.glb`) porque o bind-pose dele já reflete o
+  tamanho real. (1) `new THREE.Box3().setFromObject(model)` usa a
+  geometria em bind-pose transformada só pela matrixWorld do próprio nó
+  da malha, **sem aplicar a deformação dos ossos** — pra girafa isso deu
+  uma altura ~400x menor que o tamanho real renderizado, fazendo a escala
+  automática (`targetHeight / nativeHeight`) explodir. (2) a malha nem
+  fica centrada na origem local do model (fica bem deslocada) — com
+  aquela escala gigante multiplicando esse deslocamento, `model.position
+  .copy(hitPoint)` plantava um "esqueleto vazio" no ponto certo, mas a
+  malha visível ia parar a metros de distância. **Corrigido** com
+  `computeWorldBox()` (usa `SkinnedMesh.applyBoneTransform` por vértice —
+  o mesmo cálculo de skin que o three.js já usa internamente pro raycast
+  — quando o model tem um `SkinnedMesh`, senão cai no `Box3` normal) pra
+  medir a altura real, e reancorando a posição final pelo **centro do
+  bounding box já escalado** em vez de só copiar o ponto do hit-test no
+  root. Lição: com modelo animado por esqueleto, nunca confiar em
+  `Box3().setFromObject`/`model.position` puros pra escala ou
+  posicionamento — sempre validar com um teste renderizado de verdade
+  (ver `_test-*.html` descartáveis usados nas outras trocas de modelo)
+  antes de assumir que "carregou sem erro" significa "apareceu certo".
   **Oclusão real por profundidade (Depth API) foi tentada e ABANDONADA**:
   mesmo só pedindo o recurso `depth-sensing` sem usar pra nada, a aba do
   Chrome travava ao encerrar a sessão nesse aparelho — não era bug do

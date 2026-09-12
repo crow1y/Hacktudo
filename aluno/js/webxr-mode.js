@@ -78,6 +78,39 @@ function findClip(animations, name) {
   return animations.find((clip) => clip.name.toLowerCase() === name.toLowerCase()) ?? null;
 }
 
+// Box3().setFromObject usa a geometria em bind-pose (sem aplicar a
+// deformação dos ossos) transformada só pela matrixWorld do próprio nó
+// da malha -- pra um SkinnedMesh isso ignora completamente a escala real
+// que vem da hierarquia de ossos. Achado testando a girafa: a malha bind
+// -pose "crua" mede ~0.005 unidades de altura, mas o modelo posado de
+// verdade (visto no cartão de prévia) é ~400x maior que isso -- Box3
+// dava uma altura quase zero, fazendo a escala automática (targetHeight
+// / nativeHeight) explodir e a girafa "sumir" (ficar gigante e/ou longe
+// do ponto tocado, ver placeModel). applyBoneTransform faz o cálculo de
+// skin por vértice na CPU (o mesmo que o three.js usa internamente pro
+// raycast), então dá o tamanho posado de verdade.
+function computeWorldBox(model) {
+  model.updateMatrixWorld(true);
+
+  let skinnedMesh = null;
+  model.traverse((child) => {
+    if (child.isSkinnedMesh && !skinnedMesh) skinnedMesh = child;
+  });
+
+  if (!skinnedMesh) return new THREE.Box3().setFromObject(model);
+
+  const box = new THREE.Box3();
+  const positionAttr = skinnedMesh.geometry.attributes.position;
+  const vertex = new THREE.Vector3();
+  for (let i = 0; i < positionAttr.count; i++) {
+    vertex.fromBufferAttribute(positionAttr, i);
+    skinnedMesh.applyBoneTransform(i, vertex);
+    box.expandByPoint(vertex);
+  }
+  box.applyMatrix4(skinnedMesh.matrixWorld);
+  return box;
+}
+
 // Dá vida ao modelo já plantado no chão: por padrão ele anda sozinho
 // (wander) dentro de LEASH_RADIUS_METERS, mas o aluno pode assumir o
 // controle a qualquer momento pelo analógico, ou pausar tudo pelo botão
@@ -454,11 +487,12 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
       modelUrl,
       (gltf) => {
         const model = gltf.scene;
+        scene.add(model);
 
         // Escala real: mede a altura nativa do modelo (unidades do
         // próprio arquivo) e escala pra bater com a altura real do
         // animal em metros, respeitando o teto de segurança.
-        const box = new THREE.Box3().setFromObject(model);
+        const box = computeWorldBox(model);
         const nativeHeight = box.max.y - box.min.y || 1;
         const targetHeight = Math.min(realHeightMeters, MAX_HEIGHT_METERS);
         model.scale.setScalar(targetHeight / nativeHeight);
@@ -467,11 +501,17 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
         const quaternion = new THREE.Quaternion();
         const scale = new THREE.Vector3();
         placementMatrix.decompose(position, quaternion, scale);
-        model.position.copy(position);
+
+        // A malha nem sempre fica centrada na origem local do model (a
+        // girafa, por ex., fica bem deslocada) -- só copiar position no
+        // root não planta a malha de verdade em cima do ponto tocado.
+        // Reancora pelo bounding box real (já escalado) em vez de
+        // confiar na origem do root.
+        const scaledBox = computeWorldBox(model);
+        const center = scaledBox.getCenter(new THREE.Vector3());
+        model.position.set(position.x - center.x, position.y - scaledBox.min.y, position.z - center.z);
         // Orientação não vem daqui: quem manda no rotation.y a partir de
         // agora é o andar sozinho/analógico (setupAnimalControl).
-
-        scene.add(model);
 
         if (gltf.animations?.length > 0) {
           mixer = new THREE.AnimationMixer(model);
