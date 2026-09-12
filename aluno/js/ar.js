@@ -36,6 +36,26 @@ function isAssetReady(animal) {
   return !animal.model.includes("TODO");
 }
 
+// Mantém a posição de um filho da câmera fixa num ponto (center), redefinida
+// a cada frame via tick(). Existe porque, por algum motivo não totalmente
+// entendido (possivelmente ligado a como o MindAR recalibra a câmera do
+// A-Frame depois de rastrear um alvo), um filho da câmera com "position"
+// definido só uma vez via atributo estático simplesmente não renderizava
+// em teste real (confirmado: objeto 3D correto em tudo — visível, mesh
+// carregado, pai certo — mas invisível na tela). Reafirmar a posição a
+// cada frame via object3D.position.set(), do jeito que já era feito antes
+// (era usado pra fazer o modelo andar em círculo), contorna o problema.
+if (!AFRAME.components["hold-position"]) {
+  AFRAME.registerComponent("hold-position", {
+    schema: {
+      center: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
+    },
+    tick() {
+      this.el.object3D.position.set(this.data.center.x, this.data.center.y, this.data.center.z);
+    },
+  });
+}
+
 // Escolhe, entre os clipes de animação carregados do glTF, um pra tocar
 // "parado" (contínuo, ex: Walk/Idle tocando no lugar — recicla o que o
 // modelo já tem, sem mover a posição) e outro pra "reagir" ao toque — por
@@ -131,7 +151,7 @@ export async function initAR() {
              reconhecido. -->
         <a-circle
           id="preview-platform"
-          position="0 0 -0.62"
+          hold-position="center: 0 0 -0.62"
           radius="0.32"
           color="#ffffff"
           opacity="0.15"
@@ -140,7 +160,7 @@ export async function initAR() {
         <a-entity
           id="preview-model"
           class="clickable"
-          position="0 0 -0.6"
+          hold-position="center: 0 0 -0.6"
           animation-mixer
           visible="false"
         ></a-entity>
