@@ -107,6 +107,24 @@ html, body {
   font-size: 0.95rem;
 }
 
+/* Dica pra achar o chão mais rápido (some assim que o círculo verde
+   aparece ou o animal é plantado) — ver aluno/js/webxr-mode.js. */
+#webxr-scan-hint {
+  position: fixed;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  max-width: 80vw;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xs) var(--space-md);
+  font-size: 0.95rem;
+}
+
 /* Botão de pausar/retomar o "andar sozinho" + analógico manual do
    animal (dom-overlay) — agrupados num container flex (ver
    aluno/js/webxr-mode.js) em vez de posições fixas independentes, pra

@@ -346,6 +346,15 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
   exitButton.id = "webxr-exit-btn";
   container.appendChild(exitButton);
 
+  // O ARCore precisa de movimento da câmera pra mapear o ambiente antes
+  // de conseguir reconhecer superfícies — ficar parado apontando pro
+  // chão demora bem mais do que mover o celular devagar. Essa dica some
+  // assim que o chão é encontrado (ou o animal é plantado).
+  const scanHintEl = document.createElement("div");
+  scanHintEl.id = "webxr-scan-hint";
+  scanHintEl.textContent = "Mova o celular bem devagar, apontando pro chão, até aparecer o círculo verde.";
+  container.appendChild(scanHintEl);
+
   scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
   const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
   dirLight.position.set(0.5, 3, 1);
@@ -413,6 +422,7 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
     if (placed || !reticle.visible) return;
     placed = true;
     reticle.visible = false;
+    scanHintEl.hidden = true;
     placeModel(reticle.matrix);
   });
 
@@ -472,9 +482,11 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
 
         if (floorPose) {
           reticle.visible = true;
+          scanHintEl.hidden = true;
           reticle.matrix.fromArray(floorPose.transform.matrix);
         } else {
           reticle.visible = false;
+          scanHintEl.hidden = false;
         }
       }
     }
