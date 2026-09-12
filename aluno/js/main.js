@@ -1,9 +1,9 @@
 import { initAR } from "./ar.js";
-import { startModoAulaTimer } from "./session-timer.js";
+import { iniciarCheckinsDeAula } from "./checkin.js";
 
-// Orquestra AR + camada de uso consciente. Chamado por auth-gate.js só
-// depois do aluno estar autenticado.
-export function startApp() {
+// Orquestra AR + check-in de presença. Chamado por auth-gate.js só depois
+// do aluno estar autenticado, com { uid, nome, matricula } do perfil dele.
+export function startApp(aluno) {
   initAR();
-  startModoAulaTimer();
+  iniciarCheckinsDeAula(aluno);
 }

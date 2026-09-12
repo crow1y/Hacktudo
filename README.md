@@ -19,7 +19,7 @@ didáticas sobre ele para a turma toda.
 ## Estrutura do projeto
 
 ```
-aluno/     → app que roda no celular (login/cadastro, câmera, AR, camada de uso consciente)
+aluno/     → app que roda no celular (login/cadastro, câmera, AR, check-in de presença)
 painel/    → app que roda no computador/projetor do professor (login/cadastro + dashboard)
 admin/     → tela do dono do sistema pra liberar o acesso de professores cadastrados
 shared/    → config do Firebase, auth, validadores e constantes usadas pelos dois lados
@@ -106,8 +106,8 @@ depois em Project Settings → Domains.
 - [x] Configurar o Firebase Realtime Database (projeto `viva-livro`, regras
       abertas para o hackathon).
 - [x] Implementar `painel/js/main.js`: busca `content/animals.json`, escuta
-      o Firebase e renderiza `#animal-info` + agregação de humor em tempo
-      real. Testado ponta a ponta.
+      o Firebase e renderiza `#animal-info` + check-ins de presença da
+      turma em tempo real. Testado ponta a ponta.
 - [x] Implementar `aluno/js/ar.js`: MindAR + A-Frame, carrega target/model
       do primeiro animal de `content/animals.json`, escreve o id em
       `DB_PATHS.activeAnimal` ao detectar/perder o alvo. **Hoje ainda usa
@@ -158,15 +158,18 @@ depois em Project Settings → Domains.
       navegador.
 - [ ] Trocar `ADMIN_ACCESS_CODE` pelo valor real antes do hackathon/demo.
 
-**Camada de saúde mental / uso consciente:**
-- [x] Implementar `aluno/js/session-timer.js`: contagem do "modo aula",
-      lembrete de pausa/respiração ao atingir `MODO_AULA_DURATION_MS`,
-      check-in de humor no fim do módulo.
-- [x] Escrever os check-ins de humor em `DB_PATHS.moodCheckins`.
-- [x] Implementar a agregação de humor da turma em `painel/js/main.js`
-      (`#mood-summary`).
-- [x] Decidir e implementar a UI real de `#modo-aula-timer`,
-      `#pausa-lembrete` e `#mood-checkin`.
+**Check-in de presença:**
+- [x] Implementar `aluno/js/checkin.js`: primeiro check-in automático ao
+      entrar na área do aluno, depois um pedido de confirmação
+      (`#checkin-aviso`) a cada `CHECKIN_INTERVAL_MS` (10 min) até
+      completar `AULA_DURATION_MS` (45 min) — depois disso não pede mais.
+- [x] Escrever os check-ins (uid, nome, matrícula, timestamp) em
+      `DB_PATHS.checkins`.
+- [x] Implementar o acompanhamento em tempo real no painel
+      (`#checkin-summary`): lista por aluno com total de check-ins e
+      horário do último.
+- [ ] Decidir o que fazer com o check-in de humor (removido por enquanto
+      junto com o cronômetro de "modo aula" — repensar formato depois).
 
 **Se sobrar tempo:**
 - [ ] Suporte a múltiplos animais/matérias simultâneos.

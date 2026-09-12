@@ -44,52 +44,30 @@ html, body {
   font-size: 1.1rem;
 }
 
-#wellbeing-layer {
+/* Toast discreto do check-in automático. */
+#checkin-toast:not([hidden]) {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 10;
-  pointer-events: none;
-}
-
-#wellbeing-layer > * {
-  pointer-events: auto;
-}
-
-/* Badge discreto com a contagem do modo aula. */
-#modo-aula-timer {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(0, 0, 0, 0.6);
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 15;
+  background: rgba(0, 0, 0, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
   border-radius: 999px;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.85rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
   backdrop-filter: blur(4px);
 }
 
-#modo-aula-label {
-  opacity: 0.7;
-}
-
-#modo-aula-time {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-
-/* Pausa/respiração e check-in de humor: modais em tela cheia sobre a câmera.
+/* Pedido de confirmação de presença: modal em tela cheia sobre a câmera.
    :not([hidden]) porque o display:flex abaixo teria especificidade maior
    que a regra padrão do navegador pra [hidden], reexibindo o modal mesmo
    com o atributo hidden presente. */
-#pausa-lembrete:not([hidden]),
-#mood-checkin:not([hidden]) {
+#checkin-aviso:not([hidden]) {
   position: fixed;
   inset: 0;
+  z-index: 16;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,8 +76,7 @@ html, body {
   padding: 1.5rem;
 }
 
-#pausa-card,
-#mood-card {
+#checkin-card {
   width: 100%;
   max-width: 320px;
   background: #111;
@@ -109,20 +86,19 @@ html, body {
   text-align: center;
 }
 
-#pausa-titulo,
-#mood-titulo {
+#checkin-titulo {
   margin: 0 0 0.75rem;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
-#pausa-texto {
+#checkin-texto {
   margin: 0 0 1.5rem;
   line-height: 1.5;
   opacity: 0.8;
 }
 
-#pausa-continuar {
+#checkin-btn {
   background: #fff;
   color: #000;
   border: none;
@@ -131,28 +107,6 @@ html, body {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-}
-
-#mood-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.mood-option {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 0.75rem 0.5rem;
-  color: #fff;
-  font-size: 0.95rem;
-  cursor: pointer;
-}
-
-.mood-option:hover,
-.mood-option:active {
-  background: rgba(255, 255, 255, 0.18);
 }
 
 /* Telas de login/cadastro do aluno, exibidas antes de liberar o AR. */

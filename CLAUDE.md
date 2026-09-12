@@ -15,9 +15,9 @@ Instruções de projeto para o Claude Code neste repositório.
 ## Trabalho em equipe
 
 - Time de 2 pessoas, cada uma dividindo a stack: uma na pipeline de RA
-  (`aluno/js/ar.js` e assets), outra na camada de uso consciente +
-  conteúdo (`aluno/js/session-timer.js`, `content/animals.json`). O outro
-  dev também usa Claude Code na própria máquina, em paralelo.
+  (`aluno/js/ar.js` e assets), outra no check-in de presença + conteúdo
+  (`aluno/js/checkin.js`, `content/animals.json`). O outro dev também usa
+  Claude Code na própria máquina, em paralelo.
 - **Antes de começar qualquer tarefa nova**, rodar `git fetch origin` e
   conferir `git log HEAD..origin/main --oneline` — o outro pode já ter
   commitado/aberto PR em cima do que você ia mexer.
@@ -117,15 +117,19 @@ Instruções de projeto para o Claude Code neste repositório.
 ```
 session/
   activeAnimal        → string: id do animal ativo (ou null)
-  moodCheckins/
+  checkins/
     <push-id>/
-      mood: "otimo" | "bem" | "cansado" | "confuso"
+      uid: string        → uid do Firebase Auth do aluno
+      nome: string
+      matricula: string
       timestamp: number
 ```
 
-Paths e valores vêm de `shared/constants.js` (`DB_PATHS`, `MOOD_VALUES`,
-`MOOD_LABELS`) — sempre importar de lá, nunca hardcodear strings soltas
-nos dois lados (`aluno/` e `painel/`).
+Paths vêm de `shared/constants.js` (`DB_PATHS`) — sempre importar de lá,
+nunca hardcodear strings soltas nos dois lados (`aluno/` e `painel/`).
+`AULA_DURATION_MS`/`CHECKIN_INTERVAL_MS` (também em `constants.js`)
+controlam por quanto tempo e com que frequência `aluno/js/checkin.js` pede
+check-in.
 
 ```
 users/
