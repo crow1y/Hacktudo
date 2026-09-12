@@ -16,6 +16,19 @@ html, body {
   inset: 0;
 }
 
+#ar-error:not([hidden]) {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  background: #000;
+  font-size: 1.1rem;
+}
+
 #wellbeing-layer {
   position: fixed;
   left: 0;
