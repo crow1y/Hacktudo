@@ -1,23 +1,26 @@
 {
-  "_comment": "Base de conteúdo didático. Cada entrada é consumida pelo aluno/ (target + model) e pelo painel/ (info). Adicione animais aqui sem tocar em nenhum JS.",
+  "_comment": "Base de conteúdo didático. Cada entrada é consumida pelo aluno/ (targetIndex + model) e pelo painel/ (info). Adicione animais aqui sem tocar em nenhum JS.",
+  "_comment_targetSrc": "Todas as imagens-alvo precisam ser compiladas JUNTAS num único arquivo .mind (ferramenta oficial: https://hiukim.github.io/mind-ar-js-doc/tools/compile). A ordem em que você sobe as imagens na hora de compilar define o índice (0, 1, 2...) — esse índice é o 'targetIndex' de cada animal abaixo. Enquanto só existir 1 imagem real, deixe só 1 animal com targetIndex 0 apontando pra ela.",
+  "targetSrc": "https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind",
   "animals": [
     {
-      "_comment": "Entrada de teste (não é um animal real): usa o alvo de exemplo público do MindAR + um modelo animado público, só para validar a pipeline de RA (aluno/js/ar.js) antes dos assets reais existirem. Remover esta entrada (ou movê-la para depois das reais) quando o target/model do leão abaixo estiverem prontos — aluno/js/ar.js sempre usa o primeiro item da lista.",
+      "_comment": "Entrada de teste (não é um animal real): usa o alvo de exemplo público do MindAR + um modelo animado público, só para validar a pipeline de RA (aluno/js/ar.js) antes dos assets reais existirem. Remover quando tiverem o .mind real compilado com as páginas do livro.",
       "id": "teste-pipeline",
       "nome": "Raposa (modelo de teste)",
-      "target": "https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind",
+      "targetIndex": 0,
       "model": "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb",
       "info": {
         "comportamento": "Modelo de teste usado só para validar a pipeline de realidade aumentada antes de termos os modelos reais dos animais.",
         "curiosidades": [
-          "Para ativar, aponte a câmera do celular para a imagem de exemplo do MindAR (link em aluno/js/ar.js)."
+          "Para ativar, aponte a câmera do celular para a imagem de exemplo do MindAR (link em targetSrc acima)."
         ]
       }
     },
     {
+      "_comment": "targetIndex ainda é um placeholder (1) — só vai funcionar de verdade depois que targetSrc virar um .mind compilado com as imagens reais do livro, incluindo esta na posição 1.",
       "id": "exemplo-leao",
       "nome": "Leão",
-      "target": "aluno/assets/targets/TODO.mind",
+      "targetIndex": 1,
       "model": "aluno/assets/models/TODO.glb",
       "info": {
         "comportamento": "Vive em grupos chamados alcateias, geralmente formados por fêmeas aparentadas, seus filhotes e alguns machos. É o único felino verdadeiramente social — as fêmeas costumam caçar em conjunto, enquanto os machos defendem o território.",
