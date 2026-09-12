@@ -204,8 +204,11 @@ export async function initAR() {
     }
     previewModelEl.setAttribute("scale", scaleByAnimalId[animal.id]);
     previewModelEl.setAttribute("visible", true);
-    previewPlatformEl.setAttribute("visible", true);
-    vignetteEl.hidden = false;
+    // DIAGNÓSTICO TEMPORÁRIO: círculo e vinheta desativados de propósito
+    // — testando se estavam "lavando" visualmente o modelo (ambos são
+    // translúcidos, sobrepostos na mesma área da tela).
+    // previewPlatformEl.setAttribute("visible", true);
+    // vignetteEl.hidden = false;
     previewNameEl.hidden = false;
     previewNameEl.textContent = animal.nome;
     scanAnotherBtn.hidden = false;
