@@ -390,7 +390,26 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
     throw error;
   }
 
-  exitButton.addEventListener("click", () => session.end().catch(() => {}));
+  // Em alguns aparelhos/versões do Chrome, o encerramento NATIVO da
+  // sessão WebXR (a Promise de session.end(), ou o evento "end" que
+  // deveria disparar depois) pode nunca completar — trava a tela ali,
+  // esperando pra sempre. Isso é fora do nosso controle (é o
+  // navegador/ARCore encerrando câmera e sensores reais), mas dá pra
+  // ter uma rede de segurança: se não confirmar em poucos segundos,
+  // força a volta pro app mesmo assim, em vez de ficar preso.
+  let finalizado = false;
+
+  function finalizar() {
+    if (finalizado) return;
+    finalizado = true;
+    cleanup();
+    onExit?.();
+  }
+
+  exitButton.addEventListener("click", () => {
+    session.end().catch(() => {});
+    setTimeout(finalizar, 2500);
+  });
 
   function cleanup() {
     window.removeEventListener("pagehide", endSessionOnPageHide);
@@ -407,10 +426,7 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
     renderer.forceContextLoss();
   }
 
-  session.addEventListener("end", () => {
-    cleanup();
-    onExit?.();
-  });
+  session.addEventListener("end", finalizar);
 
   // Sair da PÁGINA (botão voltar do navegador/celular) com a sessão WebXR
   // ainda ativa é um desmonte mais pesado pro navegador que só encerrar a
