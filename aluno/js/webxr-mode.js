@@ -572,16 +572,29 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
       if (!hitTestSourceRequested) {
         hitTestSourceRequested = true;
         xrSession.requestReferenceSpace("viewer").then((viewerSpace) => {
-          xrSession.requestHitTestSource({ space: viewerSpace }).then((source) => {
-            // Pode já ter sido plantado enquanto essa Promise pendia --
-            // cancela na hora em vez de deixar um hit-test source órfão
-            // rodando pro resto da sessão (ver select acima).
-            if (placed) {
-              source.cancel();
-            } else {
-              hitTestSource = source;
-            }
-          });
+          xrSession
+            .requestHitTestSource({
+              space: viewerSpace,
+              // Por padrão o Chrome só devolve hit-test contra um PLANO
+              // já ajustado/estável -- em chão com pouca textura (ou
+              // enquanto o ARCore ainda não convergiu numa superfície
+              // inteira) isso demora bem mais do que aceitar também um
+              // único PONTO de referência rastreado (menos "confirmado
+              // que é plano reto", mas chega bem mais rápido). O filtro
+              // de orientação (isFloorLike) continua rejeitando o que
+              // não estiver alinhado com "chão" de qualquer forma.
+              entityTypes: ["plane", "point"],
+            })
+            .then((source) => {
+              // Pode já ter sido plantado enquanto essa Promise pendia --
+              // cancela na hora em vez de deixar um hit-test source órfão
+              // rodando pro resto da sessão (ver select acima).
+              if (placed) {
+                source.cancel();
+              } else {
+                hitTestSource = source;
+              }
+            });
         });
       }
 
