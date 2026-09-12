@@ -30,23 +30,29 @@ function isAssetReady(animal) {
   return !animal.model.includes("TODO");
 }
 
-// Faz o modelo "andar" num pequeno círculo ao redor do próprio ponto de
-// ancoragem, de frente pra direção do movimento. Fica no filho (o
-// a-gltf-model), nunca na a-entity do alvo (mindar-image-target) — o
-// MindAR sobrescreve a matriz da entidade do alvo a cada frame de
-// rastreamento, então qualquer posição definida ali seria imediatamente
-// perdida.
+// Faz o modelo "andar" num pequeno círculo ao redor de um ponto "center"
+// (padrão: a própria origem do pai), de frente pra direção do movimento.
+// Fica no filho (o a-gltf-model/a-entity), nunca na a-entity do alvo
+// (mindar-image-target) — o MindAR sobrescreve a matriz da entidade do
+// alvo a cada frame de rastreamento, então qualquer posição definida ali
+// seria imediatamente perdida.
+//
+// "center" existe porque o wander redefine a posição inteira a cada tick
+// — sem ele, qualquer deslocamento inicial (ex: o companion grudado na
+// câmera, afastado pra baixo/frente) seria descartado e o modelo voltaria
+// pra perto da origem do pai a cada frame.
 if (!AFRAME.components["wander"]) {
   AFRAME.registerComponent("wander", {
     schema: {
       radius: { default: 0.12 },
       speed: { default: 0.5 },
+      center: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
     },
     tick(time) {
       const angle = (time / 1000) * this.data.speed;
-      const x = Math.cos(angle) * this.data.radius;
-      const z = Math.sin(angle) * this.data.radius;
-      this.el.object3D.position.set(x, 0, z);
+      const x = this.data.center.x + Math.cos(angle) * this.data.radius;
+      const z = this.data.center.z + Math.sin(angle) * this.data.radius;
+      this.el.object3D.position.set(x, this.data.center.y, z);
       this.el.object3D.rotation.y = -angle - Math.PI / 2;
     },
   });
@@ -144,8 +150,7 @@ export async function initAR() {
         <a-entity
           id="companion-model"
           class="clickable"
-          position="0 -0.3 -0.7"
-          wander="radius: 0.06; speed: 0.6"
+          wander="radius: 0.06; speed: 0.6; center: 0 -0.3 -0.7"
           animation-mixer
           visible="false"
         ></a-entity>
