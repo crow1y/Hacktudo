@@ -26,6 +26,65 @@ Instruções de projeto para o Claude Code neste repositório.
   Isso já aconteceu uma vez (`aluno/js/session-timer.js` foi implementado
   e teve que ser descartado) e causou fricção desnecessária.
 
+## Posicionamento do produto (pós-mentoria — vale pra qualquer parte nova)
+
+Numa mentoria do hackathon, a banca apontou que o projeto tinha focado
+em acessibilidade **técnica** (funciona em qualquer celular) mas não
+nos pontos que o tema real do hackathon cobra ("Como construir uma
+relação mais consciente entre tecnologia e educação em um mundo cada
+vez mais conectado e cheio de distrações?"). Três objeções concretas:
+
+1. **Celular é restrito em escola** (lei federal 15.100/2025 no Brasil)
+   — um app que assume uso livre de celular em sala não é realista.
+2. **Nem todo aluno tem celular próprio** — depender de 1 aparelho por
+   aluno exclui parte da turma.
+3. **"Por que um adolescente escolheria isso em vez do Instagram?"** —
+   tentar ser "tão chamativo quanto rede social" seria o oposto do
+   tema (competir pela atenção livre, não construir uma relação mais
+   consciente).
+
+**Resposta decidida** (não é só uma seção isolada — o discurso muda em
+vários pontos da `index.html`, de propósito, pra não parecer remendo):
+
+- **Uso pontual, guiado pelo professor**, não uso livre — o celular
+  entra em sala num momento específico, com começo e fim definidos pelo
+  professor. Isso é compatível com a exceção pedagógica que a própria
+  legislação já prevê, não é "burlar a lei".
+- **Não depende de celular por aluno** — a experiência foi desenhada
+  pra ser vivida **em grupo** (a matéria "ganhando vida" na tela é
+  motivo pra chamar todo mundo ao redor, não pra isolar cada um). Um
+  celular já basta pra reunir a turma. Isso também é a resposta pro
+  ponto 3: o produto não compete com feed infinito por atenção
+  individual — ele é uma descoberta coletiva, com começo e fim,
+  literalmente o oposto do scroll solitário.
+- **Público declarado: crianças e adolescentes, foco educacional** —
+  mas **sem linguagem excludente** (nunca "só serve pra essa idade" ou
+  "com a idade certa"). Testes reais mostraram que a experiência
+  também agrada gente de outras idades — isso é usado como *evidência*
+  de que o mecanismo de descoberta em grupo funciona, não como um pivô
+  pra "todo mundo" enquanto público-alvo.
+- **Precisão sobre o que a RA realmente faz**: nunca prometer que o
+  bicho "sai da página" — isso não é mais verdade desde que o cartão
+  de prévia usa `<model-viewer>`, desacoplado da cena MindAR/A-Frame
+  (ver gotcha do "Cartão de prévia" abaixo). A descrição correta é: a
+  matéria "ganha vida" num cartão na tela, e em celulares compatíveis
+  dá pra ir além e plantar o animal em **tamanho real** na sala via
+  WebXR — essa segunda parte é uma alegação real e ainda mais forte,
+  puxa mais gente ao redor do que um cartão na telinha.
+
+Onde isso já está implementado: `index.html` — hero (imagem trocada pra
+mostrar um grupo, não uma pessoa sozinha), seção nova "Feito pra ser
+vivido em grupo" (`#uso-consciente`, componente `.highlight-card` em
+`css/site.css` — grade de 3 colunas colorida, não reaproveita
+`.steps__grid` que é pra 4 itens), slide do carrossel reescrito, e
+"Quem apoia esse projeto" (logos placeholder) virou "Nos apoie" (formas
+reais de ajudar, já que não há patrocínio confirmado).
+
+**Pra qualquer trabalho novo** (painel, conteúdo, features): manter essa
+régua — não introduzir nada que leia como "competir pela atenção livre"
+do aluno, não assumir 1 celular por aluno como pré-requisito, e não usar
+linguagem que exclua quem não é criança pequena.
+
 ## Stack e arquitetura
 
 - **AR**: MindAR + A-Frame (não Three.js puro) — CDNs carregadas direto
@@ -58,12 +117,15 @@ Instruções de projeto para o Claude Code neste repositório.
   sem confirmar antes.
 - **Landing page** (`index.html`, `css/site.css`, `js/site.js`): página
   pública de apresentação do projeto, com CTA pra `/aluno/` e `/painel/`.
-  Toda ilustração/mascote/logo é um `.img-placeholder` com
-  `data-placeholder-label` — nenhuma arte real foi gerada. **Nunca listar
-  patrocinador real sem confirmação** (a lista original pedida citava
-  empresas/órgãos reais sem acordo — trocado por placeholders genéricos).
-  Números de impacto na seção de metas são objetivos, não dados reais —
-  não virar estatística "alcançada" sem números de verdade.
+  Hero e logo já têm arte real (`assets/img/HeroVivaLivros.jpg`,
+  `assets/img/logo-mark.png`) — só ícones do carrossel ainda são
+  `.img-placeholder` com `data-placeholder-label`. **Nunca listar
+  patrocinador real sem confirmação** — não há patrocínio hoje, a seção
+  "Nos apoie" pede ajuda de verdade (escola parceira, apoio financeiro,
+  divulgação) em vez de mostrar logos placeholder. Números de impacto na
+  seção de metas são objetivos, não dados reais — não virar estatística
+  "alcançada" sem números de verdade. Ver "Posicionamento do produto"
+  acima pro discurso/narrativa da página (mudou bastante pós-mentoria).
 
 ## Gotchas técnicos importantes
 
