@@ -39,3 +39,97 @@ main {
   margin: 0;
   font-size: 1.1rem;
 }
+
+/* Telas de login/cadastro/espera do professor, exibidas antes do painel.
+   :not([hidden]) porque display:flex teria mais especificidade que a regra
+   padrão do navegador pra [hidden], reexibindo o bloco mesmo escondido. */
+#auth-gate:not([hidden]),
+#pending-approval:not([hidden]) {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+#auth-gate form:not([hidden]) {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+#auth-gate h1,
+#pending-approval h1 {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem;
+}
+
+#auth-gate label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+#auth-gate input {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+}
+
+#auth-gate button[type="submit"] {
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.auth-link {
+  background: none;
+  border: none;
+  color: #1a73e8;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.auth-error {
+  color: #c0392b;
+  font-size: 0.85rem;
+  min-height: 1.1em;
+  margin: 0;
+}
+
+.password-rules {
+  font-size: 0.8rem;
+  color: #777;
+  margin: 0;
+}
+
+.logout-btn {
+  display: block;
+  margin: 0 0 1rem auto;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}

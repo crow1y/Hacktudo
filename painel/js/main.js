@@ -46,7 +46,9 @@ function renderMoodSummary(checkins) {
   ).join("");
 }
 
-async function main() {
+// Chamado por auth-gate.js só depois do professor estar autenticado e
+// liberado pelo admin.
+export async function startApp() {
   await loadAnimals();
 
   onValue(ref(db, DB_PATHS.activeAnimal), (snapshot) => {
@@ -57,5 +59,3 @@ async function main() {
     renderMoodSummary(snapshot.val());
   });
 }
-
-main();

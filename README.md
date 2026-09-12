@@ -12,14 +12,17 @@ didáticas sobre ele para a turma toda.
   navegador do celular do aluno.
 - **Sincronização em tempo real**: Firebase Realtime Database — client-side
   puro, sem servidor próprio pra manter.
+- **Login/cadastro**: Firebase Authentication (matrícula + senha), client-side
+  puro.
 - **Hospedagem**: estática, na Vercel, com HTTPS automático.
 
 ## Estrutura do projeto
 
 ```
-aluno/     → app que roda no celular (câmera, AR, camada de uso consciente)
-painel/    → app que roda no computador/projetor do professor
-shared/    → config do Firebase + constantes usadas pelos dois lados
+aluno/     → app que roda no celular (login/cadastro, câmera, AR, camada de uso consciente)
+painel/    → app que roda no computador/projetor do professor (login/cadastro + dashboard)
+admin/     → tela do dono do sistema pra liberar o acesso de professores cadastrados
+shared/    → config do Firebase, auth, validadores e constantes usadas pelos dois lados
 content/   → dados didáticos dos animais (JSON), sem lógica
 ia/        → contexto do projeto e prompts prontos para ferramentas de IA
 ```
@@ -42,6 +45,16 @@ regras do Realtime Database abertas para o hackathon). Se precisarem
 recriar do zero: Firebase Console > Realtime Database > ativar > copiar
 config do app Web > colar em `shared/firebase-config.js`.
 
+**Login/cadastro precisa do provedor Email/Password ativado**: Firebase
+Console > Authentication > Sign-in method > ativar "Email/Password". Sem
+isso, `cadastrarAluno`/`cadastrarProfessor`/`entrar` (`shared/auth.js`) falham
+com `auth/operation-not-allowed`.
+
+O cadastro pede matrícula (não e-mail), mas o Firebase Auth exige e-mail —
+`shared/auth.js` sintetiza um e-mail interno a partir da matrícula + papel
+(`matricula@aluno.viva-livro.app` / `matricula@professor.viva-livro.app`),
+nunca exibido pro usuário.
+
 ### 3. Rodar localmente
 
 ```bash
@@ -62,7 +75,7 @@ só funciona testando no próprio computador — um IP de rede local tipo
 `http://192.168.x.x:8080` não é considerado contexto seguro pelo navegador).
 Para testar no celular durante o desenvolvimento, exponham o `dev:aluno`
 local via um túnel HTTPS (ex: `ngrok http 8080`) até fazer o deploy real na
-Hostinger.
+Vercel.
 
 ### 4. Deploy
 
@@ -112,18 +125,38 @@ depois em Project Settings → Domains.
       `teste-pipeline` — `aluno/js/ar.js` sempre usa o primeiro item da
       lista.
 - [ ] Testar a detecção de imagem de verdade num celular (via `ngrok http
-      8080` ou já no deploy da Hostinger).
+      8080` ou já no deploy da Vercel).
 - [ ] Ajustar posição/escala do modelo 3D em `aluno/js/ar.js` visualmente
       (o valor atual, `scale="0.05 0.05 0.05"`, é um chute inicial).
 - [ ] Preencher `content/animals.json` com os demais animais reais do
       livro/turma (usar `ia/prompts/gerar-conteudo-animais.md`).
 - [ ] Definir e configurar as regras de segurança do Firebase Realtime
       Database antes de usar em sala de aula de verdade (hoje está
-      totalmente aberto).
+      totalmente aberto, incluindo os nós `users/professores` e
+      `users/alunos` criados pelo login/cadastro).
 - [ ] Suporte a múltiplos alvos simultâneos: hoje só o primeiro animal do
       JSON vira alvo de AR. Múltiplos animais ao mesmo tempo exigem
       compilar todas as imagens num único `.mind` e mapear `targetIndex`
       → id do animal em `aluno/js/ar.js`.
+
+**Login / cadastro / hierarquia:**
+- [x] Cadastro e login por matrícula/senha (Firebase Authentication) em
+      `aluno/` e `painel/`, com validação de senha (mínimo 8 caracteres,
+      maiúscula, minúscula, número e caractere especial) em
+      `shared/validators.js`.
+- [x] Cadastro de professor pede Nome, Matrícula e CPF (com validação de
+      dígito verificador) além da senha; conta nasce com `liberado: false`.
+- [x] Tela "Aguardando liberação de conteúdos" no painel enquanto
+      `liberado` for `false` — atualiza em tempo real quando o admin libera.
+- [x] `admin/`: tela do dono do sistema pra liberar/revogar professores
+      (gate por código fixo em `ADMIN_ACCESS_CODE`, `shared/constants.js`
+      — **trocar esse código antes de uso real**, é só uma trava contra
+      cliques acidentais, não segurança de verdade).
+- [x] Sessão não persiste entre fechamentos do navegador
+      (`browserSessionPersistence` em `shared/auth.js`) — aluno/professor
+      precisa logar de novo com matrícula/senha a cada nova sessão do
+      navegador.
+- [ ] Trocar `ADMIN_ACCESS_CODE` pelo valor real antes do hackathon/demo.
 
 **Camada de saúde mental / uso consciente:**
 - [x] Implementar `aluno/js/session-timer.js`: contagem do "modo aula",

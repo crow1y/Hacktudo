@@ -7,7 +7,43 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <main>
+  <div id="auth-gate">
+    <form id="login-form">
+      <h1>Área do professor</h1>
+      <label>Matrícula <input name="matricula" required autocomplete="username" /></label>
+      <label>Senha <input name="senha" type="password" required autocomplete="current-password" /></label>
+      <p id="login-error" class="auth-error"></p>
+      <button type="submit">Entrar</button>
+      <button type="button" id="to-signup" class="auth-link">Criar conta</button>
+    </form>
+
+    <form id="signup-form" hidden>
+      <h1>Criar conta de professor</h1>
+      <label>Nome <input name="nome" required autocomplete="name" /></label>
+      <label>Número de matrícula <input name="matricula" required autocomplete="username" /></label>
+      <label>CPF <input name="cpf" required autocomplete="off" placeholder="000.000.000-00" /></label>
+      <label>Senha <input name="senha" type="password" required autocomplete="new-password" /></label>
+      <label>Confirmar senha <input name="confirmarSenha" type="password" required autocomplete="new-password" /></label>
+      <p class="password-rules">
+        Mínimo 8 caracteres, com letra maiúscula, minúscula, número e
+        caractere especial.
+      </p>
+      <p id="signup-error" class="auth-error"></p>
+      <button type="submit">Criar conta</button>
+      <button type="button" id="to-login" class="auth-link">Já tenho conta</button>
+    </form>
+  </div>
+
+  <div id="pending-approval" hidden>
+    <h1>Aguardando liberação de conteúdos</h1>
+    <p>Sua conta foi criada. O acesso ao painel libera assim que o
+      administrador do sistema aprovar seu cadastro.</p>
+    <button type="button" data-logout>Sair</button>
+  </div>
+
+  <main id="app-content" hidden>
+    <button type="button" data-logout class="logout-btn">Sair</button>
+
     <section id="animal-info">
       <p id="animal-placeholder">Aguardando aluno escanear um animal…</p>
     </section>
@@ -18,6 +54,6 @@
     </section>
   </main>
 
-  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/auth-gate.js"></script>
 </body>
 </html>
