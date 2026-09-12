@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Professor de RA — Aluno</title>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- TODO: adicionar CDN do A-Frame + MindAR (ou Three.js + MindAR) aqui.
+       Exemplo (A-Frame):
+       <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+       <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script> -->
+</head>
+<body>
+  <!-- TODO: container da cena AR (a-scene do MindAR) entra aqui -->
+  <div id="ar-container"></div>
+
+  <!-- Camada de "uso consciente": timer de modo aula, pausa e check-in de humor -->
+  <div id="wellbeing-layer">
+    <div id="modo-aula-timer" hidden></div>
+    <div id="pausa-lembrete" hidden></div>
+    <div id="mood-checkin" hidden></div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

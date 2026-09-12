@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: system-ui, sans-serif;
+  background: #000;
+  color: #fff;
+}
+
+#ar-container {
+  position: fixed;
+  inset: 0;
+}
+
+#wellbeing-layer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#wellbeing-layer > * {
+  pointer-events: auto;
+}
+
+/* TODO: estilizar #modo-aula-timer, #pausa-lembrete e #mood-checkin
+   conforme a UI final for definida. */
