@@ -15,9 +15,9 @@ Instruções de projeto para o Claude Code neste repositório.
 ## Trabalho em equipe
 
 - Time de 2 pessoas, cada uma dividindo a stack: uma na pipeline de RA
-  (`aluno/js/ar.js` e assets), outra no check-in de presença + conteúdo
-  (`aluno/js/checkin.js`, `content/animals.json`). O outro dev também usa
-  Claude Code na própria máquina, em paralelo.
+  (`aluno/js/ar.js` e assets), outra no menu de matérias do painel +
+  conteúdo (`painel/js/main.js`, `content/animals.json`). O outro dev
+  também usa Claude Code na própria máquina, em paralelo.
 - **Antes de começar qualquer tarefa nova**, rodar `git fetch origin` e
   conferir `git log HEAD..origin/main --oneline` — o outro pode já ter
   commitado/aberto PR em cima do que você ia mexer.
@@ -197,24 +197,29 @@ Instruções de projeto para o Claude Code neste repositório.
   alvo (a foto/página usada pra compilar o `.mind`), separado do
   `targetSrc` compilado.
 
+## Menu de matérias do painel
+
+`painel/index.html` tem uma `.materias-nav` com botões `.subtopico-btn`
+(`data-subtopico="..."`) que mostram/escondem seções `.conteudo-materia`
+(`data-conteudo="..."`) — troca 100% client-side, sem Firebase envolvido
+na navegação (`initMateriasNav()` em `painel/js/main.js`). Hoje só existe
+a disciplina Ciências, com dois subtópicos: **Animais** (`#animal-info`,
+conteúdo real, escuta `DB_PATHS.activeAnimal`) e **Astronomia**
+(`#astronomia-info`, estático — "Em breve teremos mais conteúdo para
+apresentar"). Pra adicionar um subtópico novo: um botão
+`.subtopico-btn` + uma seção `.conteudo-materia` com o mesmo valor em
+`data-subtopico`/`data-conteudo`; se o conteúdo for estático (tipo
+Astronomia), não precisa mexer no JS.
+
 ## Firebase Realtime Database — schema
 
 ```
 session/
   activeAnimal        → string: id do animal ativo (ou null)
-  checkins/
-    <push-id>/
-      uid: string        → uid do Firebase Auth do aluno
-      nome: string
-      matricula: string
-      timestamp: number
 ```
 
 Paths vêm de `shared/constants.js` (`DB_PATHS`) — sempre importar de lá,
 nunca hardcodear strings soltas nos dois lados (`aluno/` e `painel/`).
-`AULA_DURATION_MS`/`CHECKIN_INTERVAL_MS` (também em `constants.js`)
-controlam por quanto tempo e com que frequência `aluno/js/checkin.js` pede
-check-in.
 
 ```
 users/

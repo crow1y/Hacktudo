@@ -25,7 +25,7 @@ didáticas sobre ele para a turma toda.
 ```
 index.html → landing page pública na raiz (apresentação do projeto + CTA pra aluno/painel)
 css/, js/  → estilos e comportamento (menu, carrossel) só da landing page
-aluno/     → app que roda no celular (login/cadastro, câmera, AR, check-in de presença)
+aluno/     → app que roda no celular (login/cadastro, câmera, AR)
 painel/    → app que roda no computador/projetor do professor (login/cadastro + dashboard)
 admin/     → tela do dono do sistema pra liberar o acesso de professores cadastrados
 shared/    → config do Firebase, auth, validadores, design system (theme.css) e constantes usadas por todos os apps
@@ -112,8 +112,8 @@ depois em Project Settings → Domains.
 - [x] Configurar o Firebase Realtime Database (projeto `viva-livro`, regras
       abertas para o hackathon).
 - [x] Implementar `painel/js/main.js`: busca `content/animals.json`, escuta
-      o Firebase e renderiza `#animal-info` + check-ins de presença da
-      turma em tempo real. Testado ponta a ponta.
+      o Firebase e renderiza `#animal-info` em tempo real, dentro do menu
+      de matérias (Ciências → Animais). Testado ponta a ponta.
 - [x] Implementar `aluno/js/ar.js`: MindAR + A-Frame, carrega target/model
       do primeiro animal de `content/animals.json`, escreve o id em
       `DB_PATHS.activeAnimal` ao detectar/perder o alvo. **Hoje ainda usa
@@ -164,18 +164,23 @@ depois em Project Settings → Domains.
       navegador.
 - [ ] Trocar `ADMIN_ACCESS_CODE` pelo valor real antes do hackathon/demo.
 
-**Check-in de presença:**
-- [x] Implementar `aluno/js/checkin.js`: primeiro check-in automático ao
-      entrar na área do aluno, depois um pedido de confirmação
-      (`#checkin-aviso`) a cada `CHECKIN_INTERVAL_MS` (10 min) até
-      completar `AULA_DURATION_MS` (45 min) — depois disso não pede mais.
-- [x] Escrever os check-ins (uid, nome, matrícula, timestamp) em
-      `DB_PATHS.checkins`.
-- [x] Implementar o acompanhamento em tempo real no painel
-      (`#checkin-summary`): lista por aluno com total de check-ins e
-      horário do último.
-- [ ] Decidir o que fazer com o check-in de humor (removido por enquanto
-      junto com o cronômetro de "modo aula" — repensar formato depois).
+**Menu de matérias no painel:**
+- [x] `painel/index.html`/`painel/js/main.js`: menu de matérias
+      (`.materias-nav`) com a disciplina Ciências e dois subtópicos —
+      Animais (conteúdo real, `#animal-info` escutando
+      `DB_PATHS.activeAnimal` como antes) e Astronomia (estático, mensagem
+      "Em breve teremos mais conteúdo para apresentar"). Troca de
+      subtópico é só client-side (`.conteudo-materia[hidden]`), sem
+      Firebase envolvido na navegação em si.
+- [ ] Adicionar mais matérias/subtópicos reais conforme o conteúdo for
+      ficando pronto (hoje só Ciências existe).
+- **Removido**: a feature de check-in de presença (`aluno/js/checkin.js`,
+      `#checkin-summary` no painel, `DB_PATHS.checkins`) foi tirada do
+      projeto por decisão do produto — não fazia sentido dentro da nova
+      estrutura de matérias. Dados antigos de check-in também foram
+      apagados do Realtime Database. O check-in de humor (removido antes
+      disso, junto com o cronômetro de "modo aula") continua em aberto
+      pra repensar formato depois, sem relação com essa remoção.
 
 **Design system:**
 - [x] Tokens de cor/tipografia/espaçamento/raio/sombra compartilhados em

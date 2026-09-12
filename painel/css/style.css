@@ -15,28 +15,53 @@ main {
   gap: var(--space-md);
 }
 
-#checkin-summary h2 {
-  margin: 0 0 var(--space-sm);
-  font-size: 1.1rem;
-}
-
-#checkin-list {
-  list-style: none;
+/* Layout do painel: menu de matérias ao lado (desktop) ou em cima
+   (mobile) do conteúdo. */
+.painel-layout {
   display: flex;
   flex-direction: column;
+  gap: var(--space-md);
+}
+
+.materias-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2xs);
-  padding: 0;
-  margin: 0;
-  font-size: 0.95rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm);
 }
 
-#checkin-list li {
-  padding: var(--space-2xs) 0;
-  border-bottom: 1px solid var(--color-border);
+.materias-nav__materia {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-ink-soft);
+  padding: 0 var(--space-2xs);
 }
 
-#checkin-list li:last-child {
-  border-bottom: none;
+.subtopico-btn {
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-ink-soft);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: var(--space-2xs) var(--space-sm);
+  cursor: pointer;
+}
+
+.subtopico-btn--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.conteudo-materia h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
 }
 
 /* Telas de login/cadastro/espera do professor, exibidas antes do painel.
