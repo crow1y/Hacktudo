@@ -153,27 +153,30 @@ export async function initAR() {
     >
       <a-assets>${assetsHtml}</a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false">
-        <!-- Cartão de prévia: círculo (halo/pedestal) atrás do modelo,
-             ambos grudados na câmera (não na página) pra ficarem sempre
-             centralizados na tela, parados. Escondidos até um animal ser
-             reconhecido. -->
-        <a-circle
-          id="preview-platform"
-          hold-position="center: 0 0 -0.62"
-          radius="0.32"
-          color="#ffffff"
-          opacity="0.15"
-          visible="false"
-        ></a-circle>
-        <a-entity
-          id="preview-model"
-          class="clickable"
-          hold-position="center: 0 0 -0.6"
-          animation-mixer
-          visible="false"
-        ></a-entity>
-      </a-camera>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <!-- Cartão de prévia: círculo (halo/pedestal) atrás do modelo, ambos
+           re-grudados via JS na câmera REAL usada pra renderizar (ver
+           attachPreviewToActiveCamera abaixo — não é necessariamente a
+           <a-camera> declarada acima, descoberto testando em dispositivo
+           real: sceneEl.camera pode ser uma câmera diferente/injetada).
+           Ficam sempre centralizados na tela, parados. Escondidos até um
+           animal ser reconhecido. -->
+      <a-circle
+        id="preview-platform"
+        hold-position="center: 0 0 -0.62"
+        radius="0.32"
+        color="#ffffff"
+        opacity="0.15"
+        visible="false"
+      ></a-circle>
+      <a-entity
+        id="preview-model"
+        class="clickable"
+        hold-position="center: 0 0 -0.6"
+        animation-mixer
+        visible="false"
+      ></a-entity>
 
       <a-entity cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable"></a-entity>
       ${targetsHtml}
@@ -189,6 +192,22 @@ export async function initAR() {
   const scanAnotherBtn = document.getElementById("scan-another-btn");
 
   setupInteraction(previewModelEl);
+
+  // Descoberto testando em dispositivo real: a câmera declarada no HTML
+  // (<a-camera>) nem sempre é a mesma que sceneEl.camera (a que o A-Frame
+  // de fato usa em renderer.render(scene, camera)) — o preview-model e o
+  // preview-platform ficavam com tudo correto (visível, mesh carregado,
+  // posição certa) mas nunca eram desenhados por estarem grudados na
+  // câmera errada. Reparenta pra câmera REAL sempre que ela existir/mudar,
+  // em vez de assumir qual é.
+  function attachPreviewToActiveCamera() {
+    const activeCam = sceneEl.camera;
+    if (!activeCam || previewModelEl.object3D.parent === activeCam) return;
+    activeCam.add(previewModelEl.object3D);
+    activeCam.add(previewPlatformEl.object3D);
+  }
+  attachPreviewToActiveCamera();
+  sceneEl.addEventListener("camera-set-active", attachPreviewToActiveCamera);
 
   sceneEl.addEventListener("arError", (event) => {
     showCameraError(event.detail?.error);
@@ -231,18 +250,38 @@ export async function initAR() {
     // log reporta o estado de verdade do objeto 3D pra achar a causa em
     // vez de continuar chutando. Ver Eruda > Console. Remover depois.
     setTimeout(() => {
-      const cam = sceneEl.camera?.el?.object3D ?? sceneEl.querySelector("a-camera")?.object3D;
+      const activeCam = sceneEl.camera; // câmera que o A-Frame REALMENTE usa pra renderizar
+      const declaredCamEl = sceneEl.querySelector("a-camera");
+      const renderer = sceneEl.renderer;
+
+      // Renderiza um frame manualmente com o contador zerado, pra ver se
+      // ALGUMA coisa do nosso modelo chega a ser enviada pra GPU nesse
+      // frame (triangles > 0) ou se nem chega a ser processada.
+      let renderStats = null;
+      try {
+        renderer.info.autoReset = false;
+        renderer.info.reset();
+        renderer.render(sceneEl.object3D, activeCam);
+        renderStats = { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
+      } catch (e) {
+        renderStats = { error: e.message };
+      }
+
       console.log(
         "[preview-debug]",
         JSON.stringify({
           modelVisible: previewModelEl.object3D.visible,
           modelPos: previewModelEl.object3D.position.toArray(),
-          modelParent: previewModelEl.object3D.parent?.el?.tagName,
+          modelParentIsActiveCam: previewModelEl.object3D.parent === activeCam,
           modelChildren: previewModelEl.object3D.children.length,
           modelMeshLoaded: !!previewModelEl.getObject3D("mesh"),
           platformVisible: previewPlatformEl.object3D.visible,
-          camChildren: cam?.children.length,
-          camWorldPos: cam?.getWorldPosition(new AFRAME.THREE.Vector3()).toArray(),
+          activeCamIsDeclaredCam: activeCam === declaredCamEl?.object3D,
+          activeCamType: activeCam?.type,
+          activeCamNear: activeCam?.near,
+          activeCamFar: activeCam?.far,
+          activeCamFov: activeCam?.fov,
+          renderStats,
         })
       );
     }, 1500);
