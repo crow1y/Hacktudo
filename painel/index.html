@@ -108,6 +108,13 @@
                 <span class="astronomia-card__badge" hidden>🔴 Ativo agora</span></h2>
               <p class="astronomia-card__legenda">Réplica de um instrumento antigo que mostra a
                 órbita de cada planeta ao redor do Sol e a distância relativa entre eles.</p>
+              <!-- Mesma foto compilada como alvo de RA (targetIndex 3) --
+                   projetar essa imagem é o que deixa a turma escanear
+                   direto da tela, igual as fotos da aba Animais. -->
+              <button type="button" class="animal-detalhe__foto-btn" data-imagem="/assets/img/orrery.jpg" data-nome="Sistema Solar (Orrery)">
+                <img class="animal-detalhe__foto" src="/assets/img/orrery.jpg" alt="Imagem-alvo do Orrery, pra turma escanear" />
+                <span class="animal-detalhe__foto-hint">🔍 Ver imagem completa</span>
+              </button>
               <model-viewer src="/aluno/assets/models/orrery.glb" alt="Orrery: modelo mecânico do sistema solar"
                 camera-controls auto-rotate autoplay animation-name="Earth 1 Min Orbit"></model-viewer>
             </div>
@@ -116,6 +123,10 @@
                 <span class="astronomia-card__badge" hidden>🔴 Ativo agora</span></h2>
               <p class="astronomia-card__legenda">Sol, planetas e a Lua em órbita, com anéis
                 mostrando o caminho de cada um ao redor do Sol.</p>
+              <button type="button" class="animal-detalhe__foto-btn" data-imagem="/assets/img/sistema-solar.png" data-nome="Sistema Solar">
+                <img class="animal-detalhe__foto" src="/assets/img/sistema-solar.png" alt="Imagem-alvo do Sistema Solar, pra turma escanear" />
+                <span class="animal-detalhe__foto-hint">🔍 Ver imagem completa</span>
+              </button>
               <model-viewer src="/aluno/assets/models/sistema-solar-realista.glb" alt="Sistema solar com o Sol, planetas e a Lua em órbita"
                 camera-controls auto-rotate autoplay></model-viewer>
             </div>

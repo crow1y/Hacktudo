@@ -127,7 +127,10 @@ function fecharImagemModal() {
   imagemModalEl.hidden = true;
 }
 
-detalheEl.addEventListener("click", (event) => {
+// No document inteiro (não só detalheEl) porque os cards fixos de
+// Astronomia (#astronomia-info) reaproveitam a mesma classe de botão de
+// foto, fora da árvore do #animal-detalhe.
+document.addEventListener("click", (event) => {
   const botao = event.target.closest(".animal-detalhe__foto-btn");
   if (!botao) return;
   abrirImagemModal(botao.dataset.imagem, botao.dataset.nome);
