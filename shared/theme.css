@@ -1,0 +1,219 @@
+/* Design system compartilhado por aluno/, painel/ e admin/ — tokens de cor,
+   tipografia, espaçamento e componentes de formulário. Tema claro único,
+   pensado pra escola em geral (não infantilizado), com espaçamento fluido
+   via clamp() pra responsividade sem media query em quase tudo.
+
+   Inspirado num site de literatura infantil (cores vivas, cantos bem
+   arredondados, sombras suaves) mas com saturação/raio reduzidos pra
+   servir um público mais amplo (do fundamental ao médio). */
+
+:root {
+  /* Paleta */
+  --color-primary: #3a6df0;
+  --color-primary-dark: #2450c4;
+  --color-primary-soft: #e8edfe;
+  --color-accent: #ef5da8;
+  --color-accent-soft: #fdeaf3;
+  --color-success: #1fb787;
+  --color-success-soft: #e3f8f0;
+  --color-danger: #e0365c;
+  --color-danger-soft: #fdeaf0;
+
+  --color-ink: #1f2433;
+  --color-ink-soft: #626a7e;
+  --color-ink-faint: #9aa1b4;
+  --color-bg: #f6f7fc;
+  --color-surface: #ffffff;
+  --color-border: #e3e6f2;
+
+  /* Tipografia */
+  --font-heading: "Quicksand", "Nunito", system-ui, sans-serif;
+  --font-body: "Nunito", "Quicksand", system-ui, sans-serif;
+
+  /* Espaçamento fluido: cresce com a viewport, sem media query. */
+  --space-3xs: clamp(0.25rem, 0.5vw, 0.375rem);
+  --space-2xs: clamp(0.5rem, 1vw, 0.625rem);
+  --space-xs: clamp(0.625rem, 1.5vw, 0.875rem);
+  --space-sm: clamp(0.875rem, 2vw, 1.25rem);
+  --space-md: clamp(1.25rem, 3vw, 1.75rem);
+  --space-lg: clamp(1.75rem, 4vw, 2.5rem);
+  --space-xl: clamp(2.5rem, 6vw, 4rem);
+
+  /* Raio de borda */
+  --radius-sm: 0.6rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-pill: 999px;
+
+  /* Sombra */
+  --shadow-soft: 0 0.75rem 2rem rgba(31, 36, 51, 0.08);
+  --shadow-card: 0 0.25rem 0.75rem rgba(31, 36, 51, 0.06);
+  --shadow-focus: 0 0 0 0.2rem rgba(58, 109, 240, 0.25);
+
+  /* Breakpoints de referência (mobile-first): usar como comentário nas
+     media queries — 48em ~ 768px (tablet), 64em ~ 1024px (desktop). */
+}
+
+/* Reset mínimo + base tipográfica, compartilhados pelos três apps. */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Botão de ação principal: pill sólido, usado em "Entrar"/"Criar conta". */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: var(--space-xs) var(--space-md);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Botão de texto, sem fundo (ex: "Criar conta" / "Já tenho conta"). */
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: var(--space-3xs);
+  font-size: 0.95rem;
+}
+
+/* Cartão base (formulários, seções do painel/admin). */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-lg);
+}
+
+/* Campo de formulário: label + input empilhados. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-ink-soft);
+}
+
+.field input {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--color-ink);
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  width: 100%;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+/* Campo de senha com botão de mostrar/esconder embutido. */
+.password-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding-right: var(--space-2xs);
+}
+
+.password-field:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.password-field input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.password-field input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.toggle-senha {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: var(--space-3xs);
+  border-radius: var(--radius-sm);
+}
+
+.toggle-senha:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.password-rules {
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+  margin: 0;
+}
+
+.auth-error {
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  min-height: 1.1em;
+  margin: 0;
+}

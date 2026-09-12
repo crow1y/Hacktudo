@@ -46,6 +46,12 @@ Instruções de projeto para o Claude Code neste repositório.
   `shared/constants.js`. Perfil (nome, matrícula, CPF, `liberado`) fica no
   Realtime Database, não no Firebase Auth. `admin/` libera professores
   (gate por `ADMIN_ACCESS_CODE`, não é segurança real).
+- **Design**: tokens (cor, tipografia, espaçamento, raio, sombra) e
+  componentes de formulário (`.card`, `.field`, `.password-field`,
+  `.btn-primary`, `.btn-link`) ficam em `shared/theme.css`, importado
+  pelos três apps antes do CSS específico de cada um. Mudar um token ali
+  afeta `aluno/`, `painel/` e `admin/` ao mesmo tempo — não duplicar cor/
+  espaçamento hardcoded nos CSS específicos, usar as `var(--...)`.
 
 ## Gotchas técnicos importantes
 

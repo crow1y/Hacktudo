@@ -4,36 +4,40 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Professor de RA — Painel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../shared/theme.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div id="auth-gate">
-    <form id="login-form">
+    <form id="login-form" class="card">
       <h1>Área do professor</h1>
-      <label>Matrícula <input name="matricula" required autocomplete="username" /></label>
-      <label>Senha
+      <label class="field">Matrícula <input name="matricula" required autocomplete="username" /></label>
+      <label class="field">Senha
         <span class="password-field">
           <input name="senha" type="password" required autocomplete="current-password" />
           <button type="button" class="toggle-senha" aria-label="Mostrar senha">👁</button>
         </span>
       </label>
       <p id="login-error" class="auth-error"></p>
-      <button type="submit">Entrar</button>
-      <button type="button" id="to-signup" class="auth-link">Criar conta</button>
+      <button type="submit" class="btn-primary">Entrar</button>
+      <button type="button" id="to-signup" class="btn-link">Criar conta</button>
     </form>
 
-    <form id="signup-form" hidden>
+    <form id="signup-form" class="card" hidden>
       <h1>Criar conta de professor</h1>
-      <label>Nome <input name="nome" required autocomplete="name" /></label>
-      <label>Número de matrícula <input name="matricula" required autocomplete="username" /></label>
-      <label>CPF <input name="cpf" required autocomplete="off" placeholder="000.000.000-00" /></label>
-      <label>Senha
+      <label class="field">Nome <input name="nome" required autocomplete="name" /></label>
+      <label class="field">Número de matrícula <input name="matricula" required autocomplete="username" /></label>
+      <label class="field">CPF <input name="cpf" required autocomplete="off" placeholder="000.000.000-00" /></label>
+      <label class="field">Senha
         <span class="password-field">
           <input name="senha" type="password" required autocomplete="new-password" />
           <button type="button" class="toggle-senha" aria-label="Mostrar senha">👁</button>
         </span>
       </label>
-      <label>Confirmar senha
+      <label class="field">Confirmar senha
         <span class="password-field">
           <input name="confirmarSenha" type="password" required autocomplete="new-password" />
           <button type="button" class="toggle-senha" aria-label="Mostrar senha">👁</button>
@@ -44,26 +48,28 @@
         caractere especial.
       </p>
       <p id="signup-error" class="auth-error"></p>
-      <button type="submit">Criar conta</button>
-      <button type="button" id="to-login" class="auth-link">Já tenho conta</button>
+      <button type="submit" class="btn-primary">Criar conta</button>
+      <button type="button" id="to-login" class="btn-link">Já tenho conta</button>
     </form>
   </div>
 
   <div id="pending-approval" hidden>
-    <h1>Aguardando liberação de conteúdos</h1>
-    <p>Sua conta foi criada. O acesso ao painel libera assim que o
-      administrador do sistema aprovar seu cadastro.</p>
-    <button type="button" data-logout>Sair</button>
+    <div class="card">
+      <h1>Aguardando liberação de conteúdos</h1>
+      <p>Sua conta foi criada. O acesso ao painel libera assim que o
+        administrador do sistema aprovar seu cadastro.</p>
+      <button type="button" data-logout class="btn-primary">Sair</button>
+    </div>
   </div>
 
   <main id="app-content" hidden>
     <button type="button" data-logout class="logout-btn">Sair</button>
 
-    <section id="animal-info">
+    <section id="animal-info" class="card">
       <p id="animal-placeholder">Aguardando aluno escanear um animal…</p>
     </section>
 
-    <section id="checkin-summary">
+    <section id="checkin-summary" class="card">
       <h2>Check-ins de presença</h2>
       <ul id="checkin-list"></ul>
     </section>
