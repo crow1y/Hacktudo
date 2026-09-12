@@ -77,26 +77,45 @@ Instruções de projeto para o Claude Code neste repositório.
 - **Rodar num monitor/tela em vez de imprimir a imagem-alvo deixa o
   rastreamento instável** (brilho/refresh da tela atrapalha o MindAR) —
   imagem impressa em papel funciona bem melhor.
-- **Cartão de prévia** (`aluno/js/ar.js`, `#preview-model`): quando o
+- **Cartão de prévia** (`aluno/js/ar.js`, `#preview-card`): quando o
   MindAR reconhece um animal, ele NÃO aparece ancorado na página nem anda
-  em círculo — vira um "cartão" centralizado na tela (modelo parado
-  tocando animação reciclada dos próprios clipes, ex: "Walk" tocando no
-  lugar), grudado na câmera (não no alvo rastreado) com um círculo atrás
-  (`#preview-platform`) e o nome do animal, câmera escurecida nas bordas
-  (`#ar-vignette`, gradiente radial). Botão "🔄 Escanear outro" solta a
-  captura pra reconhecer um animal diferente. Isso substitui uma
-  abordagem antiga (bicho "saindo da página" e andando em círculo via um
-  componente `wander`) — removida por decisão do produto: focar a
-  experiência "real"/imersiva no modo WebXR abaixo, e usar o MindAR só
-  como reconhecimento + prévia apresentável, não fingir ser RA de
-  verdade sem rastreamento de mundo.
-  ⚠️ **Gotcha real encontrado**: ao mostrar o MESMO animal de novo depois
-  de "escanear outro", NÃO redefinir o atributo `gltf-model` se o animal
-  já é o que está carregado (`loadedModelAnimalId` em `ar.js`) — depois
-  do primeiro carregamento bem-sucedido, o A-Frame reescreve esse
-  atributo pra URL já resolvida (não mais `#model-id`); setar de novo
-  com `#model-id` conta como "mudou" e dispara um recarregamento que
-  falha silenciosamente (mesh some pra sempre, sem erro no console).
+  em círculo — vira um "cartão" centralizado na tela, renderizado por um
+  **`<model-viewer>`** (Web Component do Google, motor 3D próprio,
+  totalmente separado da cena MindAR/A-Frame), com o nome do animal e a
+  câmera escurecida nas bordas (`#ar-vignette`, gradiente radial). Botão
+  "🔄 Escanear outro" solta a captura pra reconhecer um animal diferente.
+  Isso substitui uma abordagem antiga (bicho "saindo da página" e
+  andando em círculo via um componente `wander`) — removida por decisão
+  do produto: focar a experiência "real"/imersiva no modo WebXR abaixo, e
+  usar o MindAR só como reconhecimento + prévia apresentável, não fingir
+  ser RA de verdade sem rastreamento de mundo.
+  ⚠️ **Gotcha real encontrado (histórico, motivo da escolha do
+  `<model-viewer>`)**: a primeira tentativa de prévia tentava grudar o
+  modelo do animal na câmera *dentro* da cena do MindAR/A-Frame (posição
+  estática, depois um componente rodando a cada frame). Nunca renderizou
+  em dispositivo real, apesar de todo estado introspectável reportar
+  correto (`visible: true`, mesh carregado, posição certa, parent certo).
+  Depuração encontrou uma causa real: `sceneEl.camera` (a câmera que o
+  A-Frame de fato usa em `renderer.render(scene, camera)`) é um objeto
+  **diferente** do `object3D` da `<a-camera>` declarada no HTML — ou
+  seja, o conteúdo estava grudado na câmera errada. Reparentar direto
+  pra `sceneEl.camera` via `object3D.add()` confirmou (via
+  `renderer.info.render.triangles`) que o conteúdo passou a ser
+  processado no frame renderizado — e AINDA ASSIM não aparecia na tela
+  real (luz explícita também não resolveu). A causa final nunca foi
+  100% identificada nesse nível. O que resolveu de fato foi abandonar
+  renderização anexada à cena MindAR/A-Frame e usar um motor totalmente
+  independente (`<model-viewer>`, posicionado só via CSS) — confirmado
+  funcionando em dispositivo real. Lição: se algo parecido for tentado
+  de novo (conteúdo grudado na câmera do A-Frame), desconfiar cedo da
+  premissa "a câmera declarada é a câmera renderizada" e considerar um
+  motor separado antes de investir muito tempo depurando dentro da cena
+  do A-Frame. Histórico completo da investigação (incluindo as tentativas
+  descartadas) está nos commits da branch `feature/preview-card`.
+  O gotcha de `gltf-model`/`loadedModelAnimalId` (A-Frame reescrevendo o
+  atributo pra URL resolvida e recarregar silenciosamente falhando) era
+  específico da abordagem antiga baseada em `<a-gltf-model>` e não se
+  aplica mais ao `<model-viewer>`.
 - **Modo WebXR avançado** (`aluno/js/webxr-mode.js`): depois que o MindAR
   reconhece um animal, em aparelhos com suporte a WebXR + hit-test
   (Android/Chrome com ARCore — não existe no Safari/iPhone) aparece um
