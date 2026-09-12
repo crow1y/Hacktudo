@@ -429,6 +429,84 @@
   }
 }
 
+/* ---------- Destaques (sempre 3 cards: "vivido em grupo", "nos apoie")
+   — grade própria (não reaproveita .steps__grid, que é pensada pra 4
+   itens e ficava com uma coluna vazia/torta com só 3) e mais colorida
+   de propósito, pra não parecer só mais uma fileira de cards brancos
+   iguais aos do "Como funciona". */
+
+/* Fundo diferenciado (gradiente suave) pra essas seções se destacarem
+   ao rolar a página — sinaliza "isso aqui é de propósito", não é mais
+   uma seção genérica igual as outras. */
+.highlights {
+  padding-block: var(--space-xl);
+  background: linear-gradient(180deg, var(--color-purple-soft) 0%, var(--color-bg) 100%);
+}
+
+.highlights__grid {
+  display: grid;
+  gap: var(--space-md);
+  max-width: 64rem;
+  margin-inline: auto;
+}
+
+@media only screen and (min-width: 56em) {
+  .highlights__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.highlight-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-lg) var(--space-md);
+  padding-top: calc(var(--space-lg) + 6px);
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Tarja colorida no topo do card — a cor muda por modificador
+   (--purple/--success/--warning/--accent/--primary) abaixo. */
+.highlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: var(--highlight-color, var(--color-primary));
+}
+
+.highlight-card__icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  margin: 0 auto var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--highlight-color-soft, var(--color-primary-soft));
+  color: var(--highlight-color, var(--color-primary));
+}
+
+.highlight-card h3 {
+  color: var(--color-ink);
+  font-size: 1.15rem;
+  margin: 0 0 var(--space-2xs);
+}
+
+.highlight-card p {
+  color: var(--color-ink-soft);
+  font-size: 0.95rem;
+}
+
+.highlight-card--primary { --highlight-color: var(--color-primary); --highlight-color-soft: var(--color-primary-soft); }
+.highlight-card--accent { --highlight-color: var(--color-accent); --highlight-color-soft: var(--color-accent-soft); }
+.highlight-card--purple { --highlight-color: var(--color-purple); --highlight-color-soft: var(--color-purple-soft); }
+.highlight-card--success { --highlight-color: var(--color-success); --highlight-color-soft: var(--color-success-soft); }
+.highlight-card--warning { --highlight-color: var(--color-warning); --highlight-color-soft: var(--color-warning-soft); }
+
 /* ---------- Comece agora ---------- */
 
 .comece {
