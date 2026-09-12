@@ -18,7 +18,7 @@ main {
 }
 
 #animal-info,
-#mood-summary {
+#checkin-summary {
   background: #fff;
   border-radius: 12px;
   padding: 1.5rem;
@@ -26,18 +26,28 @@ main {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-#mood-summary h2 {
+#checkin-summary h2 {
   margin-top: 0;
   font-size: 1.1rem;
 }
 
-#mood-list {
+#checkin-list {
   list-style: none;
   display: flex;
-  gap: 1.5rem;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 0;
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
+}
+
+#checkin-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+#checkin-list li:last-child {
+  border-bottom: none;
 }
 
 /* Telas de login/cadastro/espera do professor, exibidas antes do painel.

@@ -1,9 +1,9 @@
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { db } from "../../shared/firebase-config.js";
-import { DB_PATHS, MOOD_VALUES, MOOD_LABELS } from "../../shared/constants.js";
+import { DB_PATHS } from "../../shared/constants.js";
 
 const animalInfoEl = document.getElementById("animal-info");
-const moodListEl = document.getElementById("mood-list");
+const checkinListEl = document.getElementById("checkin-list");
 
 let animalsById = new Map();
 
@@ -32,18 +32,34 @@ function renderAnimal(animalId) {
   `;
 }
 
-function renderMoodSummary(checkins) {
-  const counts = Object.fromEntries(MOOD_VALUES.map((mood) => [mood, 0]));
+function renderCheckins(checkins) {
+  const porAluno = new Map();
 
   for (const checkin of Object.values(checkins ?? {})) {
-    if (checkin.mood in counts) {
-      counts[checkin.mood] += 1;
-    }
+    const atual = porAluno.get(checkin.uid) ?? {
+      nome: checkin.nome,
+      matricula: checkin.matricula,
+      total: 0,
+      ultimoTimestamp: 0,
+    };
+    atual.total += 1;
+    atual.ultimoTimestamp = Math.max(atual.ultimoTimestamp, checkin.timestamp ?? 0);
+    porAluno.set(checkin.uid, atual);
   }
 
-  moodListEl.innerHTML = MOOD_VALUES.map(
-    (mood) => `<li>${MOOD_LABELS[mood]}: ${counts[mood]}</li>`
-  ).join("");
+  const alunos = [...porAluno.values()].sort((a, b) => a.nome.localeCompare(b.nome));
+
+  if (alunos.length === 0) {
+    checkinListEl.innerHTML = "<li>Nenhum check-in ainda.</li>";
+    return;
+  }
+
+  checkinListEl.innerHTML = alunos
+    .map((aluno) => {
+      const ultimoHorario = new Date(aluno.ultimoTimestamp).toLocaleTimeString("pt-BR");
+      return `<li><strong>${aluno.nome}</strong> (matrícula ${aluno.matricula}) — ${aluno.total} check-in(s), último às ${ultimoHorario}</li>`;
+    })
+    .join("");
 }
 
 // Chamado por auth-gate.js só depois do professor estar autenticado e
@@ -55,7 +71,7 @@ export async function startApp() {
     renderAnimal(snapshot.val());
   });
 
-  onValue(ref(db, DB_PATHS.moodCheckins), (snapshot) => {
-    renderMoodSummary(snapshot.val());
+  onValue(ref(db, DB_PATHS.checkins), (snapshot) => {
+    renderCheckins(snapshot.val());
   });
 }
