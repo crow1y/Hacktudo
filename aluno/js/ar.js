@@ -8,6 +8,15 @@
 // Ainda usa o alvo e o modelo de exemplo públicos (entrada "teste-pipeline")
 // só para validar a pipeline inteira (câmera → detecção → modelo 3D →
 // Firebase) antes dos assets reais dos animais estarem prontos.
+//
+// Fluxo de "captura": a primeira vez que um alvo é detectado, o modelo é
+// escondido na página e um "companion" (mesmo modelo, mesma escala) passa
+// a ficar grudado na câmera — assim o aluno pode andar pela sala com o
+// animal na tela sem precisar manter a página apontada. O botão
+// "Escanear outro animal" solta a captura e libera o app pra detectar um
+// novo alvo. Isso não usa rastreamento de mundo/WebXR (que não existe no
+// Safari do iPhone) — o companion só acompanha rigidamente a câmera, não
+// respeita móveis/paredes de verdade (ver CLAUDE.md).
 
 import { ref, set } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { db } from "../../shared/firebase-config.js";
@@ -90,6 +99,12 @@ export async function initAR() {
   const { targetSrc, animals } = await response.json();
   const readyAnimals = animals.filter(isAssetReady);
 
+  // scale é um chute inicial por animal — cada modelo tem proporções
+  // diferentes, ajustar testando no celular. O valor abaixo (0.005) foi
+  // calculado para o Fox.glb de teste (~79 unidades de altura nativa);
+  // outros modelos vão precisar de outro valor.
+  const scaleByAnimalId = Object.fromEntries(readyAnimals.map((animal) => [animal.id, "0.005 0.005 0.005"]));
+
   const assetsHtml = readyAnimals
     .map((animal) => `<a-asset-item id="model-${animal.id}" src="${animal.model}"></a-asset-item>`)
     .join("");
@@ -98,18 +113,11 @@ export async function initAR() {
     .map(
       (animal) => `
         <a-entity class="ar-target" data-animal-id="${animal.id}" mindar-image-target="targetIndex: ${animal.targetIndex}">
-          <!-- scale é um chute inicial por animal — cada modelo tem
-               proporções diferentes, ajustar testando no celular. O valor
-               abaixo (0.005) foi calculado para o Fox.glb de teste (~79
-               unidades de altura nativa); outros modelos vão precisar de
-               outro valor. wander faz o modelo andar em círculo; a classe
-               "clickable" + animation-mixer permitem reagir ao toque
-               (ver setupInteraction). -->
           <a-gltf-model
             class="clickable animal-model"
             src="#model-${animal.id}"
             position="0 0 0"
-            scale="0.005 0.005 0.005"
+            scale="${scaleByAnimalId[animal.id]}"
             wander
             animation-mixer
           ></a-gltf-model>
@@ -127,31 +135,68 @@ export async function initAR() {
       embedded
     >
       <a-assets>${assetsHtml}</a-assets>
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-camera position="0 0 0" look-controls="enabled: false">
+        <!-- "Companion": modelo grudado na câmera depois da primeira
+             captura (ver comentário no topo do arquivo). Posição é um
+             chute inicial (mais baixo na tela pra parecer "andando no
+             chão") — ajustar testando no celular. -->
+        <a-entity
+          id="companion-model"
+          class="clickable"
+          position="0 -0.3 -0.7"
+          wander="radius: 0.06; speed: 0.6"
+          animation-mixer
+          visible="false"
+        ></a-entity>
+      </a-camera>
+
       <a-entity cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .clickable"></a-entity>
       ${targetsHtml}
     </a-scene>
   `;
 
   const sceneEl = document.querySelector("a-scene");
+  const companionEl = document.getElementById("companion-model");
+  const resetBtn = document.getElementById("reset-scan-btn");
+
+  setupInteraction(companionEl);
+  for (const gltfEl of document.querySelectorAll(".animal-model")) {
+    setupInteraction(gltfEl);
+  }
 
   sceneEl.addEventListener("arError", (event) => {
     showCameraError(event.detail?.error);
   });
 
-  for (const gltfEl of document.querySelectorAll(".animal-model")) {
-    setupInteraction(gltfEl);
-  }
+  let capturedAnimalId = null;
+
+  resetBtn.addEventListener("click", () => {
+    if (!capturedAnimalId) return;
+
+    document.querySelector(`.ar-target[data-animal-id="${capturedAnimalId}"] .animal-model`).setAttribute("visible", true);
+    companionEl.setAttribute("visible", false);
+    resetBtn.hidden = true;
+    capturedAnimalId = null;
+
+    set(ref(db, DB_PATHS.activeAnimal), null);
+  });
 
   for (const targetEl of document.querySelectorAll(".ar-target")) {
     const animalId = targetEl.dataset.animalId;
 
     targetEl.addEventListener("targetFound", () => {
-      set(ref(db, DB_PATHS.activeAnimal), animalId);
-    });
+      if (capturedAnimalId) return; // já tem um animal capturado — ignora novas detecções até "escanear outro"
 
-    targetEl.addEventListener("targetLost", () => {
-      set(ref(db, DB_PATHS.activeAnimal), null);
+      capturedAnimalId = animalId;
+      targetEl.querySelector(".animal-model").setAttribute("visible", false);
+
+      companionEl.setAttribute("gltf-model", `#model-${animalId}`);
+      companionEl.setAttribute("scale", scaleByAnimalId[animalId]);
+      companionEl.setAttribute("visible", true);
+      resetBtn.hidden = false;
+
+      set(ref(db, DB_PATHS.activeAnimal), animalId);
     });
   }
 }
