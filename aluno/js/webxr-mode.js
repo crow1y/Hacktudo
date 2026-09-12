@@ -489,6 +489,28 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
         const model = gltf.scene;
         scene.add(model);
 
+        model.traverse((child) => {
+          if (child.isSkinnedMesh) {
+            // A esfera de frustum culling do three.js vem da geometria
+            // em bind-pose (sem aplicar os ossos) -- com a escala grande
+            // que um modelo pequeno feito pra ~2m precisa, essa esfera
+            // fica bem longe de onde a malha é desenhada de verdade (via
+            // skin, na GPU), fazendo o three.js "cortar" o desenho da
+            // tela mesmo com o animal na frente da câmera (aparecia
+            // piscando/sumindo ao mexer o celular). Poucos vértices,
+            // sem custo real de performance em desativar.
+            child.frustumCulled = false;
+          }
+          // Prop decorativo do Sketchfab (anel de "fade" pro visualizador
+          // deles, ex: "ring_nofade_ADD") -- sem alpha configurado, no
+          // Three.js puro renderiza como um quadrado branco opaco perto
+          // do chão em vez de ficar invisível como no <model-viewer> do
+          // cartão de prévia.
+          if (child.material?.name?.toLowerCase().includes("nofade")) {
+            child.visible = false;
+          }
+        });
+
         // Escala real: mede a altura nativa do modelo (unidades do
         // próprio arquivo) e escala pra bater com a altura real do
         // animal em metros, respeitando o teto de segurança.

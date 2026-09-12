@@ -262,6 +262,28 @@ linguagem que exclua quem não é criança pequena.
   posicionamento — sempre validar com um teste renderizado de verdade
   (ver `_test-*.html` descartáveis usados nas outras trocas de modelo)
   antes de assumir que "carregou sem erro" significa "apareceu certo".
+  **Esse fix acima não foi suficiente sozinho** — testado no celular
+  depois, a girafa só "piscava" e tinha um retângulo branco no chão perto
+  dela. Mais duas causas, as duas também específicas desse tipo de
+  modelo/exportação: (3) a esfera de frustum culling que o three.js usa
+  pra decidir o que desenhar vem da geometria em bind-pose (a mesma conta
+  errada do item 1, sem aplicar os ossos) — com a escala grande que a
+  girafa precisa, essa esfera fica longe de onde ela é desenhada de
+  verdade (via skin, na GPU), então o three.js às vezes "cortava" o
+  desenho mesmo com o bicho na frente da câmera. **Corrigido**: em
+  `placeModel`, `child.frustumCulled = false` em todo `SkinnedMesh` do
+  model (poucos vértices, sem custo real). (4) o modelo tem um mesh
+  decorativo do Sketchfab (`ring_nofade_ADD`, um "anel de sumiço" pro
+  visualizador deles) que fica invisível no `<model-viewer>` do cartão de
+  prévia mas, no three.js puro sem o alpha/blend configurado, renderiza
+  como um retângulo branco opaco perto do chão. **Corrigido**: em
+  `placeModel`, esconde (`.visible = false`) qualquer mesh cujo
+  `material.name` contenha `"nofade"` (convenção comum do Sketchfab pra
+  esse tipo de prop). Lição adicional: um teste desktop (Chrome comum,
+  sem WebXR) já teria pego os dois — não precisa de celular físico pra
+  simular câmera girando ao redor do ponto de colocação e checar
+  visualmente que nada pisca/aparece errado; só o hit-test em si (achar o
+  chão de verdade) exige o aparelho real.
   **Oclusão real por profundidade (Depth API) foi tentada e ABANDONADA**:
   mesmo só pedindo o recurso `depth-sensing` sem usar pra nada, a aba do
   Chrome travava ao encerrar a sessão nesse aparelho — não era bug do
