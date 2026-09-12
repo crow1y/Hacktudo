@@ -16,8 +16,14 @@ main {
 }
 
 /* Layout do painel: menu de matérias ao lado (desktop) ou em cima
-   (mobile) do conteúdo. */
-.painel-layout {
+   (mobile) do conteúdo. Usada tanto pela aba "Matérias" quanto pela
+   "Presenças" — :not([hidden]) de propósito (mesmo motivo do
+   #auth-gate/#pending-approval abaixo): display:flex sem essa guarda
+   teria mais precedência que a regra padrão do navegador pra [hidden]
+   (autor sempre ganha de user-agent), reexibindo a aba escondida — foi
+   exatamente esse bug que fazia "Presenças" aparecer sempre no fim da
+   página, mesmo com a aba "Matérias" selecionada. */
+.painel-layout:not([hidden]) {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
