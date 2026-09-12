@@ -96,6 +96,15 @@ Instruções de projeto para o Claude Code neste repositório.
   exemplo (card do MindAR + `Fox.glb` do KhronosGroup) só para validar a
   pipeline — trocar pelos assets reais quando estiverem prontos (ver
   `ia/prompts/gerar-modelo-3d.md` e `ia/prompts/gerar-conteudo-animais.md`).
+- **Reconhecimento é por imagem pré-cadastrada, não por IA/classificação**
+  — o MindAR só compara contra a imagem exata que foi compilada no
+  `.mind`, não "entende" que é um leão. Isso importa pra qualquer "banco
+  de teste"/vitrine pros avaliadores: o `.mind` é **binário, não dá pra
+  exibir como imagem**. Se for feita uma tela onde o avaliador escolhe um
+  animal e vê a imagem-alvo pra apontar a câmera, `content/animals.json`
+  vai precisar de um campo novo com a **imagem-fonte original** de cada
+  alvo (a foto/página usada pra compilar o `.mind`), separado do
+  `targetSrc` compilado.
 
 ## Firebase Realtime Database — schema
 
