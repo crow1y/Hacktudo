@@ -40,6 +40,12 @@ Instruções de projeto para o Claude Code neste repositório.
   estático, sem build — ver `vercel.json`), porque o código usa imports
   relativos entre `aluno/`, `painel/`, `shared/` e `content/` que
   precisam estar todos acessíveis a partir da mesma raiz.
+- **Login/cadastro**: Firebase Authentication (email/password provider,
+  precisa estar ativado no Firebase Console), com matrícula sintetizada em
+  e-mail interno por `shared/auth.js` — ver `AUTH_EMAIL_SUFFIX` em
+  `shared/constants.js`. Perfil (nome, matrícula, CPF, `liberado`) fica no
+  Realtime Database, não no Firebase Auth. `admin/` libera professores
+  (gate por `ADMIN_ACCESS_CODE`, não é segurança real).
 
 ## Gotchas técnicos importantes
 
@@ -120,3 +126,15 @@ session/
 Paths e valores vêm de `shared/constants.js` (`DB_PATHS`, `MOOD_VALUES`,
 `MOOD_LABELS`) — sempre importar de lá, nunca hardcodear strings soltas
 nos dois lados (`aluno/` e `painel/`).
+
+```
+users/
+  professores/
+    <uid>/  → nome, matricula, cpf, liberado: boolean, criadoEm: number
+  alunos/
+    <uid>/  → nome, matricula, criadoEm: number
+```
+
+`<uid>` é o uid do Firebase Auth (não a matrícula) — sempre resolver o uid
+via sessão autenticada (`ouvirSessao`/`ouvirPerfil` em `shared/auth.js`),
+nunca assumir que a matrícula em si é a chave.
