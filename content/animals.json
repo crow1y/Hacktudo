@@ -29,14 +29,22 @@
       }
     },
     {
-      "_comment": "targetIndex ainda é um placeholder (2) — só vai funcionar de verdade depois que uma foto real da página do livro for compilada junto no targetSrc, nessa posição.",
-      "id": "exemplo-leao",
+      "_comment": "Terceiro animal com pipeline de RA completa. Modelo achado depois de descartar duas opções: uma paga sem licença livre (removida da consideração sem baixar) e uma gratuita mas com juba visualmente ruim (\"picos\" metálicos) — essa aqui (glTF ORIGINAL, não convertido de FBX, por isso passou limpo em npm run check-model igual a raposa: escala ~1.0 em toda a hierarquia) tem visual bem melhor. CC Attribution (Sketchfab, by kenchoo, 'simple rebuilt' a partir de um modelo original de daniel.jibi, também CC BY). ⚠️ Só tem 1 clipe de animação no arquivo original (renomeado de 'Animation' pra 'Walk' com npm run rename-clips) — sem um clipe de idle separado, então durante as pausas do 'andar sozinho' (setupAnimalControl, aluno/js/webxr-mode.js) o idleClip cai no fallback animations[0], que É o mesmo clipe de Walk — o leão continua com as pernas em ciclo de caminhada mesmo parado no lugar. Decisão consciente do usuário (prioridade no visual em vez de esperar achar um modelo com clipes separados). Alvo real compilado junto com raposa e elefante (targetIndex 2).",
+      "id": "leao",
       "nome": "Leão",
       "targetIndex": 2,
-      "model": "/aluno/assets/models/TODO.glb",
+      "model": "/aluno/assets/models/leao.glb",
       "alturaRealMetros": 1.2,
+      "imagem": "/assets/img/leao.jpg",
+      "_comment_imagemCredito": "Foto: Charles J. Sharp, CC BY-SA 4.0 (Wikimedia Commons, foto destacada e imagem do dia) — https://commons.wikimedia.org/wiki/File:Lion_(Panthera_leo)_male_6y.jpg",
       "info": {
-        "comportamento": "Vive em grupos chamados alcateias, geralmente formados por fêmeas aparentadas, seus filhotes e alguns machos. É o único felino verdadeiramente social — as fêmeas costumam caçar em conjunto, enquanto os machos defendem o território.",
+        "nomeCientifico": "Panthera leo",
+        "classificacao": "Mamífero carnívoro, o segundo maior felino do mundo (família Felidae)",
+        "habitat": "Savanas, campos abertos e florestas esparsas da África Subsaariana — uma pequena população também vive protegida na Índia.",
+        "alimentacao": "Carnívoro: caça em grupo grandes herbívoros como zebras, búfalos e antílopes — as fêmeas fazem a maior parte das caçadas.",
+        "tamanho": "Machos chegam a 1,2 m de altura no ombro, cerca de 2,5 m de comprimento (sem a cauda) e até 250 kg.",
+        "tempoDeVida": "Entre 10 e 14 anos na natureza (pode passar dos 20 em cativeiro).",
+        "comportamento": "Vive em grupos sociais chamados de bandos, geralmente formados por fêmeas aparentadas, seus filhotes e alguns machos. É o único felino verdadeiramente social — as fêmeas costumam caçar em conjunto, enquanto os machos defendem o território.",
         "curiosidades": [
           "O rugido de um leão pode ser ouvido a até 8 km de distância.",
           "Leões dormem ou descansam entre 16 e 20 horas por dia.",

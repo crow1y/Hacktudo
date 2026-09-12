@@ -71,13 +71,18 @@ projetar a mesma imagem pra turma escanear.
 
 **Já funciona, testado em celular de verdade:**
 - Reconhecer a imagem do livro e mostrar o bicho animado na tela — hoje
-  com **dois animais reais simultâneos**: raposa e elefante (ver abaixo).
-- O modo avançado de "plantar" o bicho no chão em tamanho real. Os dois
-  andam sozinhos, aceitam controle manual e o botão de pausa — o
-  elefante em especial vem de um modelo com 28 clipes de animação
-  originais (só 3 usados hoje: parado/andar/correr; os outros 25, tipo
-  comer/dormir/atacar, são candidatos a uma futura feature de "ações
-  extras"). Também mostra bem a diferença de tamanho real entre os dois.
+  com **três animais reais simultâneos**: raposa, elefante e leão (ver
+  abaixo).
+- O modo avançado de "plantar" o bicho no chão em tamanho real. Raposa e
+  elefante andam sozinhos com transição suave entre parado/andando/
+  correndo; o elefante em especial vem de um modelo com 28 clipes de
+  animação originais (só 3 usados hoje: parado/andar/correr; os outros
+  25, tipo comer/dormir/atacar, são candidatos a uma futura feature de
+  "ações extras"). O leão anda sozinho também, mas com uma limitação:
+  o modelo dele só tem 1 clipe de animação (sem "parado" separado), então
+  as pernas continuam em ciclo de caminhada mesmo nas pausas — aceito
+  como troca pelo visual bem melhor que as alternativas gratuitas
+  disponíveis (ver `CLAUDE.md`).
 - Cadastro/login por matrícula e senha, com aprovação de professor por
   um administrador.
 - Painel do professor com o menu de matérias e a lista de animais (foto
@@ -86,13 +91,10 @@ projetar a mesma imagem pra turma escanear.
   está vendo agora, se não estiver direto no app).
 
 **Ainda em construção:**
-- **Só dois animais têm conteúdo/RA completos hoje**: raposa (modelo 3D
-  de exemplo, mas foto e conteúdo educativo reais) e elefante (modelo e
-  imagem próprios, escolhido justamente pelo tamanho grande). O leão já
-  tem texto escrito em `content/animals.json`, mas ainda falta o modelo
-  3D e a foto real da página do livro pra ele aparecer na câmera — a
-  base do sistema já entende vários animais ao mesmo tempo, só falta
-  completar o conteúdo de cada um.
+- **Três animais têm conteúdo/RA completos hoje**: raposa (modelo 3D de
+  exemplo, mas foto e conteúdo educativo reais), elefante e leão (modelo,
+  imagem e ficha próprios) — a base do sistema já entende vários animais
+  ao mesmo tempo, só falta completar o conteúdo de mais espécies.
 - Mais matérias além de Ciências no painel do professor.
 - Algumas ilustrações da página inicial (ícones do carrossel) ainda são
   espaços reservados, sem arte final.
@@ -254,11 +256,12 @@ depois em Project Settings → Domains.
   prontos (nas mesmas posições) junto com a nova, e recompile.
 - Cada animal tem `targetIndex` (posição dele dentro desse `.mind`
   compartilhado) em vez de um target próprio. Hoje: raposa = 0, elefante
-  = 1, leão = 2 (placeholder, ainda não compilado).
+  = 1, leão = 2 — os três já compilados de verdade no mesmo `.mind`.
 - `aluno/js/ar.js` filtra (`isAssetReady`) animais cujo `model` ainda
   contém `"TODO"` — eles ficam no JSON normalmente, só não viram alvo de
   AR até o asset real existir (evita travar tentando carregar um arquivo
-  inexistente). Hoje só `exemplo-leao` está nessa situação.
+  inexistente). Hoje nenhum animal está nessa situação (os três reais já
+  têm modelo).
 - `model`: URL ou caminho pro `.glb`. Caminhos locais devem ser
   **root-relative** (`/aluno/assets/models/...`, com `/` na frente) —
   sem isso, resolvem errado quando usados a partir de páginas dentro de
@@ -276,11 +279,10 @@ depois em Project Settings → Domains.
   pelo modo WebXR (`aluno/js/webxr-mode.js`) pra escala real no chão e
   pro raio de segurança do andar sozinho (respeitando o teto
   `MAX_HEIGHT_METERS = 2`). Não afeta o modo MindAR normal.
-- Hoje existem dois animais com pipeline de RA completa (`teste-pipeline`
-  = raposa, `Fox.glb` do KhronosGroup; `elefante`, modelo CC Attribution
-  via Sketchfab) e um só com conteúdo escrito, ainda sem RA
-  (`exemplo-leao`) — ver `ia/prompts/gerar-modelo-3d.md` e
-  `ia/prompts/gerar-conteudo-animais.md` pra completar os que faltam.
+- Hoje existem três animais com pipeline de RA completa (`teste-pipeline`
+  = raposa, `Fox.glb` do KhronosGroup; `elefante` e `leao`, ambos modelo
+  CC Attribution via Sketchfab) — ver `ia/prompts/gerar-modelo-3d.md` e
+  `ia/prompts/gerar-conteudo-animais.md` pra adicionar mais espécies.
 - **Antes de adicionar um modelo animado novo**, rodar
   `npm run check-model -- caminho/do/modelo.glb` — checa se a hierarquia
   de ossos tem fatores de escala muito desproporcionais entre si (o tipo
@@ -293,14 +295,14 @@ depois em Project Settings → Domains.
   adicionar um animal novo (achar modelo → checar → renomear clipe →
   validar visual → recompilar `targets.mind` → JSON) documentado em
   `CLAUDE.md` → "Como adicionar um animal/modelo 3D novo".
-- `assets/img/raposa.jpg` e `assets/img/elefante.jpg` cumprem dois papéis
-  ao mesmo tempo: são a foto ilustrativa exibida no `painel/` **e** a
-  imagem de verdade que a câmera precisa reconhecer pra ativar cada
-  animal (compiladas nessas mesmas fotos, nessa ordem, dentro de
-  `targets.mind`). Recompilado via a ferramenta oficial
-  (https://hiukim.github.io/mind-ar-js-doc/tools/compile) depois da
-  troca da girafa pelo elefante — a foto antiga da girafa não reconhece
-  mais nada nessa posição, só a foto nova do elefante.
+- `assets/img/raposa.jpg`, `assets/img/elefante.jpg` e `assets/img/leao.jpg`
+  cumprem dois papéis ao mesmo tempo: são a foto ilustrativa exibida no
+  `painel/` **e** a imagem de verdade que a câmera precisa reconhecer pra
+  ativar cada animal (compiladas nessas mesmas fotos, nessa ordem, dentro
+  de `targets.mind`, via a ferramenta oficial
+  https://hiukim.github.io/mind-ar-js-doc/tools/compile). Recompilar
+  esse arquivo é obrigatório toda vez que um animal entra/sai — não é
+  aditivo, precisa subir as fotos de todos de novo, juntas.
 
 ### Firebase Realtime Database — schema
 
@@ -342,17 +344,19 @@ nunca assumir que a matrícula em si é a chave.
       (attack/eating/sleep/death/etc, mantidos sem uso no arquivo) são
       candidatos a uma futura feature de "ações extras aleatórias"
       durante as pausas.
-- [ ] Recompilar `targets.mind` com uma foto de elefante no
-      `targetIndex 1` — hoje esse slot ainda usa a foto-fonte antiga (da
-      época da girafa); funciona tecnicamente, mas fica incoerente pra
-      quem escanear a imagem impressa esperando ver o bicho certo.
-- [ ] Leão: já tem ficha de conteúdo escrita, falta modelo 3D (ver
-      `ia/prompts/gerar-modelo-3d.md` — Quaternius/poly.pizza é uma boa
-      fonte de modelos animados e gratuitos) e foto real da página do
-      livro pra compilar no `targetSrc` (posição 2).
+- [x] Leão: modelo 3D animado (glTF original, não convertido de FBX —
+      passou limpo em `npm run check-model`) + foto real (CC BY-SA 4.0,
+      Wikimedia, foto destacada) + alvo compilado (targetIndex 2) + ficha
+      completa. Achado depois de descartar um modelo pago sem licença
+      livre e um gratuito com juba visualmente ruim. Só tem 1 clipe de
+      animação no arquivo (renomeado pra "Walk" com
+      `npm run rename-clips`) — sem um clipe de idle separado, então
+      durante as pausas do andar sozinho as pernas continuam em ciclo de
+      caminhada; aceito como troca pelo visual bem melhor que as
+      alternativas gratuitas.
 - [ ] Escolher/gerar as imagens-alvo a partir das páginas reais do livro
-      didático (hoje raposa e elefante usam fotos de banco de imagem —
-      nenhuma das duas é uma página de livro de verdade ainda).
+      didático (hoje raposa, elefante e leão usam fotos de banco de
+      imagem — nenhuma delas é uma página de livro de verdade ainda).
 
 **Segurança antes de uso real em sala de aula:**
 - [ ] Trocar `ADMIN_ACCESS_CODE` (`shared/constants.js`) pelo valor real.
