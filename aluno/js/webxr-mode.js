@@ -39,10 +39,275 @@ const MAX_HEIGHT_METERS = 2;
 const FLOOR_UP_DOT_THRESHOLD = 0.8;
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
 
+// Comportamento de "andar sozinho" (ver setupAnimalControl): passos
+// pequenos, aleatórios, com pausas paradas entre eles.
+const WANDER_STEP_MIN_METERS = 0.3;
+const WANDER_STEP_MAX_METERS = 0.7;
+const RUN_CHANCE = 0.3;
+const ARRIVE_THRESHOLD_METERS = 0.03;
+const IDLE_MIN_MS = 1200;
+const IDLE_MAX_MS = 2800;
+
+// Não temos mapeamento real do ambiente (nada de plane-detection nem
+// depth — ver nota de Depth API acima), então não tem como saber onde
+// tem parede de verdade. Em vez disso, tanto o andar sozinho quanto o
+// controle manual (analógico) ficam presos dentro desse raio ao redor
+// do ponto onde o chão foi tocado — mesma lógica de "chute seguro" do
+// MAX_HEIGHT_METERS acima, só que pro plano horizontal.
+const LEASH_RADIUS_METERS = 1.2;
+
+const WALK_SPEED_MPS = 0.3;
+const RUN_SPEED_MPS = 0.9;
+const ANIMATION_CROSSFADE_S = 0.3;
+
+// Analógico virtual (dom-overlay, estilo dos efeitos de RA "estilo
+// TikTok"): controla o animal relativo à câmera — empurrar "pra cima"
+// sempre afasta o animal de quem tá segurando o celular, não importa o
+// ângulo. Ver setupAnimalControl.
+const JOYSTICK_MAX_RADIUS_PX = 50;
+const JOYSTICK_DEADZONE = 0.15;
+const MANUAL_RUN_THRESHOLD = 0.75;
+
 function isFloorLike(pose) {
   const { x, y, z, w } = pose.transform.orientation;
   const up = WORLD_UP.clone().applyQuaternion(new THREE.Quaternion(x, y, z, w));
   return up.dot(WORLD_UP) > FLOOR_UP_DOT_THRESHOLD;
+}
+
+function findClip(animations, name) {
+  return animations.find((clip) => clip.name.toLowerCase() === name.toLowerCase()) ?? null;
+}
+
+// Dá vida ao modelo já plantado no chão: por padrão ele anda sozinho
+// (wander) dentro de LEASH_RADIUS_METERS, mas o aluno pode assumir o
+// controle a qualquer momento pelo analógico, ou pausar tudo pelo botão
+// de "Parar". Devolve uma função update(delta) chamada a cada frame do
+// loop de render.
+//
+// Se o glTF não tiver os clipes "Walk"/"Survey" (nomes usados no
+// Fox.glb de teste), não tem como andar de forma reconhecível — toca só
+// o primeiro clipe disponível parado, sem criar nenhum controle, igual
+// ao comportamento antigo (cobre animais futuros sem esses nomes).
+function setupAnimalControl(model, mixer, animations, camera, container) {
+  const walkClip = findClip(animations, "Walk");
+  const runClip = findClip(animations, "Run");
+  const idleClip = findClip(animations, "Survey") ?? animations[0];
+
+  if (!walkClip || !idleClip) {
+    mixer.clipAction(animations[0]).play();
+    return () => {};
+  }
+
+  const walkAction = mixer.clipAction(walkClip);
+  const runAction = runClip ? mixer.clipAction(runClip) : null;
+  const idleAction = mixer.clipAction(idleClip);
+
+  let currentAction = idleAction.play();
+
+  function setAction(nextAction) {
+    if (!nextAction || nextAction === currentAction) return;
+    nextAction.reset().fadeIn(ANIMATION_CROSSFADE_S).play();
+    currentAction.fadeOut(ANIMATION_CROSSFADE_S);
+    currentAction = nextAction;
+  }
+
+  const origin = model.position.clone();
+
+  function clampToLeash(position) {
+    const offset = position.clone().sub(origin);
+    offset.y = 0;
+    if (offset.length() > LEASH_RADIUS_METERS) {
+      offset.setLength(LEASH_RADIUS_METERS);
+      position.x = origin.x + offset.x;
+      position.z = origin.z + offset.z;
+    }
+    return position;
+  }
+
+  // --- Modo automático: anda sozinho, alternando passos e pausas ---
+
+  let autoWanderEnabled = true;
+  let wanderTarget = null;
+  let wanderSpeed = 0;
+  let idleUntil = performance.now() + IDLE_MIN_MS;
+
+  function pickWanderTarget() {
+    const stepDistance = WANDER_STEP_MIN_METERS + Math.random() * (WANDER_STEP_MAX_METERS - WANDER_STEP_MIN_METERS);
+
+    let target = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const angle = Math.random() * Math.PI * 2;
+      const candidate = model.position.clone().add(new THREE.Vector3(Math.sin(angle) * stepDistance, 0, Math.cos(angle) * stepDistance));
+      const offset = candidate.clone().sub(origin);
+      offset.y = 0;
+      if (offset.length() <= LEASH_RADIUS_METERS) {
+        target = candidate;
+        break;
+      }
+    }
+    // Não achou um ângulo aleatório dentro do raio (já tá na borda) —
+    // mira de volta pro centro em vez de insistir, senão fica preso
+    // tentando sair repetidamente.
+    if (!target) {
+      const towardOrigin = origin.clone().sub(model.position);
+      towardOrigin.y = 0;
+      towardOrigin.setLength(Math.min(stepDistance, towardOrigin.length() || stepDistance));
+      target = model.position.clone().add(towardOrigin);
+    }
+
+    wanderTarget = target;
+    const running = runAction && Math.random() < RUN_CHANCE;
+    wanderSpeed = running ? RUN_SPEED_MPS : WALK_SPEED_MPS;
+    setAction(running ? runAction : walkAction);
+  }
+
+  function updateAuto(delta) {
+    const now = performance.now();
+
+    if (wanderSpeed === 0) {
+      if (now >= idleUntil) pickWanderTarget();
+      return;
+    }
+
+    const toTarget = wanderTarget.clone().sub(model.position);
+    toTarget.y = 0;
+    const distance = toTarget.length();
+
+    if (distance < ARRIVE_THRESHOLD_METERS) {
+      wanderSpeed = 0;
+      idleUntil = now + IDLE_MIN_MS + Math.random() * (IDLE_MAX_MS - IDLE_MIN_MS);
+      setAction(idleAction);
+      return;
+    }
+
+    toTarget.normalize();
+    model.position.add(toTarget.multiplyScalar(Math.min(wanderSpeed * delta, distance)));
+    // Fox.glb olha pro +Z por padrão — se ela andar de costas no teste
+    // real, trocar esse atan2 pra Math.atan2(-toTarget.x, -toTarget.z).
+    model.rotation.y = Math.atan2(toTarget.x, toTarget.z);
+  }
+
+  function stopAutoImmediately() {
+    wanderSpeed = 0;
+    setAction(idleAction);
+  }
+
+  function resumeAuto() {
+    wanderSpeed = 0;
+    idleUntil = performance.now() + IDLE_MIN_MS + Math.random() * (IDLE_MAX_MS - IDLE_MIN_MS);
+  }
+
+  // --- Botão "Parar"/"Andar sozinha": pausa o modo automático de propósito ---
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.id = "wander-toggle-btn";
+  toggleBtn.textContent = "⏸ Parar";
+  container.appendChild(toggleBtn);
+
+  toggleBtn.addEventListener("click", () => {
+    autoWanderEnabled = !autoWanderEnabled;
+    toggleBtn.textContent = autoWanderEnabled ? "⏸ Parar" : "▶ Andar sozinha";
+    if (autoWanderEnabled) {
+      resumeAuto();
+    } else if (!dragging) {
+      stopAutoImmediately();
+    }
+  });
+
+  // --- Analógico: controle manual, relativo à câmera ---
+
+  const joystickBase = document.createElement("div");
+  joystickBase.id = "joystick-base";
+  const joystickKnob = document.createElement("div");
+  joystickKnob.id = "joystick-knob";
+  joystickBase.appendChild(joystickKnob);
+  container.appendChild(joystickBase);
+
+  let dragging = false;
+  let joyX = 0;
+  let joyY = 0;
+  let baseCenterX = 0;
+  let baseCenterY = 0;
+
+  function updateKnob(clientX, clientY) {
+    let dx = clientX - baseCenterX;
+    let dy = clientY - baseCenterY;
+    const magnitude = Math.hypot(dx, dy);
+    if (magnitude > JOYSTICK_MAX_RADIUS_PX) {
+      dx = (dx / magnitude) * JOYSTICK_MAX_RADIUS_PX;
+      dy = (dy / magnitude) * JOYSTICK_MAX_RADIUS_PX;
+    }
+    joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+    joyX = dx / JOYSTICK_MAX_RADIUS_PX;
+    // Y da tela cresce pra baixo — inverte pra "empurrar pra cima" virar
+    // magnitude positiva (mover pra frente).
+    joyY = -dy / JOYSTICK_MAX_RADIUS_PX;
+  }
+
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    joyX = 0;
+    joyY = 0;
+    joystickKnob.style.transform = "translate(0, 0)";
+    if (autoWanderEnabled) resumeAuto();
+  }
+
+  joystickBase.addEventListener("pointerdown", (event) => {
+    dragging = true;
+    const rect = joystickBase.getBoundingClientRect();
+    baseCenterX = rect.left + rect.width / 2;
+    baseCenterY = rect.top + rect.height / 2;
+    joystickBase.setPointerCapture(event.pointerId);
+    updateKnob(event.clientX, event.clientY);
+  });
+  joystickBase.addEventListener("pointermove", (event) => {
+    if (dragging) updateKnob(event.clientX, event.clientY);
+  });
+  joystickBase.addEventListener("pointerup", endDrag);
+  joystickBase.addEventListener("pointercancel", endDrag);
+
+  const cameraForward = new THREE.Vector3();
+  const cameraRight = new THREE.Vector3();
+
+  function updateManual(delta) {
+    const magnitude = Math.min(Math.hypot(joyX, joyY), 1);
+
+    if (magnitude < JOYSTICK_DEADZONE) {
+      setAction(idleAction);
+      return;
+    }
+
+    // Direção relativa à câmera (não ao mundo): "pra cima" no analógico
+    // sempre afasta o animal de quem segura o celular, do jeito que um
+    // controle de jogo/efeito de RA costuma funcionar.
+    cameraForward.set(0, 0, -1).applyQuaternion(camera.quaternion);
+    cameraForward.y = 0;
+    cameraForward.normalize();
+    cameraRight.set(1, 0, 0).applyQuaternion(camera.quaternion);
+    cameraRight.y = 0;
+    cameraRight.normalize();
+
+    const moveDir = cameraForward.multiplyScalar(joyY).add(cameraRight.multiplyScalar(joyX)).normalize();
+
+    const running = runAction && magnitude > MANUAL_RUN_THRESHOLD;
+    setAction(running ? runAction : walkAction);
+
+    const speed = running ? RUN_SPEED_MPS : WALK_SPEED_MPS;
+    const nextPosition = model.position.clone().addScaledVector(moveDir, speed * delta * magnitude);
+    model.position.copy(clampToLeash(nextPosition));
+    model.rotation.y = Math.atan2(moveDir.x, moveDir.z);
+  }
+
+  return function update(delta) {
+    if (dragging) {
+      updateManual(delta);
+    } else if (autoWanderEnabled) {
+      updateAuto(delta);
+    } else {
+      setAction(idleAction);
+    }
+  };
 }
 
 export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }) {
@@ -89,6 +354,7 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
   let hitTestSourceRequested = false;
   let placed = false;
   let mixer = null;
+  let updateAnimalControlFrame = () => {};
   const clock = new THREE.Clock();
 
   let session;
@@ -160,13 +426,14 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
         const scale = new THREE.Vector3();
         placementMatrix.decompose(position, quaternion, scale);
         model.position.copy(position);
-        model.quaternion.copy(quaternion);
+        // Orientação não vem daqui: quem manda no rotation.y a partir de
+        // agora é o andar sozinho/analógico (setupAnimalControl).
 
         scene.add(model);
 
         if (gltf.animations?.length > 0) {
           mixer = new THREE.AnimationMixer(model);
-          mixer.clipAction(gltf.animations[0]).play();
+          updateAnimalControlFrame = setupAnimalControl(model, mixer, gltf.animations, camera, container);
         }
       },
       undefined,
@@ -203,7 +470,11 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
       }
     }
 
-    if (mixer) mixer.update(clock.getDelta());
+    if (mixer) {
+      const delta = clock.getDelta();
+      mixer.update(delta);
+      updateAnimalControlFrame(delta);
+    }
     renderer.render(scene, camera);
   });
 }
