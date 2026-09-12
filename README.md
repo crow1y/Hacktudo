@@ -94,8 +94,9 @@ projetar a mesma imagem pra turma escanear.
 - Mais matérias além de Ciências no painel do professor.
 - Algumas ilustrações da página inicial (ícones do carrossel) ainda são
   espaços reservados, sem arte final.
-- Logos de patrocinadores na página inicial — sem patrocínio confirmado
-  ainda, são só espaços reservados.
+- Sem patrocínio confirmado ainda — em vez de logos placeholder, a seção
+  "Nos apoie" já lista formas concretas de ajudar (indicar escola
+  parceira, apoio financeiro, divulgação).
 
 ### Avisos importantes
 
@@ -113,8 +114,9 @@ projetar a mesma imagem pra turma escanear.
 - **Os números da seção "Pra onde a gente quer ir"** (tipo "+1.000
   alunos") são objetivos/sonhos do time, não números reais já
   alcançados — o projeto acabou de sair de um hackathon.
-- **As logos de patrocinadores são só placeholders**, sem nenhum
-  patrocínio confirmado até agora.
+- **Não há patrocínio confirmado até agora** — a seção "Nos apoie" é um
+  convite real pra quem quiser ajudar (escola parceira, apoio
+  financeiro, divulgação), não uma lista de apoiadores existentes.
 
 ---
 
@@ -350,11 +352,27 @@ nunca assumir que a matrícula em si é a chave.
       não implementado ainda.
 
 **Landing page:**
-- [x] Ilustração real do hero e logo da marca já adicionadas
-      (`assets/img/HeroVivaLivros.jpg`, `assets/img/logo-mark.png`).
-- [ ] Ícones/ilustrações do carrossel ainda são `.img-placeholder`.
-- [ ] Logos reais de patrocinadores — só trocar quando houver
-      patrocínio confirmado (ver aviso na Seção 1).
+- [x] Ilustração real do hero (grupo de alunos, não um aluno sozinho —
+      trocada de propósito pra combinar com o discurso de uso em grupo)
+      e logo da marca já adicionadas (`assets/img/HeroVivaLivros.jpg`,
+      `assets/img/logo-mark.png`).
+- [x] **Reposicionamento pós-mentoria**: o discurso da página mudou de
+      "olha que tecnologia legal" pra responder de frente 3 pontos que a
+      banca levantou — celular na escola (uso pontual, guiado pelo
+      professor), quem não tem celular próprio (não precisa de um por
+      aluno) e "por que isso e não uma rede social" (descoberta em
+      grupo, não feed infinito). Isso aparece em vários pontos da
+      página (hero, carrossel, seção nova "Feito pra ser vivido em
+      grupo"), não só num bloco isolado — de propósito, pra não parecer
+      remendo. Público declarado: crianças e adolescentes, sem excluir
+      quem mais gostar.
+- [x] Seção "Quem apoia esse projeto" (logos placeholder) virou "Nos
+      apoie" — formas concretas de ajudar (escola parceira, apoio
+      financeiro, divulgação) em vez de placeholders de patrocinador
+      inexistente.
+- [ ] Ícones/ilustrações do carrossel ainda são `.img-placeholder`
+      (exceto o slide de descoberta em grupo, que já reaproveita o
+      ícone de sorriso existente).
 - [x] Texto da landing page corrigido: não menciona mais "check-in de
       presença" (a feature foi removida do app antes, mas o texto de
       marketing tinha ficado pra trás).
