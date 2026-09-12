@@ -181,6 +181,17 @@ export async function initAR() {
   }
 }
 
+// Depois que a sessão WebXR termina, o navegador leva um instante pra
+// liberar a câmera de volta — pedir getUserMedia de novo cedo demais
+// (via mindarSystem.start()) faz o MindAR travar no spinner de
+// carregamento indefinidamente. Essa pausa dá tempo do sistema soltar o
+// hardware antes da próxima tentativa.
+const CAMERA_HANDOFF_DELAY_MS = 800;
+
+function restartMindAR(mindarSystem) {
+  setTimeout(() => mindarSystem.start(), CAMERA_HANDOFF_DELAY_MS);
+}
+
 async function enterFloorPlacement(sceneEl, placeFloorBtn, animal) {
   placeFloorBtn.hidden = true;
 
@@ -193,11 +204,11 @@ async function enterFloorPlacement(sceneEl, placeFloorBtn, animal) {
     await startFloorPlacement({
       modelUrl: animal.model,
       realHeightMeters: animal.alturaRealMetros,
-      onExit: () => mindarSystem.start(),
+      onExit: () => restartMindAR(mindarSystem),
     });
   } catch (error) {
     console.error("Falha ao iniciar o modo WebXR", error);
-    mindarSystem.start();
+    restartMindAR(mindarSystem);
   }
 }
 
