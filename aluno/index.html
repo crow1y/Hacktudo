@@ -34,7 +34,12 @@
     <form id="login-form">
       <h1>Área do aluno</h1>
       <label>Matrícula <input name="matricula" required autocomplete="username" /></label>
-      <label>Senha <input name="senha" type="password" required autocomplete="current-password" /></label>
+      <label>Senha
+        <span class="password-field">
+          <input name="senha" type="password" required autocomplete="current-password" />
+          <button type="button" class="toggle-senha" aria-label="Mostrar senha">👁</button>
+        </span>
+      </label>
       <p id="login-error" class="auth-error"></p>
       <button type="submit">Entrar</button>
       <button type="button" id="to-signup" class="auth-link">Criar conta</button>
@@ -44,8 +49,18 @@
       <h1>Criar conta de aluno</h1>
       <label>Nome completo <input name="nome" required autocomplete="name" /></label>
       <label>Matrícula <input name="matricula" required autocomplete="username" /></label>
-      <label>Senha <input name="senha" type="password" required autocomplete="new-password" /></label>
-      <label>Confirmar senha <input name="confirmarSenha" type="password" required autocomplete="new-password" /></label>
+      <label>Senha
+        <span class="password-field">
+          <input name="senha" type="password" required autocomplete="new-password" />
+          <button type="button" class="toggle-senha" aria-label="Mostrar senha">👁</button>
+        </span>
+      </label>
+      <label>Confirmar senha
+        <span class="password-field">
+          <input name="confirmarSenha" type="password" required autocomplete="new-password" />
+          <button type="button" class="toggle-senha" aria-label="Mostrar senha">👁</button>
+        </span>
+      </label>
       <p class="password-rules">
         Mínimo 8 caracteres, com letra maiúscula, minúscula, número e
         caractere especial.
@@ -66,12 +81,10 @@
          da tela quando não está em uso. -->
     <div id="webxr-container" hidden></div>
 
-    <!-- Camada de "uso consciente": timer de modo aula, pausa e check-in de humor -->
-    <div id="wellbeing-layer">
-      <div id="modo-aula-timer" hidden></div>
-      <div id="pausa-lembrete" hidden></div>
-      <div id="mood-checkin" hidden></div>
-    </div>
+    <!-- Check-in de presença: toast discreto pro check automático, card
+         modal pro pedido de confirmação a cada CHECKIN_INTERVAL_MS. -->
+    <div id="checkin-toast" hidden></div>
+    <div id="checkin-aviso" hidden></div>
 
     <button type="button" id="logout-btn" class="logout-btn">Sair</button>
   </div>

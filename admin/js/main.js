@@ -6,6 +6,9 @@
 import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { db } from "../../shared/firebase-config.js";
 import { DB_PATHS, ADMIN_ACCESS_CODE } from "../../shared/constants.js";
+import { ativarToggleDeSenha } from "../../shared/ui.js";
+
+ativarToggleDeSenha();
 
 const SESSION_KEY = "vivalivro-admin-autenticado";
 
