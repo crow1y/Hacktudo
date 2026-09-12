@@ -55,10 +55,14 @@ aberta no computador ligado ao projetor da sala) mostra um **menu de
 matérias**: Ciências (com conteúdo real, dois assuntos — **Animais** e
 **Astronomia**), mais Gramática, Geografia, História, Artes, Física e
 Química (ainda sem conteúdo, mostram um aviso de "em breve"). Dentro de
-Astronomia tem dois modelos 3D giratórios lado a lado, sem precisar de
-celular nem câmera: uma réplica mecânica do sistema solar (um "orrery",
-mostrando a órbita relativa de cada planeta) e um sistema solar com
-texturas realistas do Sol, planetas e a Lua.
+Astronomia tem dois modelos giratórios lado a lado na tela do professor:
+uma réplica mecânica do sistema solar (um "orrery", mostrando a órbita
+relativa de cada planeta) e um sistema solar com texturas realistas do
+Sol, planetas e a Lua — os dois também escaneáveis pelo aluno no
+celular, exatamente como os animais (ver abaixo), incluindo o modo de
+"Fixar no chão"; o sistema solar realista tem uma variação: em vez de
+ficar em pé no chão, fica flutuando no ar numa altura que o próprio
+aluno ajusta com dois botões, já que representa o espaço, não um bicho.
 
 Dentro de Animais, cada bicho é um **link com foto** numa lista. Clicando
 num deles, aparece uma ficha completa (nome científico, classificação,
@@ -95,6 +99,14 @@ projetar a mesma imagem pra turma escanear.
   modelos 3D giratórios (orrery mecânico + sistema solar realista).
 - Página inicial de apresentação do projeto (a que você provavelmente
   está vendo agora, se não estiver direto no app).
+
+**Implementado, ainda sem confirmação em celular de verdade:**
+- Astronomia também escaneável pelo aluno, igual um animal: orrery (fica
+  em pé no chão) e sistema solar realista (fica flutuando no ar, numa
+  altura que o aluno ajusta com dois botões — primeiro conteúdo do
+  projeto que não fica "em pé", já que representa o espaço). Validado
+  num Three.js isolado simulando a mesma lógica do modo WebXR, mas ainda
+  não testado numa sessão de RA de verdade no celular.
 
 **Ainda em construção:**
 - **Três animais têm conteúdo/RA completos hoje**: raposa (modelo 3D de

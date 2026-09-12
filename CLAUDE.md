@@ -378,6 +378,16 @@ linguagem que exclua quem não é criança pequena.
 - `alturaRealMetros`: altura real aproximada do animal em pé, em metros —
   usada só pelo modo WebXR (`aluno/js/webxr-mode.js`) pra escala real no
   chão. Não afeta o modo MindAR normal.
+- `flutuante` (opcional, bool): quando `true`, o WebXR planta o conteúdo
+  pairando no ar numa altura ajustável (botões "🔼 Subir"/"🔽 Descer") em
+  vez de em pé no chão — pra conteúdo sem "chão" próprio (ex: o sistema
+  solar). Sem esse campo (ou `false`), comportamento normal de animal.
+- `clipePreferido` (opcional, string): nome exato do clipe de animação a
+  tocar quando o modelo não tem os clipes "Walk"/"Survey" (ou seja,
+  quando não anda sozinho/não aceita analógico — `setupAnimalControl`
+  cai no modo "só toca um clipe parado"). Sem isso, toca `animations[0]`
+  do arquivo, que pode não ser o clipe mais ilustrativo (ex: o orrery tem
+  2 órbitas diferentes disponíveis).
 - **Reconhecimento é por imagem pré-cadastrada, não por IA/classificação**
   — o MindAR só compara contra a imagem exata que foi compilada no
   `.mind`, não "entende" que é um leão. Isso importa pra qualquer "banco
@@ -495,36 +505,46 @@ Dois níveis de navegação em `painel/index.html`, os dois 100% client-side
   têm subtópico nenhum — são só um placeholder "Em breve teremos mais
   conteúdo para apresentar" dentro de `[data-materia-conteudo="..."]`.
 
-  **Astronomia** é diferente do resto do painel: é a única parte que usa
-  `<model-viewer>` fora do `aluno/` (script adicionado no `<head>` de
-  `painel/index.html`). Sem MindAR/WebXR envolvido — é só um modelo 3D
-  giratório, não precisa de câmera nem de reconhecimento de imagem, então
-  a integração é bem mais simples que o pipeline de animais (não usa
-  `content/animals.json`, os modelos ficam em `painel/assets/models/` e
-  o HTML é 100% estático, sem listener nenhum). Dois modelos, escolhidos
-  de propósito pra se complementar (confirmado com o usuário: "por que
-  não os dois"):
+  **Astronomia** tem os dois lados do projeto ao mesmo tempo: passa pelo
+  MESMO pipeline de reconhecimento de imagem + WebXR que os animais
+  (`content/animals.json`, `targetIndex`, `aluno/js/webxr-mode.js` — ver
+  "Como adicionar um animal/modelo 3D novo" acima, o processo é idêntico)
+  **e** aparece como visualizador giratório estático em `#astronomia-info`
+  no painel (`<model-viewer>`, script adicionado no `<head>` de
+  `painel/index.html`, apontando pros mesmos arquivos em
+  `aluno/assets/models/` — sem duplicar o `.glb`). Dois modelos,
+  escolhidos de propósito pra se complementar (confirmado com o usuário:
+  "por que não os dois"):
   - `orrery.glb` — réplica de um instrumento mecânico antigo (CC
     Attribution, Sketchfab, by Smoggybeard) que mostra a órbita de cada
     planeta e a distância relativa entre eles. Tem 2 clipes de animação
-    (`Earth 1 Min Orbit`, `Neptune 1 Min Orbit`) — o `<model-viewer>` usa
-    `animation-name="Earth 1 Min Orbit"` explicitamente (sem isso ele
-    tocaria o primeiro clipe do arquivo, que pode não ser o mais
-    ilustrativo). Único caso do projeto até agora onde um modelo
-    convertido de FBX passou limpo no `npm run check-model` de primeira.
+    (`Earth 1 Min Orbit`, `Neptune 1 Min Orbit`); o `<model-viewer>` usa
+    `animation-name="Earth 1 Min Orbit"` explicitamente, e no WebXR isso
+    é o `clipePreferido` no JSON — sem isso, o fallback tocaria
+    `animations[0]`, que pode não ser o mais ilustrativo (ver
+    `setupAnimalControl` em `webxr-mode.js`). No WebXR fica em pé no
+    chão, igual um animal (tem uma base/pedestal de verdade no modelo).
+    Único caso do projeto até agora onde um modelo convertido de FBX
+    passou limpo no `npm run check-model` de primeira.
   - `sistema-solar-realista.glb` — Sol, planetas e a Lua com texturas
     realistas e anéis de órbita (CC Attribution, Sketchfab, by
-    Samer_Arab_S5). **Motivou um ajuste no `check-model.js`**: por não
-    ter esqueleto (não é um bicho animado, são nós com animação de
-    transformação rígida direto), os círculos de órbita de planetas
-    distantes (Marte, Júpiter, Saturno, Urano, Netuno, Plutão) precisam
-    de escala bem grande de propósito — o script antes sinalizava isso
-    como suspeito (mesmo padrão numérico do bug da girafa), um falso
-    positivo real. Corrigido: a checagem de "escala de nó fora do normal"
-    só roda quando o arquivo tem pelo menos um `SkinnedMesh` (`skins.length
-    > 0`) — sem esqueleto, essa classe de bug (precisão de shader no
-    cálculo de skin) não pode ocorrer de jeito nenhum, então não há o que
-    sinalizar.
+    Samer_Arab_S5). **`flutuante: true`** no JSON: não faz sentido esse
+    plantado no chão como um bicho (é o espaço, não tem "chão"), então
+    esse é o primeiro conteúdo que usa o modo "flutuante" do WebXR —
+    fica pairando numa altura ajustável acima do ponto tocado (botões
+    "🔼 Subir"/"🔽 Descer", `FLOAT_HEIGHT_*` em `webxr-mode.js`), em vez
+    de ancorado no chão. Ideia do usuário: "e se o aluno pudesse decidir
+    a altura, pra poder visualizar?". **Motivou um ajuste no
+    `check-model.js`**: por não ter esqueleto (a animação é por
+    transformação rígida de nó, não skin), os círculos de órbita de
+    planetas distantes (Marte, Júpiter, Saturno, Urano, Netuno, Plutão)
+    precisam de escala bem grande de propósito — o script antes
+    sinalizava isso como suspeito (mesmo padrão numérico do bug da
+    girafa), um falso positivo real. Corrigido: a checagem de "escala de
+    nó fora do normal" só roda quando o arquivo tem pelo menos um
+    `SkinnedMesh` (`skins.length > 0`) — sem esqueleto, essa classe de
+    bug (precisão de shader no cálculo de skin) não pode ocorrer de jeito
+    nenhum, então não há o que sinalizar.
 
 Pra adicionar:
 - **Matéria nova** (sem conteúdo ainda): um botão `.materia-btn` em

@@ -210,6 +210,8 @@ async function enterFloorPlacement(sceneEl, placeFloorBtn, animal) {
     await startFloorPlacement({
       modelUrl: animal.model,
       realHeightMeters: animal.alturaRealMetros,
+      flutuante: animal.flutuante,
+      clipePreferido: animal.clipePreferido,
       onExit: voltarPreview,
     });
   } catch (error) {

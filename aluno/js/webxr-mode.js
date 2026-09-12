@@ -68,6 +68,14 @@ const JOYSTICK_MAX_RADIUS_PX = 65;
 const JOYSTICK_DEADZONE = 0.15;
 const MANUAL_RUN_THRESHOLD = 0.75;
 
+// Conteúdo "flutuante" (ex: sistema solar) não fica em pé no chão como um
+// animal — fica pairando no ar acima do ponto tocado, numa altura que o
+// aluno pode ajustar (ver botões em placeModel). Valores em metros.
+const FLOAT_HEIGHT_INITIAL_METERS = 1.5;
+const FLOAT_HEIGHT_STEP_METERS = 0.3;
+const FLOAT_HEIGHT_MIN_METERS = 0.5;
+const FLOAT_HEIGHT_MAX_METERS = 2.5;
+
 function isFloorLike(pose) {
   const { x, y, z, w } = pose.transform.orientation;
   const up = WORLD_UP.clone().applyQuaternion(new THREE.Quaternion(x, y, z, w));
@@ -119,15 +127,20 @@ function computeWorldBox(model) {
 //
 // Se o glTF não tiver os clipes "Walk"/"Survey" (nomes usados no
 // Fox.glb de teste), não tem como andar de forma reconhecível — toca só
-// o primeiro clipe disponível parado, sem criar nenhum controle, igual
-// ao comportamento antigo (cobre animais futuros sem esses nomes).
-function setupAnimalControl(model, mixer, animations, camera, container) {
+// um clipe parado, sem criar nenhum controle de andar sozinho/analógico
+// (cobre tanto animais futuros sem esses nomes quanto conteúdo que não
+// devia andar de jeito nenhum, tipo o orrery ou o sistema solar). Nesse
+// caso, `preferredClipName` escolhe qual clipe tocar (ex: "Earth 1 Min
+// Orbit" no orrery, que tem mais de uma órbita disponível) -- sem isso,
+// cai no primeiro clipe do arquivo.
+function setupAnimalControl(model, mixer, animations, camera, container, preferredClipName) {
   const walkClip = findClip(animations, "Walk");
   const runClip = findClip(animations, "Run");
   const idleClip = findClip(animations, "Survey") ?? animations[0];
 
   if (!walkClip || !idleClip) {
-    mixer.clipAction(animations[0]).play();
+    const clip = (preferredClipName && findClip(animations, preferredClipName)) || animations[0];
+    mixer.clipAction(clip).play();
     return () => {};
   }
 
@@ -352,7 +365,7 @@ function setupAnimalControl(model, mixer, animations, camera, container) {
   };
 }
 
-export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }) {
+export async function startFloorPlacement({ modelUrl, realHeightMeters, flutuante, clipePreferido, onExit }) {
   if (!navigator.xr) {
     throw new Error("WebXR não disponível neste navegador.");
   }
@@ -550,13 +563,48 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, onExit }
         // confiar na origem do root.
         const scaledBox = computeWorldBox(model);
         const center = scaledBox.getCenter(new THREE.Vector3());
-        model.position.set(position.x - center.x, position.y - scaledBox.min.y, position.z - center.z);
+        if (flutuante) {
+          // Conteúdo flutuante (ex: sistema solar) não fica em pé no
+          // chão -- centraliza o modelo numa altura acima do ponto
+          // tocado, ajustável pelo aluno via os botões abaixo.
+          let floatHeight = FLOAT_HEIGHT_INITIAL_METERS;
+          model.position.set(position.x - center.x, position.y + floatHeight - center.y, position.z - center.z);
+
+          const alturaControlsEl = document.createElement("div");
+          alturaControlsEl.id = "altura-controls";
+          container.appendChild(alturaControlsEl);
+
+          const subirBtn = document.createElement("button");
+          subirBtn.id = "altura-subir-btn";
+          subirBtn.textContent = "🔼 Subir";
+          const descerBtn = document.createElement("button");
+          descerBtn.id = "altura-descer-btn";
+          descerBtn.textContent = "🔽 Descer";
+          alturaControlsEl.append(subirBtn, descerBtn);
+
+          // A "forma" do modelo não muda ao ajustar altura, só a posição
+          // -- não precisa recalcular o bounding box a cada clique, só
+          // mover o eixo Y direto.
+          subirBtn.addEventListener("click", () => {
+            const next = Math.min(floatHeight + FLOAT_HEIGHT_STEP_METERS, FLOAT_HEIGHT_MAX_METERS);
+            model.position.y += next - floatHeight;
+            floatHeight = next;
+          });
+          descerBtn.addEventListener("click", () => {
+            const next = Math.max(floatHeight - FLOAT_HEIGHT_STEP_METERS, FLOAT_HEIGHT_MIN_METERS);
+            model.position.y += next - floatHeight;
+            floatHeight = next;
+          });
+        } else {
+          model.position.set(position.x - center.x, position.y - scaledBox.min.y, position.z - center.z);
+        }
         // Orientação não vem daqui: quem manda no rotation.y a partir de
-        // agora é o andar sozinho/analógico (setupAnimalControl).
+        // agora é o andar sozinho/analógico (setupAnimalControl), quando
+        // aplicável.
 
         if (gltf.animations?.length > 0) {
           mixer = new THREE.AnimationMixer(model);
-          updateAnimalControlFrame = setupAnimalControl(model, mixer, gltf.animations, camera, container);
+          updateAnimalControlFrame = setupAnimalControl(model, mixer, gltf.animations, camera, container, clipePreferido);
         }
       },
       undefined,
