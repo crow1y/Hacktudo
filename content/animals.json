@@ -1,12 +1,12 @@
 {
   "_comment": "Base de conteúdo didático. Cada entrada é consumida pelo aluno/ (targetIndex + model, só as com isAssetReady) e pelo painel/ (imagem + info, TODAS as entradas — o painel não exige o modelo 3D pronto pra mostrar o card do animal). Adicione animais aqui sem tocar em nenhum JS.",
-  "_comment_targetSrc": "Todas as imagens-alvo precisam ser compiladas JUNTAS num único arquivo .mind (ferramenta oficial: https://hiukim.github.io/mind-ar-js-doc/tools/compile). A ordem em que você sobe as imagens na hora de compilar define o índice (0, 1, 2...) — esse índice é o 'targetIndex' de cada animal abaixo. Enquanto só existir 1 imagem real, deixe só 1 animal com targetIndex 0 apontando pra ela.",
+  "_comment_targetSrc": "Todas as imagens-alvo precisam ser compiladas JUNTAS num único arquivo .mind (ferramenta oficial: https://hiukim.github.io/mind-ar-js-doc/tools/compile), salvo em aluno/assets/targets/targets.mind. A ordem em que você sobe as imagens na hora de compilar define o índice (0, 1, 2...) — esse índice é o 'targetIndex' de cada animal abaixo. Pra adicionar um novo alvo real sem quebrar os que já existem, sempre re-suba as imagens-fonte de todos os animais já prontos (nas mesmas posições) junto com a nova, e recompile — os índices não são cumulativos entre compilações separadas.",
   "_comment_alturaRealMetros": "Altura real do animal em pé, em metros — usada só no modo WebXR (aluno/js/webxr-mode.js) pra plantar o modelo em escala real no chão (com um teto de segurança MAX_HEIGHT_METERS pra não estourar o teto da sala) e pro raio de segurança do andar sozinho. Não afeta o modo MindAR normal.",
   "_comment_imagem": "Foto ilustrativa do animal (não é a imagem-alvo de RA, que é binária dentro do .mind e não dá pra exibir) — usada nos cards do painel/. Caminho relativo à raiz do site.",
-  "targetSrc": "https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind",
+  "targetSrc": "/aluno/assets/targets/targets.mind",
   "animals": [
     {
-      "_comment": "Único animal com pipeline de RA completa hoje: usa o alvo de exemplo público do MindAR + o modelo animado público do Khronos, mas o conteúdo (imagem/info) já é real, não é mais só teste de pipeline.",
+      "_comment": "Alvo real (targetIndex 0, foto original do card de exemplo do MindAR, recompilada localmente junto com a da girafa) + modelo animado público do Khronos. O conteúdo (imagem/info) já é real, não é mais só teste de pipeline.",
       "id": "teste-pipeline",
       "nome": "Raposa-vermelha",
       "targetIndex": 0,
@@ -29,11 +29,11 @@
       }
     },
     {
-      "_comment": "targetIndex ainda é um placeholder (1) — só vai funcionar de verdade depois que targetSrc virar um .mind compilado com as imagens reais do livro, incluindo esta na posição 1.",
+      "_comment": "targetIndex ainda é um placeholder (2) — só vai funcionar de verdade depois que uma foto real da página do livro for compilada junto no targetSrc, nessa posição.",
       "id": "exemplo-leao",
       "nome": "Leão",
-      "targetIndex": 1,
-      "model": "aluno/assets/models/TODO.glb",
+      "targetIndex": 2,
+      "model": "/aluno/assets/models/TODO.glb",
       "alturaRealMetros": 1.2,
       "info": {
         "comportamento": "Vive em grupos chamados alcateias, geralmente formados por fêmeas aparentadas, seus filhotes e alguns machos. É o único felino verdadeiramente social — as fêmeas costumam caçar em conjunto, enquanto os machos defendem o território.",
@@ -46,11 +46,11 @@
       }
     },
     {
-      "_comment": "Ainda sem pipeline de RA (sem modelo 3D nem imagem-alvo compilada) — entra só como card de conteúdo no painel, pra mostrar que o tamanho real (bem maior que a raposa) não é problema pro modo WebXR. targetIndex 2 reservado pra quando tiver alvo real.",
+      "_comment": "Segundo animal com pipeline de RA completa: modelo estático (sem animação — ver aluno/assets/models/girafa.glb, CC BY 3.0, by elkiotbear via poly.pizza) e alvo real compilado junto com o da raposa (targetIndex 1). alturaRealMetros real é 5,5m, mas MAX_HEIGHT_METERS (webxr-mode.js) trava em 2m no modo 'Fixar no chão' — ainda assim bem maior que a raposa (0,4m), suficiente pra mostrar a diferença de escala.",
       "id": "girafa",
       "nome": "Girafa",
-      "targetIndex": 2,
-      "model": "aluno/assets/models/TODO-girafa.glb",
+      "targetIndex": 1,
+      "model": "/aluno/assets/models/girafa.glb",
       "alturaRealMetros": 5.5,
       "imagem": "/assets/img/girafa.jpg",
       "_comment_imagemCredito": "Foto: Miroslav Duchacek, CC BY-SA 3.0 (Wikimedia Commons) — https://commons.wikimedia.org/wiki/File:Giraffe_standing.jpg",
