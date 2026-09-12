@@ -239,6 +239,23 @@ linguagem que exclua quem não é criança pequena.
   `<model-viewer>`/canvas com seu próprio loop de render continua
   consumindo GPU mesmo fora de vista, e isso importa especialmente ao
   rodar WebXR em paralelo.
+  ⚠️ **Esse fix (limpar `src` + esconder) resolveu pra raposa mas não pra
+  girafa** — voltou a travar ao sair, só com a girafa, com o modelo
+  "piscando" antes de sumir. Só limpar `src` e esconder (`hidden`) não
+  libera de fato o contexto WebGL do `<model-viewer>` — ele continua
+  vivo (e, aparentemente, ainda rodando o loop de render internamente),
+  só sem nada carregado. Pra um modelo leve (raposa, o `Fox.glb` de
+  teste) isso nunca disputava recurso o bastante pra dar problema; a
+  girafa (mais triângulos, textura maior) empurrou o uso de GPU/memória
+  pra cima do limite. **Corrigido de vez** em `enterFloorPlacement`
+  (`aluno/js/ar.js`): em vez de só esconder/limpar, o elemento
+  `<model-viewer>` é **removido do DOM** ao entrar no WebXR (o navegador
+  para o loop de render dele e libera o contexto de verdade) e um **novo
+  é criado do zero** em `voltarPreview()` ao sair. Lição: "esconder e
+  limpar o src" não é a mesma coisa que "destruir" — pra garantir que um
+  Web Component com motor 3D próprio realmente solte a GPU, remover o
+  elemento do DOM (não só do `hidden`) e recriar depois é mais seguro que
+  confiar em algum método de pausa interno da lib.
   ⚠️ **Histórico: girafa "sumia" ao tocar "Fixar no chão"** (cartão de
   prévia funcionava normal, WebXR não mostrava nada): causa raiz tinha
   duas partes, as duas específicas de modelo com esqueleto (skin/bones) —

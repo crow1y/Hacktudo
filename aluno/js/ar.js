@@ -40,6 +40,14 @@ function isAssetReady(animal) {
   return !animal.model.includes("TODO");
 }
 
+// Sempre busca de novo em vez de guardar uma referência fixa — o
+// elemento é DESTRUÍDO e recriado do zero ao entrar/sair do modo WebXR
+// (ver enterFloorPlacement/voltarPreview), então uma referência antiga
+// ficaria apontando pro nó removido depois da primeira ida à RA.
+function getPreviewModelViewerEl() {
+  return document.getElementById("preview-model-viewer");
+}
+
 async function supportsAdvancedAR() {
   if (!navigator.xr) return false;
   try {
@@ -79,7 +87,6 @@ export async function initAR() {
 
   const sceneEl = document.querySelector("a-scene");
   const previewCardEl = document.getElementById("preview-card");
-  const previewModelViewerEl = document.getElementById("preview-model-viewer");
   const vignetteEl = document.getElementById("ar-vignette");
   const previewNameEl = document.getElementById("preview-name");
   const placeFloorBtn = document.getElementById("place-floor-btn");
@@ -101,6 +108,7 @@ export async function initAR() {
   function showPreview(animal) {
     capturedAnimalId = animal.id;
 
+    const previewModelViewerEl = getPreviewModelViewerEl();
     previewModelViewerEl.src = animal.model;
     previewModelViewerEl.alt = animal.nome;
     previewCardEl.hidden = false;
@@ -161,19 +169,22 @@ function restartMindAR(mindarSystem) {
 async function enterFloorPlacement(sceneEl, placeFloorBtn, animal) {
   placeFloorBtn.hidden = true;
 
-  // O <model-viewer> do cartão de prévia (autoplay/auto-rotate) só fica
-  // coberto visualmente pelo container do WebXR — ele continua rodando
-  // com o PRÓPRIO contexto WebGL o tempo inteiro, ao mesmo tempo que o
-  // WebXR usa outro pra renderizar a cena. Dois contextos WebGL ativos
-  // ao mesmo tempo nesse aparelho é a suspeita mais forte pro
-  // travamento intermitente do Chrome ao sair do modo WebXR (só
-  // acontecia com o cartão ainda "ativo", ou seja, com o model-viewer
-  // carregado). Descarrega o modelo e esconde o cartão enquanto durar o
-  // WebXR; volta ao normal ao sair (ver voltarPreview abaixo).
+  // O <model-viewer> do cartão de prévia (autoplay/auto-rotate) continua
+  // rodando com o PRÓPRIO contexto WebGL o tempo inteiro, mesmo só
+  // "escondido" (hidden) e com o src limpo — só esconder/limpar não
+  // libera de fato os recursos de GPU do contexto dele, que continua
+  // vivo disputando GPU/memória com o contexto do WebXR. Isso já causou
+  // um travamento intermitente do Chrome ao sair do WebXR (ver
+  // CLAUDE.md), e reapareceu num animal com modelo mais pesado (mais
+  // triângulos/textura) mesmo depois daquele fix — a raposa (modelo leve
+  // de teste) nunca disputava recurso o bastante pra estourar, a girafa
+  // sim. Removendo o elemento do DOM de vez (em vez de só esconder), o
+  // navegador para o loop de render dele e libera o contexto de verdade;
+  // um <model-viewer> novo é criado do zero ao voltar (voltarPreview).
   const previewCardEl = document.getElementById("preview-card");
-  const previewModelViewerEl = document.getElementById("preview-model-viewer");
+  const previewModelViewerEl = getPreviewModelViewerEl();
   previewCardEl.hidden = true;
-  previewModelViewerEl.src = "";
+  previewModelViewerEl.remove();
 
   const mindarSystem = sceneEl.systems["mindar-image-system"];
   mindarSystem.stop(); // libera a câmera de vez — WebXR precisa de controle exclusivo dela
@@ -181,7 +192,16 @@ async function enterFloorPlacement(sceneEl, placeFloorBtn, animal) {
   const { startFloorPlacement } = await import("./webxr-mode.js");
 
   function voltarPreview() {
-    previewModelViewerEl.src = animal.model;
+    const freshModelViewerEl = document.createElement("model-viewer");
+    freshModelViewerEl.id = "preview-model-viewer";
+    freshModelViewerEl.setAttribute("auto-rotate", "");
+    freshModelViewerEl.setAttribute("camera-controls", "");
+    freshModelViewerEl.setAttribute("disable-zoom", "");
+    freshModelViewerEl.setAttribute("autoplay", "");
+    freshModelViewerEl.src = animal.model;
+    freshModelViewerEl.alt = animal.nome;
+    previewCardEl.insertBefore(freshModelViewerEl, previewCardEl.firstChild);
+
     previewCardEl.hidden = false;
     restartMindAR(mindarSystem);
   }
