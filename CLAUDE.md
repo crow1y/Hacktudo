@@ -616,6 +616,35 @@ não substitui uma aba de verdade em primeiro plano pra qualquer coisa
 que dependa de throughput de timer/rAF — para tarefas assim, ou manter a
 janela focada durante a automação, ou fazer o passo manualmente.
 
+⚠️ **Histórico: MindAR não reconhecia a foto do buraco negro de jeito
+nenhum** (usuário testou em produção, "não tá reconhecendo"). Causa raiz
+achada extraindo o `targets.mind` compilado (é `msgpack`, dá pra
+inspecionar com `pip install msgpack` + `msgpack.unpackb`) e contando os
+pontos de rastreamento (`maximaPoints`/`minimaPoints`) de cada alvo, em
+todos os níveis da pirâmide de escala: raposa/elefante/leão/orrery/
+sistema-solar tinham entre ~1.000 e ~3.000 pontos no total; a foto crua
+do buraco negro (Event Horizon Telescope) tinha **14 pontos no total**,
+praticamente zero. A foto do EHT é uma reconstrução radioastronômica
+muito suave/borrada, de propósito (não é uma foto óptica normal) — sem
+cantos ou bordas nítidas em lugar nenhum, exatamente o tipo de imagem
+que detectores de feature tipo FREAK/DoG (o que o MindAR usa por baixo)
+não conseguem ancorar, não importa a resolução do arquivo. Não era bug
+de código nem de deploy (conferido: produção tinha o `.mind` e o
+`animals.json` certos, byte-a-byte iguais ao local) — era a imagem em
+si. **Corrigido** compondo a foto original (sem alterar nada nela)
+dentro de uma moldura dourada + faixa de legenda com texto ("BURACO
+NEGRO — M87*" etc., script Python com Pillow) — título/texto tem muitos
+cantos nítidos, exatamente o que faltava. Depois da moldura, o mesmo
+teste deu 535 pontos, na faixa dos outros alvos. `assets/img/
+buraco-negro.jpg` é essa versão com moldura agora (é o mesmo arquivo
+usado no card do painel E como imagem-alvo pra escanear, como todo o
+resto do projeto) — a foto em si não foi editada/cortada, só ganhou a
+moldura ao redor. Lição: uma imagem-alvo "bonita"/icônica não é a mesma
+coisa que uma imagem *rastreável* — vale desconfiar cedo de fotos muito
+suaves/borradas ou com grandes áreas uniformes (fundo de estúdio liso,
+céu limpo, etc.) como alvo de MindAR, e checar contagem de pontos no
+`.mind` compilado antes de assumir que "não reconhece" é bug de código.
+
 ⚠️ **Histórico: modelo do buraco negro trocado por "jatos" visualmente
 quebrados** (cacos/losangos cinzas com buracos entre eles, nos polos do
 disco de acreção). O primeiro modelo usado ("Black hole" da extinta
