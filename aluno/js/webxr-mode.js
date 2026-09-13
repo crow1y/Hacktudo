@@ -31,6 +31,10 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 // mais simples que tentar detectar se o ambiente é aberto ou fechado.
 const MAX_HEIGHT_METERS = 2;
 
+// Mesma ideia do teto acima, só que pro maior eixo horizontal (X/Z) --
+// usado só por conteúdo que define `larguraRealMetros` (ver abaixo).
+const MAX_WIDTH_METERS = 2.5;
+
 // O hit-test do WebXR detecta qualquer superfície plana — parede, mesa,
 // chão — sem diferenciar. Um resultado só conta como "chão" se o eixo
 // "para cima" da superfície detectada estiver bem alinhado com o "para
@@ -365,7 +369,7 @@ function setupAnimalControl(model, mixer, animations, camera, container, preferr
   };
 }
 
-export async function startFloorPlacement({ modelUrl, realHeightMeters, flutuante, clipePreferido, onExit }) {
+export async function startFloorPlacement({ modelUrl, realHeightMeters, larguraRealMetros, flutuante, clipePreferido, onExit }) {
   if (!navigator.xr) {
     throw new Error("WebXR não disponível neste navegador.");
   }
@@ -543,13 +547,30 @@ export async function startFloorPlacement({ modelUrl, realHeightMeters, flutuant
           }
         });
 
-        // Escala real: mede a altura nativa do modelo (unidades do
-        // próprio arquivo) e escala pra bater com a altura real do
-        // animal em metros, respeitando o teto de segurança.
+        // Escala real: por padrão mede a ALTURA nativa do modelo e escala
+        // pra bater com a altura real em metros (bom pra bicho, que é
+        // proporcionalmente mais alto que largo). Mas um modelo achatado
+        // e espalhado (ex: sistema solar, com anéis de órbita bem mais
+        // largos que altos) explode de tamanho nesse cálculo -- escalar
+        // pela altura de um objeto que é 8x mais largo que alto multiplica
+        // esse espalhamento junto. `larguraRealMetros` (quando definido no
+        // JSON) resolve isso: escala pelo maior eixo horizontal (X/Z) em
+        // vez da altura -- achado testando o sistema-solar-realista, que
+        // ficava com ~13 METROS de diâmetro (precisava do quintal pra
+        // caber) antes desse ajuste.
         const box = computeWorldBox(model);
-        const nativeHeight = box.max.y - box.min.y || 1;
-        const targetHeight = Math.min(realHeightMeters, MAX_HEIGHT_METERS);
-        model.scale.setScalar(targetHeight / nativeHeight);
+        let scaleFactor;
+        if (larguraRealMetros) {
+          const nativeSize = box.getSize(new THREE.Vector3());
+          const nativeWidth = Math.max(nativeSize.x, nativeSize.z) || 1;
+          const targetWidth = Math.min(larguraRealMetros, MAX_WIDTH_METERS);
+          scaleFactor = targetWidth / nativeWidth;
+        } else {
+          const nativeHeight = box.max.y - box.min.y || 1;
+          const targetHeight = Math.min(realHeightMeters, MAX_HEIGHT_METERS);
+          scaleFactor = targetHeight / nativeHeight;
+        }
+        model.scale.setScalar(scaleFactor);
 
         const position = new THREE.Vector3();
         const quaternion = new THREE.Quaternion();

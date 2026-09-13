@@ -378,6 +378,25 @@ linguagem que exclua quem não é criança pequena.
 - `alturaRealMetros`: altura real aproximada do animal em pé, em metros —
   usada só pelo modo WebXR (`aluno/js/webxr-mode.js`) pra escala real no
   chão. Não afeta o modo MindAR normal.
+- `larguraRealMetros` (opcional, número, metros): quando definido, o WebXR
+  escala pelo maior eixo horizontal (X/Z) em vez de `alturaRealMetros`
+  (teto de segurança `MAX_WIDTH_METERS = 2.5`, mesma ideia do
+  `MAX_HEIGHT_METERS` só que pro chão). Existe porque escalar pela altura
+  só funciona bem pra algo proporcionalmente mais alto que largo (bicho
+  em pé) — um modelo achatado/espalhado (ex: sistema solar, anéis de
+  órbita bem mais largos que altos) explode de tamanho nesse cálculo:
+  escalar pra 1,5m de ALTURA um modelo 8x mais largo que alto multiplica
+  esse espalhamento junto. Achado real: o `sistema-solar-realista.glb`
+  tem só ~12,6 unidades nativas de altura contra ~108 de largura —
+  `alturaRealMetros: 1.5` dava um sistema solar com **~13 metros de
+  diâmetro** (usuário testou no celular, precisou ir pro quintal pra ter
+  espaço e nem achou todos os planetas porque não cabiam). `orrery.glb`
+  tinha o mesmo problema em escala menor (1,56m de LARGURA com
+  `alturaRealMetros: 1.0`, mais largo que alto). Os dois ganharam
+  `larguraRealMetros: 1.2` (tamanho de maquete de mesa de verdade). Sem
+  esse campo, comportamento normal (escala pela altura) — é o caso de
+  todo animal e do buraco negro (esse já tinha proporção ~1:1:1, sem
+  esse problema).
 - `flutuante` (opcional, bool): quando `true`, o WebXR planta o conteúdo
   pairando no ar numa altura ajustável (botões "🔼 Subir"/"🔽 Descer") em
   vez de em pé no chão — pra conteúdo sem "chão" próprio (ex: o sistema
