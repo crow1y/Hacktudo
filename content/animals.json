@@ -124,7 +124,7 @@
       }
     },
     {
-      "_comment": "Primeiro conteúdo de Física — mesmo tratamento de astronomia/animal (materia + targetIndex + escala real), sem os campos de ficha que só fazem sentido pra um ser vivo. alturaRealMetros é escolha de produto pro modo WebXR, não o tamanho real de um buraco negro (não existe 'tamanho real em metros' que caiba numa sala) — mesma lógica já usada pro elefante.",
+      "_comment": "Primeiro conteúdo de Física — mesmo tratamento de astronomia/animal (materia + targetIndex + escala real), sem os campos de ficha que só fazem sentido pra um ser vivo. alturaRealMetros é escolha de produto pro modo WebXR, não o tamanho real de um buraco negro (não existe 'tamanho real em metros' que caiba numa sala) — mesma lógica já usada pro elefante. flutuante: true igual o sistema-solar — decisão do usuário, um buraco negro também não tem 'chão' de verdade, não faz sentido plantado no chão como um bicho. Modelo não tem esqueleto e só tem 1 clipe de animação ('Take 001'), então não precisou de clipePreferido — o fallback pra animations[0] já pega o clipe certo.",
       "_comment_modeloTrocado": "Modelo ORIGINAL ('Black hole' by Poly by Google, via static.poly.pizza) tinha só 1.572 triângulos — passava limpo em `npm run check-model` (não tinha esqueleto nem bug de escala, então não era a mesma classe de problema da girafa), mas visualmente os 'jatos' polares apareciam como cacos/losangos cinzas com buracos entre eles, muito poligonal pra passar credibilidade num app educacional. Investigado (parsing manual do JSON/textura do glTF): sem alpha na textura, sem esqueleto, sem escala suspeita — então não era um bug técnico, era só um asset gratuito de baixíssima qualidade poligonal mesmo. Trocado por 'Blackhole' by rubykamen (Sketchfab, CC BY 4.0, https://sketchfab.com/3d-models/blackhole-74cbeaeae2174a218fe9455d77902b5c, baixado direto em .glb, sem passar por conversão OBJ/FBX) — 231.824 triângulos, disco de acreção com lente gravitacional (efeito 'anel' parecido com a foto real do Event Horizon Telescope usada como imagem-alvo), 1 clipe de animação ('Take 001'). Passou limpo em `npm run check-model` de novo depois da troca.",
       "_comment_imagemCredito": "Foto: Event Horizon Telescope / ESO, CC BY 4.0 — primeira foto real de um buraco negro já tirada (2019, galáxia M87) — https://commons.wikimedia.org/wiki/File:Black_hole_-_Messier_87_crop_max_res.jpg",
       "id": "buraco-negro",
@@ -133,6 +133,7 @@
       "targetIndex": 5,
       "model": "/aluno/assets/models/buraco-negro.glb",
       "alturaRealMetros": 1.5,
+      "flutuante": true,
       "imagem": "/assets/img/buraco-negro.jpg",
       "info": {
         "classificacao": "Região do espaço-tempo com gravidade extrema (não é um ser vivo)",
