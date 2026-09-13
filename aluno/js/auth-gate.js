@@ -3,6 +3,7 @@
 import { cadastrarAluno, entrar, sair, ouvirSessao, traduzErroAuth } from "../../shared/auth.js";
 import { requisitosSenhaFaltando } from "../../shared/validators.js";
 import { ativarToggleDeSenha } from "../../shared/ui.js";
+import { TEST_LOGIN } from "../../shared/constants.js";
 import { startApp } from "./main.js";
 
 ativarToggleDeSenha();
@@ -38,6 +39,12 @@ loginForm?.addEventListener("submit", async (event) => {
   } catch (error) {
     loginError.textContent = traduzErroAuth(error);
   }
+});
+
+document.getElementById("login-teste-btn")?.addEventListener("click", () => {
+  loginForm.matricula.value = TEST_LOGIN[ROLE].matricula;
+  loginForm.senha.value = TEST_LOGIN[ROLE].senha;
+  loginForm.requestSubmit();
 });
 
 signupForm?.addEventListener("submit", async (event) => {

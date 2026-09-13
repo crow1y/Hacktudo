@@ -37,6 +37,17 @@ export const AUTH_EMAIL_SUFFIX = {
   [ROLES.ALUNO]: "@aluno.viva-livro.app",
 };
 
+// Credenciais de uma conta de teste já cadastrada no Firebase Auth pra
+// cada papel — usadas só pelo botão "🧪 Login de teste" na tela de login
+// (aluno/js/auth-gate.js, painel/js/auth-gate.js), pra jurado do Hacktudo
+// não precisar digitar matrícula/senha na hora da avaliação. Igual o
+// ADMIN_ACCESS_CODE abaixo: são strings visíveis no bundle do navegador,
+// não é segredo — nunca usar pra nada além dessas duas contas de demo.
+export const TEST_LOGIN = {
+  [ROLES.ALUNO]: { matricula: "002323", senha: "Teste@123456789" },
+  [ROLES.PROFESSOR]: { matricula: "003972", senha: "Teste@123456789" },
+};
+
 // Código de acesso da tela /admin/ que libera professores cadastrados.
 // Isso NÃO é segurança de verdade (é uma string visível no bundle do
 // navegador, igual as regras do Realtime Database hoje abertas) — é só uma
