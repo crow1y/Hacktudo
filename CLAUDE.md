@@ -420,8 +420,9 @@ linguagem que exclua quem não é criança pequena.
   dessa entrada — `isAssetReady()` em `aluno/js/ar.js` exclui esses itens
   da cena de RA até `targetIndex` virar um número real (o card ainda
   aparece completo no painel/ mesmo assim, já que o painel não exige
-  `targetIndex` pronto pra mostrar nada). Ver `buraco-negro` como
-  exemplo real disso hoje.
+  `targetIndex` pronto pra mostrar nada). Foi o caso do `buraco-negro`
+  entre a integração do modelo e a recompilação do `.mind` — ver
+  "Menu de matérias do painel" abaixo pro estado atual.
 - **Reconhecimento é por imagem pré-cadastrada, não por IA/classificação**
   — o MindAR só compara contra a imagem exata que foi compilada no
   `.mind`, não "entende" que é um leão. Isso importa pra qualquer "banco
@@ -591,26 +592,54 @@ mesmas classes (`.astronomia-layout`/`.astronomia-card`/
 `.astronomia-card__badge`/`.astronomia-card__legenda`), só com atributo
 `data-fisica-id` em vez de `data-astronomia-id` (pra não colidir com o
 seletor de `atualizarBadgesAstronomia()`) e sua própria
-`atualizarBadgesFisica()`. **Ainda sem RA de verdade**: pedido
-originalmente com um modelo do Sketchfab
-(https://sketchfab.com/3d-models/black-hole-76413750f9034c859fcb3aad585f3409,
-CC BY 4.0), mas o download de lá **exige login mesmo em modelos
-gratuitos** (confirmado via API: `GET /v3/models/<uid>/download` sem
-auth retorna 401) — trocado por um modelo equivalente e igualmente livre
-("Black hole" da extinta Google Poly, CC BY 3.0, baixado direto de
-`static.poly.pizza` sem precisar de conta nenhuma:
-https://poly.pizza/m/bUEMVxbw9Zr). Passou limpo em `npm run check-model`
-(1.572 triângulos, sem esqueleto). `targetIndex: null` no JSON (ver
-"Schema do `content/animals.json`" acima) — falta só recompilar
-`aluno/assets/targets/targets.mind` incluindo `assets/img/buraco-negro.jpg`
-(a foto real do Event Horizon Telescope, primeira foto de um buraco
-negro já tirada, CC BY 4.0) como a 6ª imagem, na mesma ordem das 5 já
-compiladas. **Tentei automatizar a compilação rodando o `OfflineCompiler`
-do próprio pacote npm `mind-ar` em Node** (existe, usa `canvas` pra
-funcionar sem navegador) — mas o `canvas` é um addon nativo que falhou
-ao compilar nesta máquina Windows (sem toolchain de build da
-Microsoft/Python); não valeu a pena instalar isso só pra esse fim, mais
-rápido usar a ferramenta web mesmo quando alguém for recompilar.
+`atualizarBadgesFisica()`. **RA completa**: `targetIndex: 5` no JSON —
+`aluno/assets/targets/targets.mind` foi recompilado incluindo
+`assets/img/buraco-negro.jpg` (a foto real do Event Horizon Telescope,
+primeira foto de um buraco negro já tirada, CC BY 4.0) como a 6ª imagem,
+na mesma ordem das 5 já compiladas (raposa=0, elefante=1, leão=2,
+orrery=3, sistema-solar=4, buraco-negro=5). **Tentei automatizar a
+compilação rodando o `OfflineCompiler` do próprio pacote npm `mind-ar`
+em Node** (existe, usa `canvas` pra funcionar sem navegador) — mas o
+`canvas` é um addon nativo que falhou ao compilar nesta máquina Windows
+(sem toolchain de build da Microsoft/Python); acabei usando a ferramenta
+web mesmo. ⚠️ **Gotcha real encontrado ao automatizar isso via
+Claude in Chrome**: a aba controlada pela extensão fica com
+`document.hidden = true` (Page Visibility API) enquanto a janela real do
+Chrome não está em primeiro plano — o compilador do MindAR usa
+timers/rAF internamente, e o Chrome throttling de abas em segundo plano
+deixou o progresso praticamente parado (22% depois de quase 2h). Nem um
+clique programático na página mudou isso. **Resolvido** simplesmente
+esperando o dono do projeto estar de volta e com a janela do Chrome em
+primeiro plano — nesse caso o mesmo processo (6 imagens) terminou em
+menos de 1 minuto. Lição: automação de página via extensão de browser
+não substitui uma aba de verdade em primeiro plano pra qualquer coisa
+que dependa de throughput de timer/rAF — para tarefas assim, ou manter a
+janela focada durante a automação, ou fazer o passo manualmente.
+
+⚠️ **Histórico: modelo do buraco negro trocado por "jatos" visualmente
+quebrados** (cacos/losangos cinzas com buracos entre eles, nos polos do
+disco de acreção). O primeiro modelo usado ("Black hole" da extinta
+Google Poly, CC BY 3.0, via `static.poly.pizza` — pedido originalmente
+com um modelo do Sketchfab que exige login mesmo sendo CC BY 4.0
+gratuito, `GET /v3/models/<uid>/download` sem auth retorna 401) passava
+limpo em `npm run check-model` (sem esqueleto, sem escala suspeita — não
+é a mesma classe de bug da girafa) e a textura embutida não tinha canal
+alpha (não é bug de transparência/corte). Conclusão: não era um bug
+técnico, era só um asset gratuito com **1.572 triângulos**, poligonal
+demais pra um jato cônico parecer liso num app educacional. **Trocado**
+por "Blackhole" de rubykamen (Sketchfab, CC BY 4.0,
+https://sketchfab.com/3d-models/blackhole-74cbeaeae2174a218fe9455d77902b5c,
+**231.824 triângulos**, baixado direto em `.glb` sem passar por
+conversão OBJ/FBX) — disco de acreção com lente gravitacional, visual
+parecido de propósito com a própria foto do Event Horizon Telescope já
+usada como imagem-alvo desse card. Tamanho de arquivo (8,5MB) na mesma
+faixa do elefante/leão já usados no projeto — não é pesado demais pro
+padrão já aceito. Validado com `npm run check-model` (limpo) e
+visualmente no `<model-viewer>` do painel local antes de trocar. Lição:
+um modelo passar limpo em `check-model.js` só descarta a classe de bug
+"escala/esqueleto desproporcional" — não garante qualidade visual; baixa
+contagem de triângulos pode produzir geometria que lê como "quebrada"
+mesmo sem nenhum bug técnico de verdade.
 
 Pra adicionar:
 - **Matéria nova** (sem conteúdo ainda): um botão `.materia-btn` em
