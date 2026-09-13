@@ -54,6 +54,12 @@ main {
   color: #fff;
 }
 
+.painel-dica {
+  margin: 0 0 var(--space-sm);
+  color: var(--color-text-muted, #666);
+  font-size: 0.9rem;
+}
+
 /* .materias-nav troca qual matéria fica visível (Ciências, Gramática...);
    .subtopicos-nav é o mesmo visual, mas por dentro de uma matéria pra
    trocar subtópico (hoje só Ciências tem: Animais/Astronomia). */
