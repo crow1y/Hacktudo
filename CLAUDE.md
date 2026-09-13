@@ -401,8 +401,9 @@ linguagem que exclua quem não é criança pequena.
   dessa entrada — `isAssetReady()` em `aluno/js/ar.js` exclui esses itens
   da cena de RA até `targetIndex` virar um número real (o card ainda
   aparece completo no painel/ mesmo assim, já que o painel não exige
-  `targetIndex` pronto pra mostrar nada). Ver `buraco-negro` como
-  exemplo real disso hoje.
+  `targetIndex` pronto pra mostrar nada). Foi o caso do `buraco-negro`
+  entre a integração do modelo e a recompilação do `.mind` — ver
+  "Menu de matérias do painel" abaixo pro estado atual.
 - **Reconhecimento é por imagem pré-cadastrada, não por IA/classificação**
   — o MindAR só compara contra a imagem exata que foi compilada no
   `.mind`, não "entende" que é um leão. Isso importa pra qualquer "banco
@@ -572,18 +573,29 @@ mesmas classes (`.astronomia-layout`/`.astronomia-card`/
 `.astronomia-card__badge`/`.astronomia-card__legenda`), só com atributo
 `data-fisica-id` em vez de `data-astronomia-id` (pra não colidir com o
 seletor de `atualizarBadgesAstronomia()`) e sua própria
-`atualizarBadgesFisica()`. **Ainda sem RA de verdade**: `targetIndex:
-null` no JSON (ver "Schema do `content/animals.json`" acima) — falta só
-recompilar `aluno/assets/targets/targets.mind` incluindo
+`atualizarBadgesFisica()`. **RA completa**: `targetIndex: 5` no JSON —
+`aluno/assets/targets/targets.mind` foi recompilado incluindo
 `assets/img/buraco-negro.jpg` (a foto real do Event Horizon Telescope,
 primeira foto de um buraco negro já tirada, CC BY 4.0) como a 6ª imagem,
-na mesma ordem das 5 já compiladas. **Tentei automatizar a compilação
-rodando o `OfflineCompiler` do próprio pacote npm `mind-ar` em Node**
-(existe, usa `canvas` pra funcionar sem navegador) — mas o `canvas` é um
-addon nativo que falhou ao compilar nesta máquina Windows (sem
-toolchain de build da Microsoft/Python); não valeu a pena instalar isso
-só pra esse fim, mais rápido usar a ferramenta web mesmo quando alguém
-for recompilar.
+na mesma ordem das 5 já compiladas (raposa=0, elefante=1, leão=2,
+orrery=3, sistema-solar=4, buraco-negro=5). **Tentei automatizar a
+compilação rodando o `OfflineCompiler` do próprio pacote npm `mind-ar`
+em Node** (existe, usa `canvas` pra funcionar sem navegador) — mas o
+`canvas` é um addon nativo que falhou ao compilar nesta máquina Windows
+(sem toolchain de build da Microsoft/Python); acabei usando a ferramenta
+web mesmo. ⚠️ **Gotcha real encontrado ao automatizar isso via
+Claude in Chrome**: a aba controlada pela extensão fica com
+`document.hidden = true` (Page Visibility API) enquanto a janela real do
+Chrome não está em primeiro plano — o compilador do MindAR usa
+timers/rAF internamente, e o Chrome throttling de abas em segundo plano
+deixou o progresso praticamente parado (22% depois de quase 2h). Nem um
+clique programático na página mudou isso. **Resolvido** simplesmente
+esperando o dono do projeto estar de volta e com a janela do Chrome em
+primeiro plano — nesse caso o mesmo processo (6 imagens) terminou em
+menos de 1 minuto. Lição: automação de página via extensão de browser
+não substitui uma aba de verdade em primeiro plano pra qualquer coisa
+que dependa de throughput de timer/rAF — para tarefas assim, ou manter a
+janela focada durante a automação, ou fazer o passo manualmente.
 
 ⚠️ **Histórico: modelo do buraco negro trocado por "jatos" visualmente
 quebrados** (cacos/losangos cinzas com buracos entre eles, nos polos do

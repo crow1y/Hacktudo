@@ -65,10 +65,8 @@ tem uma variação: em vez de ficar em pé no chão, fica flutuando no ar
 numa altura que o próprio aluno ajusta com dois botões, já que
 representa o espaço, não um bicho. Física mostra um modelo giratório de
 um buraco negro, junto com a mesma foto real usada pelo Event Horizon
-Telescope pra tirar a primeira foto de um buraco negro da história — o
-card já está pronto, mas ainda não é escaneável pelo aluno (falta
-recompilar o arquivo de reconhecimento de imagem, ver pendências
-abaixo).
+Telescope pra tirar a primeira foto de um buraco negro da história —
+também escaneável pelo aluno no celular, igual os animais e Astronomia.
 
 Dentro de Animais, cada bicho é um **link com foto** numa lista. Clicando
 num deles, aparece uma ficha completa (nome científico, classificação,
@@ -114,6 +112,10 @@ projetar a mesma imagem pra turma escanear.
   projeto que não fica "em pé", já que representa o espaço). Validado
   num Three.js isolado simulando a mesma lógica do modo WebXR, mas ainda
   não testado numa sessão de RA de verdade no celular.
+- Física (Buraco Negro) também escaneável pelo aluno, mesmo pipeline —
+  o arquivo de reconhecimento de imagem já foi recompilado incluindo
+  essa foto, mas ainda não testado numa sessão de RA de verdade no
+  celular.
 
 **Ainda em construção:**
 - **Três animais têm conteúdo/RA completos hoje**: raposa (modelo 3D de
@@ -122,10 +124,6 @@ projetar a mesma imagem pra turma escanear.
   ao mesmo tempo, só falta completar o conteúdo de mais espécies.
 - Gramática, Geografia, História, Artes e Química já existem como abas
   no painel do professor, mas ainda sem conteúdo (aviso de "em breve").
-- Física tem conteúdo real (Buraco Negro: modelo, foto e ficha), mas
-  ainda não é reconhecido pela câmera do aluno — falta recompilar o
-  arquivo de reconhecimento de imagem incluindo essa foto (ver
-  pendências abaixo). O card já aparece completo no painel.
 - Algumas ilustrações da página inicial (ícones do carrossel) ainda são
   espaços reservados, sem arte final.
 - Sem patrocínio confirmado ainda — em vez de logos placeholder, a seção
@@ -387,18 +385,17 @@ nunca assumir que a matrícula em si é a chave.
 - [ ] Escolher/gerar as imagens-alvo a partir das páginas reais do livro
       didático (hoje raposa, elefante e leão usam fotos de banco de
       imagem — nenhuma delas é uma página de livro de verdade ainda).
-- [ ] Buraco Negro (Física): modelo 3D ("Blackhole" by rubykamen,
+- [x] Buraco Negro (Física): modelo 3D ("Blackhole" by rubykamen,
       Sketchfab, CC BY 4.0 — trocado de um modelo anterior que tinha só
       1.572 triângulos e visualmente ficava com os "jatos" quebrados/
       poligonais; ver `CLAUDE.md` pra investigação completa) + foto real
       (Event Horizon Telescope, primeira foto de um buraco negro já
-      tirada, CC BY 4.0) + ficha completa já prontos em
-      `content/animals.json` (`materia: "fisica"`). **Falta só
-      recompilar `aluno/assets/targets/targets.mind`** incluindo essa
-      foto como 6ª imagem, junto com as 5 já compiladas (ver
-      `_comment_targetIndexPendente` na entrada `buraco-negro` do JSON
-      pra ordem exata) — até lá o card aparece completo no painel, mas
-      não é reconhecido pela câmera do aluno (`targetIndex: null`).
+      tirada, CC BY 4.0) + ficha completa em `content/animals.json`
+      (`materia: "fisica"`). `aluno/assets/targets/targets.mind`
+      recompilado incluindo essa foto como 6ª imagem, junto com as 5 já
+      existentes — `targetIndex: 5`, reconhecido pela câmera do aluno.
+      Ainda não testado numa sessão de RA de verdade no celular (só
+      confirmado que `isAssetReady()` inclui a entrada agora).
 
 **Segurança antes de uso real em sala de aula:**
 - [ ] Trocar `ADMIN_ACCESS_CODE` (`shared/constants.js`) pelo valor real —
