@@ -635,15 +635,34 @@ si. **Corrigido** compondo a foto original (sem alterar nada nela)
 dentro de uma moldura dourada + faixa de legenda com texto ("BURACO
 NEGRO — M87*" etc., script Python com Pillow) — título/texto tem muitos
 cantos nítidos, exatamente o que faltava. Depois da moldura, o mesmo
-teste deu 535 pontos, na faixa dos outros alvos. `assets/img/
-buraco-negro.jpg` é essa versão com moldura agora (é o mesmo arquivo
+teste deu 535 pontos, na faixa dos outros alvos.
+
+⚠️ **Essa primeira moldura (só texto) não resolveu** — usuário testou de
+novo (numa tela, enquadrando a imagem inteira) e continuava sem
+reconhecer, mesmo com 535 pontos.
+Suspeita: **texto tem cantos repetitivos entre si** (letras parecidas
+geram descritores locais parecidos), diferente da textura orgânica
+(pelo de animal, anéis de órbita) dos alvos que já funcionavam bem —
+"mais pontos" não é a mesma coisa que "pontos distintos o bastante pro
+matching". **Corrigido de novo** adicionando um campo de estrelas real
+(~2.200 pontinhos de tamanho/brilho aleatórios, gerados com
+`random`+`ImageDraw.ellipse`, tema espaço combina) na moldura, mantendo
+a legenda — de 535 pra **891 pontos**, mais que o próprio orrery (1.067,
+e esse já funciona em celular de verdade). `assets/img/buraco-negro.jpg`
+é essa versão (moldura + estrelas + legenda) agora — é o mesmo arquivo
 usado no card do painel E como imagem-alvo pra escanear, como todo o
-resto do projeto) — a foto em si não foi editada/cortada, só ganhou a
-moldura ao redor. Lição: uma imagem-alvo "bonita"/icônica não é a mesma
-coisa que uma imagem *rastreável* — vale desconfiar cedo de fotos muito
-suaves/borradas ou com grandes áreas uniformes (fundo de estúdio liso,
-céu limpo, etc.) como alvo de MindAR, e checar contagem de pontos no
-`.mind` compilado antes de assumir que "não reconhece" é bug de código.
+resto do projeto; a foto em si nunca foi editada/cortada. **Ainda não
+confirmado no celular** depois dessa segunda troca (só validado via
+contagem de pontos no `.mind`, não dá pra simular reconhecimento de
+câmera de verdade sem aparelho físico). Lição: (1) uma imagem-alvo
+"bonita"/icônica não é a mesma coisa que uma imagem *rastreável* — vale
+desconfiar cedo de fotos muito suaves/borradas ou com grandes áreas
+uniformes como alvo de MindAR; (2) ao "consertar" isso adicionando
+elementos artificiais, preferir textura orgânica/aleatória (ruído,
+pontos, padrões) a texto/formas geométricas repetitivas — quantidade de
+pontos não substitui distintividade dos descritores; (3) contagem de
+pontos no `.mind` é um bom primeiro filtro, mas só o teste em aparelho
+real confirma de verdade (mesma lição de sempre nesse projeto).
 
 ⚠️ **Histórico: modelo do buraco negro trocado por "jatos" visualmente
 quebrados** (cacos/losangos cinzas com buracos entre eles, nos polos do
