@@ -647,14 +647,39 @@ geram descritores locais parecidos), diferente da textura orgânica
 matching". **Corrigido de novo** adicionando um campo de estrelas real
 (~2.200 pontinhos de tamanho/brilho aleatórios, gerados com
 `random`+`ImageDraw.ellipse`, tema espaço combina) na moldura, mantendo
-a legenda — de 535 pra **891 pontos**, mais que o próprio orrery (1.067,
-e esse já funciona em celular de verdade). `assets/img/buraco-negro.jpg`
-é essa versão (moldura + estrelas + legenda) agora — é o mesmo arquivo
-usado no card do painel E como imagem-alvo pra escanear, como todo o
-resto do projeto; a foto em si nunca foi editada/cortada. **Ainda não
-confirmado no celular** depois dessa segunda troca (só validado via
-contagem de pontos no `.mind`, não dá pra simular reconhecimento de
-câmera de verdade sem aparelho físico). Lição: (1) uma imagem-alvo
+a legenda — de 535 pra **891 pontos**.
+
+⚠️ **Ainda não resolveu de novo** — usuário testou (numa tela, apontando
+pra imagem inteira com moldura+legenda visíveis) e continuava sem
+reconhecer, com um detalhe importante pra isolar a causa: apontar pra
+imagem da **raposa** reconheceu normalmente no mesmo teste. Isso
+descartou de vez a hipótese de ter quebrado o `.mind` compartilhado
+inteiro (recompilado várias vezes nesse processo) — o problema é
+mesmo específico da imagem do buraco negro. Suspeita nova: as estrelas
+da tentativa anterior eram pequenas (1-3px) numa moldura fina (28px) —
+talvez sutis demais pra resolver na distância/resolução real de
+captura, mesmo contando como "pontos" na imagem-fonte em alta resolução.
+**Terceira tentativa**: moldura bem mais grossa (28px → 90px, +
+legenda de 260px → 340px, mais área pra textura), campo de estrelas bem
+mais denso (~5.000 pontinhos pequenos/médios + ~220 "estrelas
+cintilantes" maiores com uma cruz de brilho, que também dão cantos bem
+definidos), texto sobre uma placa semi-opaca pra continuar legível por
+cima do fundo mais carregado. De 891 pra **2.032 pontos** — bem na
+faixa da raposa (2.283) e do sistema-solar (1.919), os dois já
+confirmados funcionando. `assets/img/buraco-negro.jpg` é essa versão
+(moldura grossa + estrelas densas + legenda) agora — mesmo arquivo pro
+card do painel e pra escanear; a foto em si nunca foi editada/cortada,
+só a moldura ao redor mudou (e cresceu) a cada tentativa. **Ainda não
+confirmado no celular** depois dessa terceira troca — só validado via
+contagem de pontos no `.mind`. Se persistir mesmo assim, a explicação
+deixa de ser "poucos pontos" (2.032 já é uma contagem saudável) e passa
+a ser mais provável um problema mais fundamental de que fotos com fundo
+muito escuro/baixo-contraste-geral simplesmente não são bons alvos pra
+esse detector nesse hardware, mesmo com textura artificial adicionada —
+nesse caso a saída seria não insistir em usar a foto real do EHT como
+alvo de câmera (ela continua podendo aparecer só como imagem
+ilustrativa/ficha, como as outras fotos-fonte fariam se algum dia
+precisassem trocar de alvo). Lição: (1) uma imagem-alvo
 "bonita"/icônica não é a mesma coisa que uma imagem *rastreável* — vale
 desconfiar cedo de fotos muito suaves/borradas ou com grandes áreas
 uniformes como alvo de MindAR; (2) ao "consertar" isso adicionando
