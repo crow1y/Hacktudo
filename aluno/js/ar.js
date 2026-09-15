@@ -28,7 +28,7 @@
 // tempo — precisam de controle exclusivo da câmera — por isso o MindAR é
 // parado antes de entrar em WebXR e reiniciado ao sair.
 
-import { ref, set } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+import { ref, set, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { db } from "../../shared/firebase-config.js";
 import { DB_PATHS } from "../../shared/constants.js";
 
@@ -60,7 +60,7 @@ async function supportsAdvancedAR() {
   }
 }
 
-export async function initAR() {
+export async function initAR(user, perfil) {
   const response = await fetch("../content/animals.json");
   const { targetSrc, animals } = await response.json();
   const readyAnimals = animals.filter(isAssetReady);
@@ -107,6 +107,10 @@ export async function initAR() {
   // #webxr-intro; quem de fato entra no modo WebXR é o clique em
   // "Entendi, continuar" logo abaixo, que precisa lembrar qual animal era.
   let animalPendenteWebxr = null;
+  // Referência do próprio registro em session/viewers/<animalId>/<uid> —
+  // guardada aqui só pra saber o que remover/cancelar em hidePreview,
+  // sem precisar reconstruir o path com o animal antigo.
+  let currentViewerRef = null;
 
   function showPreview(animal) {
     capturedAnimalId = animal.id;
@@ -128,6 +132,15 @@ export async function initAR() {
     }
 
     set(ref(db, DB_PATHS.activeAnimal), animal.id);
+
+    // Deixa o professor ver, ao vivo, quem está em cada modelo agora
+    // (painel/js/main.js lê session/viewers) — onDisconnect garante que
+    // some sozinho se o aluno fechar a aba sem clicar "Escanear outro".
+    if (user && perfil) {
+      currentViewerRef = ref(db, `${DB_PATHS.viewers}/${animal.id}/${user.uid}`);
+      set(currentViewerRef, { nome: perfil.nome, matricula: perfil.matricula, ts: Date.now() });
+      onDisconnect(currentViewerRef).remove();
+    }
   }
 
   function hidePreview() {
@@ -139,6 +152,12 @@ export async function initAR() {
     scanAnotherBtn.hidden = true;
 
     set(ref(db, DB_PATHS.activeAnimal), null);
+
+    if (currentViewerRef) {
+      remove(currentViewerRef);
+      onDisconnect(currentViewerRef).cancel();
+      currentViewerRef = null;
+    }
   }
 
   scanAnotherBtn.addEventListener("click", hidePreview);
