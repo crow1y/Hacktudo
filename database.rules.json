@@ -8,6 +8,16 @@
         ".read": "auth != null",
         ".write": "auth != null",
         ".validate": "newData.val() === null || newData.isString()"
+      },
+
+      "viewers": {
+        "$animalId": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.hasChildren(['nome', 'matricula', 'ts'])"
+          }
+        }
       }
     },
 

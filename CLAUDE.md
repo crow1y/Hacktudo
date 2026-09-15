@@ -414,7 +414,9 @@ linguagem que exclua quem não é criança pequena.
   `isFisica()`, `atualizarBadgesAstronomia()`/`atualizarBadgesFisica()`)
   em vez disso — mesmo pipeline de reconhecimento nos três casos, só
   muda pra qual aba do painel o "ativo agora" aponta. Ver "Menu de
-  matérias do painel" abaixo pro card em si.
+  matérias do painel" abaixo pro card em si. **O selo em si NÃO usa mais
+  `DB_PATHS.activeAnimal`** — ver "Quem está ao vivo em cada modelo"
+  abaixo pro porquê e pro que mudou.
 - `targetIndex: null` (em vez de um número): modelo/imagem já existem,
   mas o `.mind` compartilhado ainda **não foi recompilado** com o alvo
   dessa entrada — `isAssetReady()` em `aluno/js/ar.js` exclui esses itens
@@ -735,6 +737,66 @@ uma vez com `.painel-layout` (ver histórico do git) — `.conteudo-materia-grup
 de propósito não tem nenhum `display` próprio no CSS pra não repetir o
 mesmo bug.
 
+## Quem está ao vivo em cada modelo (`session/viewers`)
+
+Pedido do dono do projeto: o professor queria ver, por modelo, quais
+alunos estão vendo aquilo **naquele segundo** — diferente de
+`DB_PATHS.activeAnimal` (`session/activeAnimal`), que é um valor único
+pro projeto inteiro (só guarda "o último animal que qualquer aluno
+escaneou"), não dá pra saber quantos/quais alunos estão em cada um.
+
+- **Schema**: `session/viewers/<animalId>/<uid>` → `{ nome, matricula,
+  ts }` (ver "Firebase Realtime Database — schema" abaixo). Um nó por
+  animal, um filho por aluno vendo ele agora.
+- **Aluno escreve** (`aluno/js/ar.js`, `showPreview()`/`hidePreview()`):
+  grava o próprio registro quando o cartão de prévia aparece pra um
+  animal, remove quando clica "🔄 Escanear outro". Registra também
+  `onDisconnect(viewerRef).remove()` — **crucial**, porque é o que
+  garante que o registro some sozinho se o aluno só fechar a aba/
+  navegador sem clicar em nada (o caso mais comum). Precisa do perfil do
+  aluno (nome/matrícula) carregado antes de gravar — por isso
+  `aluno/js/main.js` só chama `initAR(user, perfil)` depois que
+  `ouvirPerfil()` resolve (antes, `initAR()` rodava sem esperar o
+  perfil, já que só cuidava da câmera).
+- **Painel lê** (`painel/js/main.js`): um único `onValue(ref(db,
+  DB_PATHS.viewers), ...)` no nó inteiro (poucos alunos simultâneos no
+  hackathon, não compensa um listener por animal), reconstruindo um
+  `Map<animalId, Array<{nome, matricula}>>` (`viewersByAnimalId`) a cada
+  mudança. Cada modelo (itens da lista de Animais E os cards fixos de
+  Astronomia/Física) ganhou um bloco `.viewers-bloco` com botão
+  "👀 Ver quem está ao vivo (N)" / "👀 Ninguém ao vivo agora" que
+  expande uma lista de nomes (`viewersExpandidos`, um `Set` de animalId
+  guardando quais o professor abriu, pra não fechar sozinho a cada
+  atualização — a lista de Animais inteira é recriada via `innerHTML`
+  em todo `renderLista()`).
+
+⚠️ **Motivou um fix separado no selo "🔴 Ativo agora"**: o selo (lista de
+Animais + cards fixos de Astronomia/Física) usava `animalAtivoId`
+(`DB_PATHS.activeAnimal`) — só que esse valor **nunca tinha
+`onDisconnect`**, então se o aluno fechasse o app sem clicar "Escanear
+outro" (o normal), o valor ficava "grudado" no último animal escaneado
+pra sempre, mesmo sem ninguém mais olhando (usuário percebeu isso na
+raposa, testando local). **Corrigido**: `temAlguemAoVivo(animalId)` em
+`painel/js/main.js` (`(viewersByAnimalId.get(animalId)?.length ?? 0) >
+0`) substituiu `animal.id === animalAtivoId` nos três lugares que
+acendiam o selo (`cardAnimalHtml`, `atualizarBadgesAstronomia`,
+`atualizarBadgesFisica`) — como `session/viewers` já tem `onDisconnect`,
+o selo agora desliga sozinho quando o aluno some, e de quebra passa a
+suportar vários modelos "ativos" ao mesmo tempo (um aluno em cada), coisa
+que um valor único nunca conseguiria. `animalAtivoId`/`activeAnimal`
+continuam existindo só pra decidir qual animal abre sozinho no painel de
+detalhes da aba Animais quando alguém escaneia — não tem mais nada a ver
+com o selo.
+
+⚠️ **Ainda depende da regra nova em `database.rules.json` ser colada no
+Firebase Console** (ver gotcha "isso é só o arquivo, não o deploy" em
+"Stack e arquitetura") — testado localmente sem publicar e a escrita deu
+`PERMISSION_DENIED` (esperado: regras publicadas hoje não conhecem
+`session/viewers`). Sem publicar, nada quebra — a escrita do aluno e a
+leitura do painel só falham silenciosamente (erro só no console,
+promises não aguardadas) e os blocos ficam sempre em "Ninguém ao vivo
+agora"/sem selo, como se ninguém nunca escaneasse nada.
+
 ## Presenças do painel
 
 `painel/index.html` tem uma `.painel-tabs` (`.painel-tab-btn`,
@@ -753,6 +815,13 @@ menu de disciplinas) existe justamente pra não reproduzir o motivo
 original da remoção. Se cogitar remover de novo, checar primeiro se o
 motivo é esse mesmo conflito de espaço ou outra coisa.
 
+⚠️ **Decisão confirmada com o usuário**: um pedido de feature por "uma
+aba Check-ins mostrando quem entrou e quem saiu" foi resolvido **sem
+mudar código nenhum** — essa aba "✅ Presenças" já cobre isso (entrada,
+tempo em aula, "🟢 Na aula agora"). Se pedirem "Check-ins" de novo,
+perguntar primeiro se não é só essa aba com outro nome antes de propor
+uma tela nova.
+
 Nada aqui aparece como cronômetro visível pro aluno — é registro
 silencioso só pro professor, seguindo a régua de "não competir pela
 atenção do aluno" (ver "Posicionamento do produto" acima):
@@ -770,10 +839,16 @@ campo.
 ```
 session/
   activeAnimal        → string: id do animal ativo (ou null)
+  viewers/
+    <animalId>/
+      <uid>/  → nome, matricula, ts: number (timestamp de quando o
+                aluno começou a ver esse modelo)
 ```
 
 Paths vêm de `shared/constants.js` (`DB_PATHS`) — sempre importar de lá,
 nunca hardcodear strings soltas nos dois lados (`aluno/` e `painel/`).
+Ver "Quem está ao vivo em cada modelo" acima pro porquê do `viewers` (e
+por que ele NÃO é só uma versão detalhada do `activeAnimal`).
 
 ```
 users/
@@ -850,3 +925,13 @@ aberto, documentado".
   cascata de `.write`/`.validate` em nós aninhados é fácil de errar).
 - `session/activeAnimal`: exige login pra ler/escrever (`auth != null`),
   sem diferenciar papel (aluno escreve, aluno ou professor podem ler).
+- `session/viewers/<animalId>/<uid>`: leitura exige login (`auth !=
+  null`) no nível `<animalId>` (o professor lê o nó `viewers` inteiro de
+  uma vez, ver "Quem está ao vivo em cada modelo" acima). Escrita só do
+  próprio uid (`auth.uid === $uid`), campo a campo não validado — só
+  exige que o registro tenha `nome`/`matricula`/`ts`. **Regra nova,
+  ainda não publicada no Firebase Console** nesta sessão — testado local
+  e deu `PERMISSION_DENIED` na escrita, como esperado (ver gotcha "isso é
+  só o arquivo, não o deploy" em "Stack e arquitetura"). Lembrar de colar
+  o `database.rules.json` atualizado no Console antes de testar essa
+  feature em produção ou até em localhost contra o banco real.

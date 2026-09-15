@@ -13,6 +13,11 @@ export const DB_PATHS = {
   // Presença por dia: presencas/<AAAA-MM-DD>/<uid>. Aluno escreve
   // (entrada/tempo em aula), professor só lê e atualiza `status`.
   presencas: "presencas",
+  // Quem está vendo cada modelo agora, em tempo real:
+  // session/viewers/<animalId>/<uid>. Aluno escreve o próprio registro
+  // (com onDisconnect pra sumir sozinho se fechar o app sem "escanear
+  // outro"), professor só lê — ver aluno/js/ar.js e painel/js/main.js.
+  viewers: "session/viewers",
 };
 
 // Papéis de conta suportados pelo cadastro/login.

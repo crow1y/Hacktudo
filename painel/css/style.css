@@ -212,6 +212,43 @@ main {
   white-space: nowrap;
 }
 
+/* Quem está vendo cada modelo agora (session/viewers) — botão que
+   expande/recolhe uma lista de nomes, reaproveitado tanto nos itens da
+   lista de Animais quanto nos cards fixos de Astronomia/Física. */
+.viewers-bloco {
+  margin-top: var(--space-2xs);
+}
+
+.viewers-toggle {
+  font-size: 0.8rem;
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.viewers-lista {
+  list-style: none;
+  margin: var(--space-3xs) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: var(--color-ink-soft);
+}
+
+.viewers-lista li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2xs);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm, 6px);
+  padding: var(--space-3xs) var(--space-2xs);
+}
+
+.viewers-lista li span {
+  color: var(--color-ink-faint);
+}
+
 .animal-detalhe {
   flex: 2 1 340px;
 }

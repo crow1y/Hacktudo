@@ -8,12 +8,20 @@ const detalheEl = document.getElementById("animal-detalhe");
 
 let animals = [];
 let animalsById = new Map();
-// Dois estados separados de propósito: "ativo" é o que o Firebase diz que
-// algum aluno escaneou agora; "selecionado" é o que aparece no painel de
-// detalhes (segue o ativo automaticamente, mas o professor pode clicar
-// noutro animal da lista pra consultar sem perder o que já apareceu).
+// animalAtivoId (DB_PATHS.activeAnimal) só serve hoje pra escolher qual
+// animal abre sozinho no painel de detalhes quando um aluno escaneia —
+// "selecionado" é o que de fato aparece lá (segue o ativo automaticamente,
+// mas o professor pode clicar noutro da lista pra consultar sem perder o
+// que já tinha aparecido). O selo "🔴 Ativo agora" NÃO usa mais
+// animalAtivoId (ver temAlguemAoVivo() abaixo, baseado em session/viewers).
 let animalAtivoId = null;
 let animalSelecionadoId = null;
+// Quem está vendo cada modelo agora (session/viewers, ver aluno/js/ar.js):
+// Map<animalId, Array<{nome, matricula}>>. "expandidos" guarda quais
+// blocos o professor abriu, pra não fechar sozinho a cada atualização
+// (a lista de Animais é recriada via innerHTML em toda renderLista()).
+let viewersByAnimalId = new Map();
+const viewersExpandidos = new Set();
 
 async function loadAnimals() {
   const response = await fetch("../content/animals.json");
@@ -38,6 +46,31 @@ function isFisica(animal) {
   return animal.materia === "fisica";
 }
 
+// "Ativo agora" precisa ser por modelo (alguém vendo ESSE agora), não o
+// DB_PATHS.activeAnimal global — esse só guarda o último animal
+// escaneado por QUALQUER aluno e nunca é limpo se o aluno fechar o app
+// sem clicar "Escanear outro" (sem onDisconnect nesse path), então
+// ficava "grudado" mostrando ativo pra sempre. session/viewers já tem
+// onDisconnect (ver aluno/js/ar.js) — usar ele aqui resolve isso de
+// graça, e de quebra já suporta vários animais "ativos" ao mesmo tempo
+// (um aluno em cada), o que activeAnimal (um valor só) nunca conseguiria.
+function temAlguemAoVivo(animalId) {
+  return (viewersByAnimalId.get(animalId)?.length ?? 0) > 0;
+}
+
+// Bloco reaproveitado tanto nos itens da lista de Animais (gerados aqui)
+// quanto nos cards fixos de Astronomia/Física (já no HTML, ver
+// painel/index.html) — os dois só levam data-viewers-for="<animalId>",
+// atualizarViewersBlocos() abaixo escreve o conteúdo real dos dois iguais.
+function viewersBlocoHtml(animalId) {
+  return `
+    <div class="viewers-bloco" data-viewers-for="${animalId}">
+      <button type="button" class="btn-link viewers-toggle" data-viewers-toggle="${animalId}">👀 Ninguém ao vivo agora</button>
+      <ul class="viewers-lista" hidden></ul>
+    </div>
+  `;
+}
+
 function cardAnimalHtml(animal) {
   const imagemHtml = animal.imagem
     ? `<img src="${animal.imagem}" alt="" />`
@@ -50,8 +83,9 @@ function cardAnimalHtml(animal) {
       <button type="button" class="${classes.join(" ")}" data-animal-id="${animal.id}">
         ${imagemHtml}
         <span class="animal-link__nome">${animal.nome}</span>
-        ${animal.id === animalAtivoId ? '<span class="animal-link__badge">🔴 Ativo agora</span>' : ""}
+        ${temAlguemAoVivo(animal.id) ? '<span class="animal-link__badge">🔴 Ativo agora</span>' : ""}
       </button>
+      ${viewersBlocoHtml(animal.id)}
     </li>
   `;
 }
@@ -61,7 +95,42 @@ function renderLista() {
     .filter((animal) => !isAstronomia(animal) && !isFisica(animal))
     .map(cardAnimalHtml)
     .join("");
+  atualizarViewersBlocos();
 }
+
+// Escreve o conteúdo real (contagem + lista de nomes) em todo
+// .viewers-bloco da página, seja o gerado dinamicamente (Animais) ou o
+// fixo no HTML (Astronomia/Física) — chamado sempre que session/viewers
+// muda OU a lista de Animais é recriada (senão os blocos novos ficam no
+// texto padrão "Ninguém ao vivo agora").
+function atualizarViewersBlocos() {
+  document.querySelectorAll(".viewers-bloco[data-viewers-for]").forEach((blocoEl) => {
+    const animalId = blocoEl.dataset.viewersFor;
+    const viewers = viewersByAnimalId.get(animalId) ?? [];
+    const expandido = viewersExpandidos.has(animalId);
+
+    const botao = blocoEl.querySelector(".viewers-toggle");
+    botao.textContent =
+      viewers.length > 0 ? `👀 Ver quem está ao vivo (${viewers.length})` : "👀 Ninguém ao vivo agora";
+
+    const lista = blocoEl.querySelector(".viewers-lista");
+    lista.innerHTML = viewers
+      .map((v) => `<li>${v.nome ?? "Aluno"} <span>${v.matricula ?? ""}</span></li>`)
+      .join("");
+    lista.hidden = !(expandido && viewers.length > 0);
+  });
+}
+
+document.addEventListener("click", (event) => {
+  const botao = event.target.closest("[data-viewers-toggle]");
+  if (!botao) return;
+  const animalId = botao.dataset.viewersToggle;
+
+  if (viewersExpandidos.has(animalId)) viewersExpandidos.delete(animalId);
+  else viewersExpandidos.add(animalId);
+
+  atualizarViewersBlocos();
+});
 
 // Acende/apaga o selo "🔴 Ativo agora" nos cards fixos de Astronomia
 // (painel/index.html, #astronomia-info) — equivalente ao badge da lista
@@ -69,7 +138,7 @@ function renderLista() {
 function atualizarBadgesAstronomia() {
   document.querySelectorAll(".astronomia-card[data-astronomia-id]").forEach((card) => {
     const badge = card.querySelector(".astronomia-card__badge");
-    if (badge) badge.hidden = card.dataset.astronomiaId !== animalAtivoId;
+    if (badge) badge.hidden = !temAlguemAoVivo(card.dataset.astronomiaId);
   });
 }
 
@@ -79,7 +148,7 @@ function atualizarBadgesAstronomia() {
 function atualizarBadgesFisica() {
   document.querySelectorAll(".astronomia-card[data-fisica-id]").forEach((card) => {
     const badge = card.querySelector(".astronomia-card__badge");
-    if (badge) badge.hidden = card.dataset.fisicaId !== animalAtivoId;
+    if (badge) badge.hidden = !temAlguemAoVivo(card.dataset.fisicaId);
   });
 }
 
@@ -247,6 +316,21 @@ export async function startApp() {
   renderDetalhe(null);
   atualizarBadgesAstronomia();
   atualizarBadgesFisica();
+
+  // session/viewers/<animalId>/<uid> inteiro de uma vez (poucos alunos
+  // simultâneos no hackathon, não compensa um listener por animal) —
+  // reconstrói o Map inteiro a cada mudança e atualiza todos os blocos.
+  onValue(ref(db, DB_PATHS.viewers), (snapshot) => {
+    const data = snapshot.val() ?? {};
+    viewersByAnimalId = new Map(
+      Object.entries(data).map(([animalId, porUid]) => [animalId, Object.values(porUid ?? {})])
+    );
+    // Os badges "🔴 Ativo agora" (lista de Animais e cards fixos) também
+    // dependem de viewersByAnimalId agora — precisam recalcular junto.
+    renderLista();
+    atualizarBadgesAstronomia();
+    atualizarBadgesFisica();
+  });
 
   onValue(ref(db, DB_PATHS.activeAnimal), (snapshot) => {
     animalAtivoId = snapshot.val();
